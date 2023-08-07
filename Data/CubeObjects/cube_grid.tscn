@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cf6xiogjc57mn"]
+
+[ext_resource type="Script" path="res://Data/CubeObjects/cube_grid.cs" id="1_jjtij"]
+
+[node name="CubeGrid" type="RigidBody3D"]
+script = ExtResource("1_jjtij")

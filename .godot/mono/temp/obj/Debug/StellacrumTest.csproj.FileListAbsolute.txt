@@ -1,0 +1,17 @@
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\StellacrumTest.deps.json
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\StellacrumTest.runtimeconfig.json
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\StellacrumTest.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\StellacrumTest.pdb
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\GodotSharp.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Debug\GodotSharpEditor.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.csproj.AssemblyReference.cache
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.AssemblyInfoInputs.cache
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.AssemblyInfo.cs
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.csproj.CoreCompileInputs.cache
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.csproj.CopyComplete
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\refint\StellacrumTest.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.pdb
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\StellacrumTest.genruntimeconfig.cache
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Debug\ref\StellacrumTest.dll

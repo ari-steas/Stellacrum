@@ -1,0 +1,155 @@
+[gd_scene load_steps=6 format=3 uid="uid://dmxjww23od5xe"]
+
+[ext_resource type="Texture2D" uid="uid://cdguqt6lrqntg" path="res://Assets/Images/GUI/MenuBackground.png" id="1_38du2"]
+[ext_resource type="Script" path="res://Data/MenuScenes/saves_menu.cs" id="1_oko0n"]
+[ext_resource type="Script" path="res://Data/MenuScenes/ItemList.cs" id="3_tjxin"]
+[ext_resource type="Script" path="res://Data/MenuScenes/SaveInfoContainer.cs" id="4_nu6ry"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6u38m"]
+
+[node name="SavesMenu" type="CanvasLayer"]
+script = ExtResource("1_oko0n")
+
+[node name="MenuBackground" type="TextureRect" parent="."]
+z_index = -1
+z_as_relative = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_38du2")
+expand_mode = 3
+stretch_mode = 1
+
+[node name="ColorMenuBackground" type="ColorRect" parent="."]
+z_index = -2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="SaveContainer" type="VBoxContainer" parent="."]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 26.0
+offset_right = 950.0
+offset_bottom = -16.0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SavesLabel" type="Label" parent="SaveContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "Saves"
+horizontal_alignment = 1
+
+[node name="SavesList" type="ItemList" parent="SaveContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 28
+theme_override_styles/panel = SubResource("StyleBoxEmpty_6u38m")
+auto_height = true
+script = ExtResource("3_tjxin")
+
+[node name="SaveInfoContainer" type="VBoxContainer" parent="."]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -950.0
+offset_top = 26.0
+offset_right = -50.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("4_nu6ry")
+
+[node name="WorldInformation" type="Label" parent="SaveInfoContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "World Information"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="SaveInfoContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "No Item Selected..."
+
+[node name="InfoContainer" type="GridContainer" parent="SaveInfoContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="DateModifiedLabel" type="Label" parent="SaveInfoContainer/InfoContainer"]
+layout_mode = 2
+text = "MODIFIED ON: "
+
+[node name="DateCreatedLabel" type="Label" parent="SaveInfoContainer/InfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CREATED ON:"
+
+[node name="SizeLabel" type="Label" parent="SaveInfoContainer/InfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SIZE: "
+
+[node name="DescriptionLabel" type="Label" parent="SaveInfoContainer/InfoContainer"]
+layout_mode = 2
+text = "DESCRIPTION: "
+
+[node name="TextureRect" type="TextureRect" parent="SaveInfoContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+stretch_mode = 3
+
+[node name="ColorRect" type="ColorRect" parent="SaveInfoContainer/TextureRect"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.298039, 0.298039, 0.298039, 1)
+
+[node name="ButtonContainer" type="HBoxContainer" parent="SaveInfoContainer"]
+layout_mode = 2
+theme_override_constants/separation = 300
+
+[node name="DeleteWorldButton" type="Button" parent="SaveInfoContainer/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Delete World"
+
+[node name="LoadWorldButton" type="Button" parent="SaveInfoContainer/ButtonContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Load World"
+
+[node name="BackButton" type="Button" parent="."]
+z_index = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -63.0
+offset_right = 100.0
+offset_bottom = -10.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "BACK"
+
+[connection signal="visibility_changed" from="." to="." method="OnVisibilityChanged"]
+[connection signal="ShowWorld" from="SaveContainer/SavesList" to="SaveInfoContainer" method="_ShowWorld"]
+[connection signal="pressed" from="SaveInfoContainer/ButtonContainer/LoadWorldButton" to="." method="_StartGame"]
+[connection signal="pressed" from="BackButton" to="." method="_GoToMenu" binds= [1]]

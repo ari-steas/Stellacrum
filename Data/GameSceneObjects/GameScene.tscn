@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://bxf3scuytmh4d"]
+
+[ext_resource type="Script" path="res://Data/GameSceneObjects/GameScene.cs" id="1_35xrp"]
+[ext_resource type="PackedScene" uid="uid://b1nm08junp3js" path="res://Data/GameSceneObjects/hud_scene.tscn" id="2_xmm7q"]
+[ext_resource type="PackedScene" uid="uid://cey0g83qn2irp" path="res://Data/GameSceneObjects/player_character.tscn" id="3_haeno"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_l7nvm"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qab2l"]
+size = Vector3(50, 1, 50)
+
+[node name="GameScene" type="Node3D"]
+script = ExtResource("1_35xrp")
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("3_haeno")]
+
+[node name="HudScene" parent="PlayerCharacter" instance=ExtResource("2_xmm7q")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.35869, 0)
+mesh = SubResource("BoxMesh_l7nvm")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.35869, 0)
+shape = SubResource("BoxShape3D_qab2l")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0)
+
+[connection signal="DampenersToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleDampeners"]
+[connection signal="LightToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleLight"]
+[connection signal="ThirdPersonToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleThirdPerson"]

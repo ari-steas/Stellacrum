@@ -1,0 +1,25 @@
+{
+	"ArmorBlock":{
+		"Model":"ArmorBlock1x1",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock1x1.png"
+	},
+
+	"ArmorBlockSlope":{
+		"Model":"ArmorBlock1x1Slope",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock1x1Slope.png"
+	},
+
+	"ArmorBlockSlopeCorner":{
+		"Model":"ArmorBlock1x1SlopeCorner",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock1x1SlopeCorner.png"
+	},
+
+	"ArmorBlockSlopeCornerInv":{
+		"Model":"ArmorBlock1x1SlopeCornerInv",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock1x1SlopeCornerInv.png"
+	}
+}
