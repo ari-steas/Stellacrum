@@ -4,5 +4,3 @@
 
 [node name="CubeGrid" type="RigidBody3D"]
 script = ExtResource("1_jjtij")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]

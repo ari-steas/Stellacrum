@@ -54,7 +54,7 @@ public partial class player_character : CharacterBody3D
 		
 		if (interactCast.IsColliding())
 		{
-			if ((interactCast.GetCollider() as Node3D).GetParent() is CubeGrid grid)
+			if (interactCast.GetCollider() is CubeGrid grid)
 			{
 				if (!justLookedAtGrid)
 				{
@@ -126,7 +126,7 @@ public partial class player_character : CharacterBody3D
 			
 			if (Input.IsActionJustPressed("MousePressR"))
 			{
-				scene.RemoveBlock();
+				scene.RemoveBlock(interactCast);
 				nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
 			}
 		}
@@ -163,7 +163,7 @@ public partial class player_character : CharacterBody3D
 		if (PlayerPlaceBox.IsHoldingBlock)
 		{
 			// Rotate 90 degrees when looking at grid
-			if (interactCast.GetCollider() is CubeBlock)
+			if (interactCast.GetCollider() is CubeGrid)
 			{
 				if (Input.IsActionJustPressed("BlockRotateX+"))
 					PlayerPlaceBox.RotateObjectLocal(Vector3.Right, nd);

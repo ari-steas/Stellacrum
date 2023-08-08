@@ -48,7 +48,7 @@ public partial class GameScene : Node3D
 
 	private void SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation)
 	{
-		if (!IsShapeEmpty(position, CubeBlockLoader.FromId(blockId).collision.Shape))
+		if (!IsShapeEmpty(position, CubeBlockLoader.FromId(blockId).collision))
 			return;
 
 		CubeGrid newGrid = new()
@@ -69,7 +69,7 @@ public partial class GameScene : Node3D
 	{
 		if (cast.IsColliding())
 		{
-			if ((cast.GetCollider() as Node3D).GetParent() is CubeGrid grid)
+			if (cast.GetCollider() is CubeGrid grid)
 			{
 				grid.AddBlock(cast, rotation, blockId);
 				return;
@@ -79,13 +79,13 @@ public partial class GameScene : Node3D
 		SpawnGridWithBlock(blockId, cast.ToGlobal(cast.TargetPosition), rotation);
 	}
 
-	public void RemoveBlock()
+	public void RemoveBlock(RayCast3D ray)
 	{
-		if (playerCharacter.interactCast.IsColliding())
+		if (ray.IsColliding())
 		{
-			if ((playerCharacter.interactCast.GetCollider() as Node3D).GetParent() is CubeGrid grid)
+			if (ray.GetCollider() is CubeGrid grid)
 			{
-				grid.RemoveBlock(playerCharacter.interactCast);
+				grid.RemoveBlock(ray);
 
 				if (grid.size.Size.IsEqualApprox(Vector3.Zero))
 					gridsToRemove.Add(grid);

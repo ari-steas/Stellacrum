@@ -6,12 +6,10 @@ public partial class CubeGrid : RigidBody3D
 {
 	public Aabb size { get; private set; } = new Aabb();
 	private readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
-	private CollisionObject3D collision;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		collision = FindChild("CollisionShape3D") as CollisionObject3D;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -48,7 +46,10 @@ public partial class CubeGrid : RigidBody3D
 			block.Rotation = rotation;
 			AddChild(block);
 			CubeBlocks.Add(position, block);
-			collision.ShapeOwnerAddShape(0, block.collision.Shape);
+
+			block.collisionId = CreateShapeOwner(this);
+			ShapeOwnerAddShape(block.collisionId, block.collision);
+			ShapeOwnerSetTransform(block.collisionId, block.Transform);
 
 			RecalcSize();
 			DebugDraw.Text($"Placed block @ {position} ({block.GetType()})", 5);
@@ -73,6 +74,7 @@ public partial class CubeGrid : RigidBody3D
 	{
 		if (CubeBlocks.ContainsKey(position))
 		{
+			RemoveShapeOwner(CubeBlocks[position].collisionId);
 			RemoveChild(CubeBlocks[position]);
 			CubeBlocks.Remove(position);
 
@@ -105,7 +107,6 @@ public partial class CubeGrid : RigidBody3D
 			
 		}
 
-		//GD.Print(size + " -> " + new Aabb(min, max));
 		size = new Aabb(min, max);
 	}
 
@@ -117,14 +118,6 @@ public partial class CubeGrid : RigidBody3D
 	public Vector3 PlaceProjectionGlobal(Vector3 from, Vector3 to)
 	{
 		Aabb box = BoundingBox();
-		//rotate += 1f/60f;
-		//Vector3 r = Vector3.Up.Rotated(Vector3.Right, rotate);
-		//Vector3 pos = box.GetSupport(r);
-		//
-		//DebugDraw.Point(pos);
-		//DebugDraw.Line(box.GetCenter(), box.GetCenter() + r);
-		//DebugDraw.Text(rotate + ", " + pos);
-		//DebugDraw.Text("Looking at " + GlobalToBlockCoord(to));
 
 		for (int i = 0; i < 8; i++)
 			DebugDraw.Point(box.GetEndpoint(i), 0.5f, Colors.Red);

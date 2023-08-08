@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public partial class CubeBlock : StaticBody3D
 {
-	public CollisionShape3D collision = new();
+	public Shape3D collision;
+	public uint collisionId = 0;
 	public List<MeshInstance3D> meshes;
 	public string subTypeId = "";
 	public Vector3 size = Vector3.One*2.5f;
@@ -37,13 +38,12 @@ public partial class CubeBlock : StaticBody3D
 	{
 		this.meshes = meshes;
 		this.size = size;
+		this.subTypeId = subTypeId;
 
-		BoxShape3D b = new ()
+		collision = new BoxShape3D()
 		{
 			Size = size
 		};
-		collision.Shape = b;
-		AddChild(collision);
 
 		foreach (MeshInstance3D mesh in meshes)
 			AddChild(mesh.Duplicate());
@@ -57,8 +57,7 @@ public partial class CubeBlock : StaticBody3D
 		{
 			Size = new Vector3(2.5f, 2.5f, 2.5f)
 		};
-		collision.Shape = b;
-		AddChild(collision);
+		collision = b;
 
 		BoxMesh bm = new ()
 		{
@@ -71,7 +70,7 @@ public partial class CubeBlock : StaticBody3D
 
 		Position = (Vector3) gridPosition * 2.5f;
 
-		Name = "CubeBlock." + GetIndex();
+		Name = "CubeBlock." + subTypeId + "." + GetIndex();
 	}
 
 	public CubeBlock() {}
@@ -91,6 +90,12 @@ public partial class CubeBlock : StaticBody3D
 	{
 		CubeBlock b = (CubeBlock) Duplicate();
 		b.Position = Vector3.Zero;
+		b.collision = collision;
+		b.collisionId = collisionId;
+		b.subTypeId = subTypeId;
+		b.size = size;
+
+		b.Name = "CubeBlock." + subTypeId + "." + b.GetIndex();
 		return b;
 	}
 
