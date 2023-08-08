@@ -4,13 +4,36 @@ using System.Collections.Generic;
 
 public partial class ThrusterBlock : CubeBlock
 {
-    public static ThrusterBlock Create(CubeBlock c)
+    public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
     {
-        return (ThrusterBlock) c;
+        ThrusterBlock block = FromCubeBlock(base.Init(subTypeId, blockData));
+        GD.Print("HAHA THURST");
+
+        return block;
     }
 
     public override void _Process(double delta)
 	{
-        DebugDraw.Text("HI " + Name);
+        GetParent<CubeGrid>().LinearVelocity += Quaternion * Vector3.Forward;
+	}
+
+    public ThrusterBlock FromCubeBlock(CubeBlock c)
+	{
+		ThrusterBlock block = new()
+        {
+            collision = c.collision,
+            meshes = c.meshes,
+            subTypeId = c.subTypeId,
+            size = c.size,
+            Name = c.Name
+        };
+
+        foreach (var child in c.GetChildren())
+        {
+            c.RemoveChild(child);
+            block.AddChild(child);
+        }
+
+		return block;
 	}
 }

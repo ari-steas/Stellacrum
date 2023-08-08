@@ -2,20 +2,22 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class CubeGrid : Node3D
+public partial class CubeGrid : RigidBody3D
 {
 	public Aabb size { get; private set; } = new Aabb();
 	private readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
+	private CollisionObject3D collision;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		collision = FindChild("CollisionShape3D") as CollisionObject3D;
 	}
 
-	float rotate = 0;
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		
 	}
 
 	public Aabb BoundingBox()
@@ -35,7 +37,7 @@ public partial class CubeGrid : Node3D
 
 	public void AddBlock(Vector3I position, Vector3 rotation, string blockId)
 	{
-		AddBlock(position, rotation, CubeBlock.BlockFromID(blockId));
+		AddBlock(position, rotation, CubeBlockLoader.FromId(blockId).Copy());
 	}
 
 	public void AddBlock(Vector3I position, Vector3 rotation, CubeBlock block)
@@ -46,9 +48,10 @@ public partial class CubeGrid : Node3D
 			block.Rotation = rotation;
 			AddChild(block);
 			CubeBlocks.Add(position, block);
+			collision.ShapeOwnerAddShape(0, block.collision.Shape);
 
 			RecalcSize();
-			DebugDraw.Text("Placed block @ " + position, 5);
+			DebugDraw.Text($"Placed block @ {position} ({block.GetType()})", 5);
 		}
 		else
 		{

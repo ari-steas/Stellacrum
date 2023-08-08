@@ -46,7 +46,7 @@ public partial class GameScene : Node3D
 		}
 	}
 
-	private void SpawnGridWithBlock(Vector3 position, Vector3 rotation, string blockId)
+	private void SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation)
 	{
 		if (!IsShapeEmpty(position, CubeBlockLoader.FromId(blockId).collision.Shape))
 			return;
@@ -76,7 +76,7 @@ public partial class GameScene : Node3D
 			}
 		}
 
-		SpawnGridWithBlock(cast.ToGlobal(cast.TargetPosition), rotation, blockId);
+		SpawnGridWithBlock(blockId, cast.ToGlobal(cast.TargetPosition), rotation);
 	}
 
 	public void RemoveBlock()

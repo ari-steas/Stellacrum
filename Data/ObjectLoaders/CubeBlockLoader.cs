@@ -30,7 +30,7 @@ public class CubeBlockLoader
 				GD.PrintErr(e);
 			}
 		}
-
+		
 		GD.Print($"Loaded {CubeBlocks.Count} CubeBlocks.\n\n");
 	}
 
@@ -77,32 +77,10 @@ public class CubeBlockLoader
 			if (CubeBlocks.ContainsKey(subTypeId))
 			    continue;
 				
-			List<MeshInstance3D> model = ModelLoader.Models["ArmorBlock1x1"];
-			Vector3 size = Vector3.One*2.5f;
 			Texture2D texture = TextureLoader.Get("missing.png");
 			Type type = typeof(CubeBlock);
 
 			var blockData = allData[subTypeId];
-
-			// Load model from ModelLoader
-			try
-			{
-				model = ModelLoader.Models[(string) blockData["Model"]];
-			}
-			catch
-			{
-				GD.PrintErr($"Missing [Model] in {path}! Setting to default...");
-			}
-
-			// Calc BlockSize
-			try
-			{
-				int[] bSize = blockData["BlockSize"].AsInt32Array();
-				size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
-			}
-			catch {
-				GD.PrintErr($"Missing [Size] in {path}! Setting to default...");
-			}
 
 			// Find image from ImageLoader
 			try
@@ -124,12 +102,19 @@ public class CubeBlockLoader
 				GD.PrintErr($"Missing [Type] in {path}! Setting to default...");
 			}
 
-			var cube = Activator.CreateInstance(type);
 
 			CubeBlockTextures.Add(subTypeId, texture);
 
-			CubeBlocks.Add(subTypeId, (CubeBlock) cube);
-			GD.Print("Loaded block \"" + subTypeId + "\", typeof " + cube.GetType().FullName + ".");
+			dynamic cube = Activator.CreateInstance(type);
+			
+			if (type == typeof(CubeBlock) || type.IsSubclassOf(typeof(CubeBlock))) {
+				CubeBlocks.Add(subTypeId, cube.Init(subTypeId, blockData));
+				GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
+        	}
+			else
+			{
+				GD.PrintErr($"Type {type.Name} does not inherit CubeBlock!");
+			}
 		}
 	}
 }

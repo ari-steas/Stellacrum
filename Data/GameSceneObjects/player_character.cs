@@ -85,7 +85,8 @@ public partial class player_character : CharacterBody3D
 			}
 		}
 
-		PlayerPlaceBox.GlobalPosition = lookPosition;
+		if (PlayerPlaceBox.IsInsideTree())
+			PlayerPlaceBox.GlobalPosition = lookPosition;
     }
 
 	private Vector3 SnapLocal(Vector3 rotation)

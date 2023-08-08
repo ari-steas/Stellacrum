@@ -2,6 +2,7 @@
     "ThrusterSmall":{
         "Model":"ThrusterSmall",
         "BlockSize":[1, 1, 1],
+        "Icon":"ArmorBlock1x1SlopeCornerInv.png",
         "TypeId":"ThrusterBlock"
     }
 }

@@ -2,24 +2,28 @@
 	"ArmorBlock":{
 		"Model":"ArmorBlock1x1",
 		"BlockSize":[1, 1, 1],
-		"Icon":"ArmorBlock1x1.png"
+		"Icon":"ArmorBlock1x1.png",
+		"TypeId":"CubeBlock"
 	},
 
 	"ArmorBlockSlope":{
 		"Model":"ArmorBlock1x1Slope",
 		"BlockSize":[1, 1, 1],
-		"Icon":"ArmorBlock1x1Slope.png"
+		"Icon":"ArmorBlock1x1Slope.png",
+		"TypeId":"CubeBlock"
 	},
 
 	"ArmorBlockSlopeCorner":{
 		"Model":"ArmorBlock1x1SlopeCorner",
 		"BlockSize":[1, 1, 1],
-		"Icon":"ArmorBlock1x1SlopeCorner.png"
+		"Icon":"ArmorBlock1x1SlopeCorner.png",
+		"TypeId":"CubeBlock"
 	},
 
 	"ArmorBlockSlopeCornerInv":{
 		"Model":"ArmorBlock1x1SlopeCornerInv",
 		"BlockSize":[1, 1, 1],
-		"Icon":"ArmorBlock1x1SlopeCornerInv.png"
+		"Icon":"ArmorBlock1x1SlopeCornerInv.png",
+		"TypeId":"CubeBlock"
 	}
 }

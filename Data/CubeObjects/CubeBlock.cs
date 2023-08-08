@@ -4,13 +4,36 @@ using System.Collections.Generic;
 
 public partial class CubeBlock : StaticBody3D
 {
-	public readonly CollisionShape3D collision = new ();
-	public readonly List<MeshInstance3D> meshes = new ();
-	public readonly string subTypeId = "";
+	public CollisionShape3D collision = new();
+	public List<MeshInstance3D> meshes;
+	public string subTypeId = "";
+	public Vector3 size = Vector3.One*2.5f;
 
-	private Vector3 size;
+	public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+	{
+		List<MeshInstance3D> model = ModelLoader.Models["ArmorBlock1x1"];
+		Vector3 size = Vector3.One*2.5f;
 
-	public CubeBlock(string subTypeId, List<MeshInstance3D> meshes, Vector3 size)
+		// Load model from ModelLoader
+		if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string) blockData["Model"]))
+			model = ModelLoader.Models[(string) blockData["Model"]];
+		else
+			GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
+
+		// Calc BlockSize
+		try
+		{
+			int[] bSize = blockData["BlockSize"].AsInt32Array();
+			size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
+		}
+		catch {
+			GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
+		}
+
+		return new (subTypeId, model, size);
+	}
+	
+	private CubeBlock(string subTypeId, List<MeshInstance3D> meshes, Vector3 size)
 	{
 		this.meshes = meshes;
 		this.size = size;
@@ -61,24 +84,17 @@ public partial class CubeBlock : StaticBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		MoveAndCollide(ConstantLinearVelocity * (float)delta);
 	}
 
-	public CubeBlock Copy()
+	public virtual CubeBlock Copy()
 	{
-		return new CubeBlock(subTypeId, meshes, size)
-		{
-			Position = Vector3.Zero
-		};
+		CubeBlock b = (CubeBlock) Duplicate();
+		b.Position = Vector3.Zero;
+		return b;
 	}
 
-	public static CubeBlock BlockFromID(string blockId)
-	{
-		CubeBlock block = CubeBlockLoader.FromId(blockId).Copy();
-
-		return block;
-	}
-
-	public Aabb Size(Vector3I position)
+	public virtual Aabb Size(Vector3I position)
 	{
 		Aabb size = new Aabb(position, Vector3I.One);
 		return size;
