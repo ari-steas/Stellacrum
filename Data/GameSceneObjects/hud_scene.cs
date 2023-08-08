@@ -23,7 +23,7 @@ public partial class hud_scene : CanvasLayer
 		"ArmorBlockSlope",
 		"ArmorBlockSlopeCorner",
 		"ArmorBlockSlopeCornerInv",
-		"",
+		"ThrusterSmall",
 		"",
 		"",
 		"",

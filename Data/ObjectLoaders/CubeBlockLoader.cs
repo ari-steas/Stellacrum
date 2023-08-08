@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+
 
 public class CubeBlockLoader
 {
@@ -78,6 +80,7 @@ public class CubeBlockLoader
 			List<MeshInstance3D> model = ModelLoader.Models["ArmorBlock1x1"];
 			Vector3 size = Vector3.One*2.5f;
 			Texture2D texture = TextureLoader.Get("missing.png");
+			Type type = typeof(CubeBlock);
 
 			var blockData = allData[subTypeId];
 
@@ -111,10 +114,22 @@ public class CubeBlockLoader
 				GD.PrintErr($"Missing [Icon] in {path}! Setting to default...");
 			}
 
+			try
+			{
+				Assembly asm = typeof(CubeBlock).Assembly;
+				type = asm.GetType((string) blockData["TypeId"]);
+			}
+			catch
+			{
+				GD.PrintErr($"Missing [Type] in {path}! Setting to default...");
+			}
+
+			var cube = Activator.CreateInstance(type);
+
 			CubeBlockTextures.Add(subTypeId, texture);
 
-			CubeBlocks.Add(subTypeId, new (subTypeId, model, size));
-			GD.Print("Loaded block \"" + subTypeId + "\".");
+			CubeBlocks.Add(subTypeId, (CubeBlock) cube);
+			GD.Print("Loaded block \"" + subTypeId + "\", typeof " + cube.GetType().FullName + ".");
 		}
 	}
 }

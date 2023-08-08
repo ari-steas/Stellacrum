@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public partial class CubeBlock : StaticBody3D
 {
-	public CollisionShape3D collision { get; private set; } = new ();
-	public List<MeshInstance3D> meshes { get; private set; } = new ();
-	public string subTypeId { get; private set; } = "";
+	public readonly CollisionShape3D collision = new ();
+	public readonly List<MeshInstance3D> meshes = new ();
+	public readonly string subTypeId = "";
 
 	private Vector3 size;
 
@@ -51,7 +51,7 @@ public partial class CubeBlock : StaticBody3D
 		Name = "CubeBlock." + GetIndex();
 	}
 
-	private CubeBlock() {}
+	public CubeBlock() {}
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()

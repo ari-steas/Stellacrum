@@ -17,9 +17,7 @@ public partial class player_character : CharacterBody3D
 	#endregion
 
 
-	private long nextPlaceTime;
-	private Vector3 blockRotation = Vector3.Forward;
-	
+	private long nextPlaceTime;	
 
 	private SpotLight3D light;
 	private Camera3D camera;
@@ -65,9 +63,8 @@ public partial class player_character : CharacterBody3D
 					RemoveChild(PlayerPlaceBox);
 					grid.AddChild(PlayerPlaceBox);
 				
-					Vector3 mod = PlayerPlaceBox.Rotation % nd;
 					// Clamp to 90 degree rotations
-					PlayerPlaceBox.Rotation = PlayerPlaceBox.Rotation - mod;
+					PlayerPlaceBox.Rotation = SnapLocal(PlayerPlaceBox.Rotation);
 				}
 
 				lookPosition = grid.PlaceProjectionGlobal(interactCast);
@@ -94,7 +91,24 @@ public partial class player_character : CharacterBody3D
 	private Vector3 SnapLocal(Vector3 rotation)
 	{
 		Vector3 mod = rotation % nd;
-		return mod;
+
+		// Attempts to round to closest snap rotation
+		if (mod.X > nd/2)
+			rotation.X += nd - mod.X;
+		else
+			rotation.X -= mod.X;
+
+		if (mod.Y > nd/2)
+			rotation.Y += nd - mod.Y;
+		else
+			rotation.Y -= mod.Y;
+
+		if (mod.Z > nd/2)
+			rotation.Z += nd - mod.Z;
+		else
+			rotation.Z -= mod.Z;
+
+		return rotation;
 	}
 
 	private void InputHandler()

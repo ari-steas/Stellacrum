@@ -19,3 +19,4 @@ res://Data/MenuScenes/MenuButtonPivot.cs
 res://Data/MenuScenes/menus.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
+res://Data/CubeObjects/ThrusterBlock.cs
