@@ -7,7 +7,6 @@ public partial class GameScene : Node3D
 	public bool isActive = false;
 
 	private readonly List<CubeGrid> grids = new();
-	private readonly List<CubeGrid> gridsToRemove = new();
 
 	private player_character playerCharacter;
 
@@ -22,12 +21,8 @@ public partial class GameScene : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		foreach (var grid in gridsToRemove)
-		{
-			grids.Remove(grid);
-			RemoveChild(grid);
-		}
-		gridsToRemove.Clear();
+
+		DebugDraw.Text(grids.Count + " CubeGrids");
 	}
 
 	private void _ToggleActive(bool active)
@@ -88,7 +83,10 @@ public partial class GameScene : Node3D
 				grid.RemoveBlock(ray);
 
 				if (grid.size.Size.IsEqualApprox(Vector3.Zero))
-					gridsToRemove.Add(grid);
+				{
+					grid.Close();
+					grids.Remove(grid);
+				}
 			}
 		}
 	}
@@ -125,5 +123,18 @@ public partial class GameScene : Node3D
 		if (ray.IsColliding())
 			return false;
 		return true;
+	}
+
+	public void Close()
+	{
+		foreach (var grid in grids)
+			grid.Close();
+
+		GD.Print("Closed all grids in GameScene.");
+	}
+
+	private void _OnTreeExited()
+	{
+		Close();
 	}
 }

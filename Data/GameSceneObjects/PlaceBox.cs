@@ -15,6 +15,14 @@ public partial class PlaceBox : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		DebugDraw.Text3D("Forward", ToGlobal(Vector3.Forward*1.25f), 0, Colors.Green);
+		DebugDraw.Text3D("Right", ToGlobal(Vector3.Right*1.25f), 0, Colors.Red);
+		DebugDraw.Text3D("Up", ToGlobal(Vector3.Up*1.25f), 0, Colors.Blue);
 	}
 
 	public void SetBlock(string subTypeId)

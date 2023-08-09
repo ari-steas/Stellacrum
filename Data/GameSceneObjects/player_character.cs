@@ -120,7 +120,7 @@ public partial class player_character : CharacterBody3D
 			// TODO: variable distance
 			if (Input.IsActionJustPressed("MousePressL"))
 			{
-				scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.Rotation);
+				scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalRotation);
 				nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
 			}
 			
@@ -181,17 +181,17 @@ public partial class player_character : CharacterBody3D
 			else // Else rotate 90 degrees per second
 			{
 				if (Input.IsActionPressed("BlockRotateX+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Right, ohd);
+					PlayerPlaceBox.Rotate(Vector3.Right, ohd);
 				if (Input.IsActionPressed("BlockRotateX-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Right, -ohd);
+					PlayerPlaceBox.Rotate(Vector3.Right, -ohd);
 				if (Input.IsActionPressed("BlockRotateY+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Up, ohd);
+					PlayerPlaceBox.Rotate(Vector3.Up, ohd);
 				if (Input.IsActionPressed("BlockRotateY-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Up, -ohd);
+					PlayerPlaceBox.Rotate(Vector3.Up, -ohd);
 				if (Input.IsActionPressed("BlockRotateZ+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Forward, ohd);
+					PlayerPlaceBox.Rotate(Vector3.Forward, ohd);
 				if (Input.IsActionPressed("BlockRotateZ-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Forward, -ohd);
+					PlayerPlaceBox.Rotate(Vector3.Forward, -ohd);
 			}
 		}
 	}

@@ -23,6 +23,8 @@ public partial class CubeGrid : RigidBody3D
 		return new Aabb(Position + size.Position*2.5f - Vector3.One*1.25f, size.End*2.5f);
 	}
 
+	#region blocks
+
 	public void AddBlock(RayCast3D ray, Vector3 rotation, string blockId)
 	{
 		AddBlock(ray.GetCollisionPoint() + ray.GetCollisionNormal(), rotation, blockId);
@@ -38,25 +40,25 @@ public partial class CubeGrid : RigidBody3D
 		AddBlock(position, rotation, CubeBlockLoader.FromId(blockId).Copy());
 	}
 
-	public void AddBlock(Vector3I position, Vector3 rotation, CubeBlock block)
+	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
 	{
-		if (!CubeBlocks.ContainsKey(position))
+		if (!CubeBlocks.ContainsKey(position_GridLocal))
 		{
-			block.Position = (Vector3) position*2.5f;
-			block.Rotation = rotation;
 			AddChild(block);
-			CubeBlocks.Add(position, block);
+			CubeBlocks.Add(position_GridLocal, block);
+
+			block.Position = (Vector3) position_GridLocal*2.5f;
+			block.GlobalRotation = rotation;
 
 			block.collisionId = CreateShapeOwner(this);
 			ShapeOwnerAddShape(block.collisionId, block.collision);
 			ShapeOwnerSetTransform(block.collisionId, block.Transform);
 
 			RecalcSize();
-			DebugDraw.Text($"Placed block @ {position} ({block.GetType()})", 5);
 		}
 		else
 		{
-			DebugDraw.Text("Failed to place block @ " + position, 5);
+			DebugDraw.Text("Failed to place block @ " + position_GridLocal, 5);
 		}
 	}
 
@@ -139,6 +141,22 @@ public partial class CubeGrid : RigidBody3D
 
 	public Vector3I GlobalToBlockCoord(Vector3 global)
 	{
-		return (Vector3I) (ToLocal(global)/2.5f).Round();
+		if (!IsInsideTree())
+			return Vector3I.Zero;
+			
+		return LocalToBlockCoord(ToLocal(global));
+	}
+
+	public Vector3I LocalToBlockCoord(Vector3 local)
+	{
+		return (Vector3I) (local/2.5f).Round();
+	}
+
+	#endregion
+
+	public void Close()
+	{
+		foreach (var block in CubeBlocks)
+			RemoveShapeOwner(block.Value.collisionId);
 	}
 }

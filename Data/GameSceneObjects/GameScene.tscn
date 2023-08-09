@@ -31,6 +31,7 @@ shape = SubResource("BoxShape3D_qab2l")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0)
 
+[connection signal="tree_exited" from="." to="." method="_OnTreeExited"]
 [connection signal="DampenersToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleDampeners"]
 [connection signal="LightToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleLight"]
 [connection signal="ThirdPersonToggle" from="PlayerCharacter/HudScene" to="PlayerCharacter" method="_ToggleThirdPerson"]

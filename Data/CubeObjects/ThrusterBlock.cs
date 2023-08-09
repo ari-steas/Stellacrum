@@ -14,7 +14,7 @@ public partial class ThrusterBlock : CubeBlock
 
     public override void _Process(double delta)
 	{
-        GetParent<CubeGrid>().LinearVelocity += Quaternion.Inverse() * Vector3.Forward;
+        GetParent<CubeGrid>().LinearVelocity += GlobalTransform.Basis * Vector3.Forward;
 	}
 
     public ThrusterBlock FromCubeBlock(CubeBlock c)
