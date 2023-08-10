@@ -7,8 +7,9 @@ public partial class CubeGrid : RigidBody3D
 	public Aabb Size { get; private set; } = new Aabb();
 	private readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
 	public float Speed { get; private set; } = 0;
+	public readonly List<CockpitBlock> Cockpits = new();
 
-	public Vector3 MovementInput { get; private set; } = Vector3.Zero;
+	public Vector3 MovementInput = Vector3.Zero;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -18,15 +19,6 @@ public partial class CubeGrid : RigidBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (!Input.IsKeyLabelPressed(Key.Alt))
-			return;
-		
-		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
-		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
-
-		Vector3 inputDir = new (horizontalInput.X, verticalInput, horizontalInput.Y);
-
-		MovementInput = inputDir.Normalized();
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -80,6 +72,9 @@ public partial class CubeGrid : RigidBody3D
 
 			RecalcSize();
 			RecalcMass();
+
+			if (block is CockpitBlock c)
+				Cockpits.Add(c);
 		}
 		else
 		{
@@ -109,6 +104,11 @@ public partial class CubeGrid : RigidBody3D
 
 			RecalcSize();
 			RecalcMass();
+
+			if (block is CockpitBlock c)
+			{
+				Cockpits.Remove(c);
+			}
 		}
 	}
 

@@ -110,8 +110,15 @@ public class CubeBlockLoader
 			dynamic cube = Activator.CreateInstance(type);
 			
 			if (type == typeof(CubeBlock) || type.IsSubclassOf(typeof(CubeBlock))) {
-				CubeBlocks.Add(subTypeId, cube.Init(subTypeId, blockData));
-				GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
+				try
+				{
+					CubeBlocks.Add(subTypeId, cube.Init(subTypeId, blockData));
+					GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
+				}
+				catch (Exception e)
+				{
+					GD.PrintErr($"Block {subTypeId} failed to init!\n" + e.Message);
+				}
         	}
 			else
 			{

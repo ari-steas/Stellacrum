@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ModelLoader
 {
-    public static readonly Dictionary<string, List<MeshInstance3D>> Models = new ();
+    public static readonly Dictionary<string, List<Node3D>> Models = new ();
 
     public static void StartLoad(string path)
 	{
@@ -41,12 +41,12 @@ public class ModelLoader
 		Models.Clear();
 	}
 
-    private static List<MeshInstance3D> UnPackScene(PackedScene p)
+    private static List<Node3D> UnPackScene(PackedScene p)
 	{
-		List<MeshInstance3D> meshes = new ();
+		List<Node3D> meshes = new ();
 
 		foreach (var node in p.Instantiate().GetChildren())
-			if (node is MeshInstance3D d)
+			if (node is Node3D d)
 				meshes.Add(d);
 
 		return meshes;

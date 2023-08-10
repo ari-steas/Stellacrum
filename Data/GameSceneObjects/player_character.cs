@@ -64,7 +64,7 @@ public partial class player_character : CharacterBody3D
 					grid.AddChild(PlayerPlaceBox);
 				
 					// Clamp to 90 degree rotations
-					PlayerPlaceBox.Rotation = SnapLocal(PlayerPlaceBox.Rotation);
+					PlayerPlaceBox.SnapLocal();
 				}
 
 				lookPosition = grid.PlaceProjectionGlobal(interactCast);
@@ -89,31 +89,57 @@ public partial class player_character : CharacterBody3D
 			PlayerPlaceBox.GlobalPosition = lookPosition;
     }
 
-	private Vector3 SnapLocal(Vector3 rotation)
+	public override void _PhysicsProcess(double delta)
 	{
-		Vector3 mod = rotation % nd;
+		if (!scene.isActive)
+			return;
 
-		// Attempts to round to closest snap rotation
-		if (mod.X > nd/2)
-			rotation.X += nd - mod.X;
-		else
-			rotation.X -= mod.X;
+		HandleMovement(delta);
+		HandleRotation(delta);
+		lastX = 0;
+		lastY = 0;
+		lastZ = 0;
+	}
 
-		if (mod.Y > nd/2)
-			rotation.Y += nd - mod.Y;
-		else
-			rotation.Y -= mod.Y;
+	public bool IsInCockpit = false;
+	public CubeGrid currentGrid;
+	private void TryEnter(CubeGrid grid)
+	{
+		if (grid.Cockpits.Count > 0)
+		{
+			CockpitBlock closest = grid.Cockpits[0];
+			float closestD = closest.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+			foreach (var cockpit in grid.Cockpits)
+			{
+				float d = cockpit.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+				if (d < closestD)
+				{
+					closestD = d;
+					closest = cockpit;
+				}
+			}
 
-		if (mod.Z > nd/2)
-			rotation.Z += nd - mod.Z;
-		else
-			rotation.Z -= mod.Z;
-
-		return rotation;
+			Position = Vector3.Zero;
+			Rotation = Vector3.Zero;
+			(FindChild("PlayerCollision") as CollisionShape3D).Disabled = true;
+			GetParent().RemoveChild(this);
+			closest.AddChild(this);
+			IsInCockpit = true;
+			currentGrid = grid;
+		}
 	}
 
 	private void InputHandler()
 	{
+		if (Input.IsActionJustPressed("Interact"))
+		{
+			if (!IsInCockpit && interactCast.GetCollider() is CubeGrid grid)
+				TryEnter(grid);
+		}
+
+		if (IsInCockpit)
+			return;            
+
 		// Prevents placing 60 blocks per second. Rate-limited to 6 per second.
 		if (PlayerPlaceBox.IsHoldingBlock && nextPlaceTime < DateTime.Now.Ticks)
 		{
@@ -201,18 +227,6 @@ public partial class player_character : CharacterBody3D
 	// 90 degrees in radians
 	private const float nd = Mathf.Pi/2;
 
-	public override void _PhysicsProcess(double delta)
-	{
-		if (!scene.isActive)
-			return;
-
-		HandleMovement(delta);
-		HandleRotation(delta);
-		lastX = 0;
-		lastY = 0;
-		lastZ = 0;
-	}
-
 	public override void _Input(InputEvent inputEvent)
 	{
 		if (inputEvent is InputEventMouseMotion motion)
@@ -223,42 +237,6 @@ public partial class player_character : CharacterBody3D
 		}
 	}
 
-	private void HandleRotation(double delta)
-	{
-		if (Input.IsActionPressed("RotateClockwise"))
-			lastZ = 1;
-
-		if (Input.IsActionPressed("RotateAntiClockwise"))
-			lastZ = -1;
-
-		RotateObjectLocal(Vector3.Up, (float)(lastX*delta));
-		RotateObjectLocal(Vector3.Right, (float)(lastY*delta));
-		RotateObjectLocal(Vector3.Forward, (float)(lastZ*delta));
-	}
-
-	private void HandleMovement(double delta)
-	{
-		Vector3 velocity = Velocity;
-		
-		// Get the input direction and handle the movement/deceleration.
-		// As good practice, you should replace UI actions with custom gameplay actions.
-
-		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
-		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
-
-		Vector3 inputDir = new (horizontalInput.X, verticalInput, horizontalInput.Y);
-
-
-		Vector3 direction = Quaternion * inputDir;
-		if (direction != Vector3.Zero)
-			velocity += ClampIndividual(direction, 1) * Speed;
-		else if (_dampenersEnabled)
-			velocity = IndividualDampen(velocity, Vector3.Zero, Speed*1.15f);
-		
-		if (!Input.IsKeyLabelPressed(Key.Alt))
-			Velocity = velocity;
-		MoveAndSlide();
-	}
 
 	private void _ToggleDampeners(bool enabled)
 	{
@@ -276,6 +254,49 @@ public partial class player_character : CharacterBody3D
 			camera.Position = new Vector3(0, 0.5f, 0);
 		else
 			camera.Position = new Vector3(0, 1.5f, 3f);
+	}
+
+	#region movement
+
+	private void HandleRotation(double delta)
+	{
+		if (IsInCockpit)
+			return;
+
+		if (Input.IsActionPressed("RotateClockwise"))
+			lastZ = 1;
+
+		if (Input.IsActionPressed("RotateAntiClockwise"))
+			lastZ = -1;
+
+		RotateObjectLocal(Vector3.Up, (float)(lastX*delta));
+		RotateObjectLocal(Vector3.Right, (float)(lastY*delta));
+		RotateObjectLocal(Vector3.Forward, (float)(lastZ*delta));
+	}
+
+	private void HandleMovement(double delta)
+	{
+		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
+		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
+
+		Vector3 inputDir = new (horizontalInput.X, verticalInput, horizontalInput.Y);
+
+		if (IsInCockpit)
+		{
+			currentGrid.MovementInput = inputDir.Clamp(-Vector3.One, Vector3.One);
+			return;
+		}
+
+		Vector3 velocity = Velocity;
+		
+		Vector3 direction = Quaternion * inputDir;
+		if (direction != Vector3.Zero)
+			velocity += ClampIndividual(direction, 1) * Speed;
+		else if (_dampenersEnabled)
+			velocity = IndividualDampen(velocity, Vector3.Zero, Speed*1.15f);
+		
+		Velocity = velocity;
+		MoveAndSlide();
 	}
 
 	private Vector3 IndividualDampen(Vector3 vel, Vector3 endVel, float delta)
@@ -317,4 +338,6 @@ public partial class player_character : CharacterBody3D
 
         return vec;
 	}
+
+	#endregion
 }

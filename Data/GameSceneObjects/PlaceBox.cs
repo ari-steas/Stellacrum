@@ -20,6 +20,8 @@ public partial class PlaceBox : Node3D
 
 	public override void _PhysicsProcess(double delta)
 	{
+		if (!Visible)
+			return;
 		DebugDraw.Text3D("Forward", ToGlobal(Vector3.Forward*1.25f), 0, Colors.Green);
 		DebugDraw.Text3D("Right", ToGlobal(Vector3.Right*1.25f), 0, Colors.Red);
 		DebugDraw.Text3D("Up", ToGlobal(Vector3.Up*1.25f), 0, Colors.Blue);
@@ -66,4 +68,30 @@ public partial class PlaceBox : Node3D
 		}
 		GD.Print("Set held block to " + subTypeId);
 	}
+
+	public void SnapLocal()
+	{
+		Vector3 rotation = Rotation;
+		Vector3 mod = rotation % nd;
+
+		// Attempts to round to closest snap rotation
+		if (mod.X > nd/2)
+			rotation.X += nd - mod.X;
+		else
+			rotation.X -= mod.X;
+
+		if (mod.Y > nd/2)
+			rotation.Y += nd - mod.Y;
+		else
+			rotation.Y -= mod.Y;
+
+		if (mod.Z > nd/2)
+			rotation.Z += nd - mod.Z;
+		else
+			rotation.Z -= mod.Z;
+
+		Rotation = rotation;
+	}
+
+	private const float nd = Mathf.Pi/2;
 }

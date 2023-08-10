@@ -20,3 +20,6 @@ res://Data/MenuScenes/MenuButtonPivot.cs
 res://Data/MenuScenes/menus.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
+res://Assets/Images/Particles/ThrusterProcessMaterial.tres
+res://Assets/Images/Particles/ThrusterDrawPass.tres
+res://Data/CubeObjects/CockpitBlock.cs

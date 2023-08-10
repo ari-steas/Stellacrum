@@ -6,14 +6,14 @@ public partial class CubeBlock : StaticBody3D
 {
 	public Shape3D collision;
 	public uint collisionId = 0;
-	public List<MeshInstance3D> meshes;
+	public List<Node3D> meshes;
 	public string subTypeId = "";
 	public Vector3 size = Vector3.One*2.5f;
 	public int Mass = 100;
 
 	public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 	{
-		List<MeshInstance3D> model = ModelLoader.Models["ArmorBlock1x1"];
+		List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
 		Vector3 size = Vector3.One*2.5f;
 		int mass = 100;
 
@@ -47,7 +47,7 @@ public partial class CubeBlock : StaticBody3D
 		};
 	}
 	
-	private CubeBlock(string subTypeId, List<MeshInstance3D> meshes, Vector3 size)
+	private CubeBlock(string subTypeId, List<Node3D> meshes, Vector3 size)
 	{
 		this.meshes = meshes;
 		this.size = size;
@@ -58,7 +58,7 @@ public partial class CubeBlock : StaticBody3D
 			Size = size
 		};
 
-		foreach (MeshInstance3D mesh in meshes)
+		foreach (Node3D mesh in meshes)
 			AddChild(mesh.Duplicate());
 
 		Name = "CubeBlock." + subTypeId + "." + GetIndex();
@@ -77,8 +77,8 @@ public partial class CubeBlock : StaticBody3D
 			Size = new Vector3(2.5f, 2.5f, 2.5f)
 		};
 
-		meshes.Add(new() {Mesh = bm});
-		foreach (MeshInstance3D mesh in meshes)
+		meshes.Add(new MeshInstance3D() {Mesh = bm});
+		foreach (var mesh in meshes)
 			AddChild(mesh);
 
 		Position = (Vector3) gridPosition * 2.5f;
@@ -108,7 +108,7 @@ public partial class CubeBlock : StaticBody3D
 		b.size = size;
 		b.Mass = Mass;
 
-		b.Name = "CubeBlock." + subTypeId + "." + b.GetIndex();
+		b.Name = "CubeBlock." + subTypeId + "." + b.GetInstanceId();
 		return b;
 	}
 

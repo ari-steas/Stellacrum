@@ -1,0 +1,9 @@
+{
+    "Cockpit":{
+        "Model":"Cockpit",
+        "BlockSize":[1, 1, 1],
+        "Icon":"ArmorBlock1x1SlopeCorner.png",
+        "TypeId":"CockpitBlock",
+		"Mass":150
+    }
+}
