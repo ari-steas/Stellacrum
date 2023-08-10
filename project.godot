@@ -237,3 +237,7 @@ BlockRotateZ-={
 [physics]
 
 3d/default_gravity=0.0
+3d/default_linear_damp=0.0
+3d/default_angular_damp=0.0
+3d/sleep_threshold_linear=0.01
+3d/sleep_threshold_angular=0.01

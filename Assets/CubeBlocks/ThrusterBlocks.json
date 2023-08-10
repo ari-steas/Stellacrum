@@ -3,6 +3,10 @@
         "Model":"ThrusterSmall",
         "BlockSize":[1, 1, 1],
         "Icon":"ArmorBlock1x1SlopeCornerInv.png",
-        "TypeId":"ThrusterBlock"
+        "TypeId":"ThrusterBlock",
+
+		"Mass":150,
+
+        "ThrusterStrength":250000
     }
 }

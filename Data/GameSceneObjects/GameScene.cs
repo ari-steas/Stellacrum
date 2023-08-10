@@ -82,10 +82,11 @@ public partial class GameScene : Node3D
 			{
 				grid.RemoveBlock(ray);
 
-				if (grid.size.Size.IsEqualApprox(Vector3.Zero))
+				if (grid.IsEmpty())
 				{
 					grid.Close();
 					grids.Remove(grid);
+					RemoveChild(grid);
 				}
 			}
 		}

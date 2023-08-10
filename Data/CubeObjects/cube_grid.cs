@@ -4,8 +4,11 @@ using System.Collections.Generic;
 
 public partial class CubeGrid : RigidBody3D
 {
-	public Aabb size { get; private set; } = new Aabb();
+	public Aabb Size { get; private set; } = new Aabb();
 	private readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
+	public float Speed { get; private set; } = 0;
+
+	public Vector3 MovementInput { get; private set; } = Vector3.Zero;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -15,12 +18,31 @@ public partial class CubeGrid : RigidBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (!Input.IsKeyLabelPressed(Key.Alt))
+			return;
 		
+		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
+		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
+
+		Vector3 inputDir = new (horizontalInput.X, verticalInput, horizontalInput.Y);
+
+		MovementInput = inputDir.Normalized();
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		MoveAndCollide(LinearVelocity * (float)delta);
+
+		Speed = LinearVelocity.Length();
+
+		DebugDraw.Point(ToGlobal(CenterOfMass), 1, Colors.Yellow);
+
+		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
 	}
 
 	public Aabb BoundingBox()
 	{
-		return new Aabb(Position + size.Position*2.5f - Vector3.One*1.25f, size.End*2.5f);
+		return new Aabb(Position + Size.Position*2.5f - Vector3.One*1.25f, Size.End*2.5f);
 	}
 
 	#region blocks
@@ -48,13 +70,16 @@ public partial class CubeGrid : RigidBody3D
 			CubeBlocks.Add(position_GridLocal, block);
 
 			block.Position = (Vector3) position_GridLocal*2.5f;
-			block.GlobalRotation = rotation;
+			if (block.IsInsideTree())
+				block.GlobalRotation = rotation;
 
 			block.collisionId = CreateShapeOwner(this);
 			ShapeOwnerAddShape(block.collisionId, block.collision);
 			ShapeOwnerSetTransform(block.collisionId, block.Transform);
+			Mass += block.Mass;
 
 			RecalcSize();
+			RecalcMass();
 		}
 		else
 		{
@@ -76,11 +101,14 @@ public partial class CubeGrid : RigidBody3D
 	{
 		if (CubeBlocks.ContainsKey(position))
 		{
-			RemoveShapeOwner(CubeBlocks[position].collisionId);
-			RemoveChild(CubeBlocks[position]);
+			CubeBlock block = CubeBlocks[position];
+			RemoveShapeOwner(block.collisionId);
+			RemoveChild(block);
+			Mass -= block.Mass;
 			CubeBlocks.Remove(position);
 
 			RecalcSize();
+			RecalcMass();
 		}
 	}
 
@@ -109,7 +137,19 @@ public partial class CubeGrid : RigidBody3D
 			
 		}
 
-		size = new Aabb(min, max);
+		Size = new Aabb(min, max);
+	}
+
+	private void RecalcMass()
+	{
+		Vector3 centerOfMass = Vector3.Zero;
+		foreach (var block in CubeBlocks.Values)
+			centerOfMass += block.Position * block.Mass;
+		centerOfMass /= Mass;
+
+		if (CenterOfMassMode != CenterOfMassModeEnum.Custom)
+			CenterOfMassMode = CenterOfMassModeEnum.Custom;
+		CenterOfMass = centerOfMass;
 	}
 
 	public Vector3 RoundGlobalCoord(Vector3 global)
@@ -158,5 +198,10 @@ public partial class CubeGrid : RigidBody3D
 	{
 		foreach (var block in CubeBlocks)
 			RemoveShapeOwner(block.Value.collisionId);
+	}
+
+	public bool IsEmpty()
+	{
+		return CubeBlocks.Count == 0;
 	}
 }

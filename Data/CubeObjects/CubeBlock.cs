@@ -9,11 +9,13 @@ public partial class CubeBlock : StaticBody3D
 	public List<MeshInstance3D> meshes;
 	public string subTypeId = "";
 	public Vector3 size = Vector3.One*2.5f;
+	public int Mass = 100;
 
 	public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 	{
 		List<MeshInstance3D> model = ModelLoader.Models["ArmorBlock1x1"];
 		Vector3 size = Vector3.One*2.5f;
+		int mass = 100;
 
 		// Load model from ModelLoader
 		if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string) blockData["Model"]))
@@ -31,7 +33,18 @@ public partial class CubeBlock : StaticBody3D
 			GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
 		}
 
-		return new (subTypeId, model, size);
+		try
+		{
+			mass = blockData["Mass"].AsInt32();
+		}
+		catch {
+			GD.PrintErr($"Missing [Mass] in {subTypeId}! Setting to default...");
+		}
+
+		return new (subTypeId, model, size)
+		{
+			Mass = mass
+		};
 	}
 	
 	private CubeBlock(string subTypeId, List<MeshInstance3D> meshes, Vector3 size)
@@ -83,7 +96,7 @@ public partial class CubeBlock : StaticBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		MoveAndCollide(ConstantLinearVelocity * (float)delta);
+		
 	}
 
 	public virtual CubeBlock Copy()
@@ -91,9 +104,9 @@ public partial class CubeBlock : StaticBody3D
 		CubeBlock b = (CubeBlock) Duplicate();
 		b.Position = Vector3.Zero;
 		b.collision = collision;
-		b.collisionId = collisionId;
 		b.subTypeId = subTypeId;
 		b.size = size;
+		b.Mass = Mass;
 
 		b.Name = "CubeBlock." + subTypeId + "." + b.GetIndex();
 		return b;
@@ -101,7 +114,7 @@ public partial class CubeBlock : StaticBody3D
 
 	public virtual Aabb Size(Vector3I position)
 	{
-		Aabb size = new Aabb(position, Vector3I.One);
+		Aabb size = new(position, Vector3I.One);
 		return size;
 	}
 }

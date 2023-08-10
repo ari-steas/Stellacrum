@@ -42,7 +42,9 @@ public class CubeBlockLoader
 	public static CubeBlock FromId(string id)
 	{
 		if (CubeBlocks.ContainsKey(id))
+		{
 			return CubeBlocks[id];
+		}
 		else
 		{
 			GD.PrintErr("Missing CubeBlock " + id);

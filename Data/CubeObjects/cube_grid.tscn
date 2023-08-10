@@ -3,4 +3,6 @@
 [ext_resource type="Script" path="res://Data/CubeObjects/cube_grid.cs" id="1_jjtij"]
 
 [node name="CubeGrid" type="RigidBody3D"]
+mass = 0.01
+center_of_mass_mode = 1
 script = ExtResource("1_jjtij")

@@ -255,7 +255,8 @@ public partial class player_character : CharacterBody3D
 		else if (_dampenersEnabled)
 			velocity = IndividualDampen(velocity, Vector3.Zero, Speed*1.15f);
 		
-		Velocity = velocity;
+		if (!Input.IsKeyLabelPressed(Key.Alt))
+			Velocity = velocity;
 		MoveAndSlide();
 	}
 
