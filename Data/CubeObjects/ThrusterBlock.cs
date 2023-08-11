@@ -79,7 +79,7 @@ public partial class ThrusterBlock : CubeBlock
 
 
 		particles.Emitting = ThrustPercent > 0;
-		if (ThrustPercent > 0.004)
+		if ((int) (128*ThrustPercent) > 0)
 			particles.Amount = (int) (128*ThrustPercent);
 		else
 			particles.Emitting = false;

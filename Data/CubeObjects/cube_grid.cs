@@ -12,9 +12,12 @@ public partial class CubeGrid : RigidBody3D
 	public Vector3 MovementInput = Vector3.Zero;
 	public Vector3 RotationInput = Vector3.Zero;
 
+	private PID thrustPid;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		thrustPid = new(1, 1, 1);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -25,6 +28,11 @@ public partial class CubeGrid : RigidBody3D
 	public override void _PhysicsProcess(double delta)
     {
 		DebugDraw.Text(RotationInput);
+
+		Vector3 pidOut = thrustPid.Update(Rotation, Vector3.Zero, (float) delta);
+		DebugDraw.Text(pidOut);
+		DebugDraw.Text(Rotation);
+
         foreach (var block in CubeBlocks.Values)
 		{
 			if (block is ThrusterBlock thrust)
@@ -32,7 +40,7 @@ public partial class CubeGrid : RigidBody3D
 				//thrust.ThrustPercent = MovementInput.Dot(thrust.ThrustForwardVector);
 				Vector3 torque = (thrust.Position - CenterOfMass).Cross(thrust.ThrustForwardVector);
 
-				thrust.SetThrustPercent(RotationInput.Dot(torque));
+				thrust.SetThrustPercent(pidOut.Dot(torque));
 			}
 		}
 
