@@ -10,6 +10,7 @@ public partial class CubeGrid : RigidBody3D
 	public readonly List<CockpitBlock> Cockpits = new();
 
 	public Vector3 MovementInput = Vector3.Zero;
+	public Vector3 RotationInput = Vector3.Zero;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -22,8 +23,18 @@ public partial class CubeGrid : RigidBody3D
 	}
 
 	public override void _PhysicsProcess(double delta)
-	{
-		MoveAndCollide(LinearVelocity * (float)delta);
+    {
+		DebugDraw.Text(RotationInput);
+        foreach (var block in CubeBlocks.Values)
+		{
+			if (block is ThrusterBlock thrust)
+			{
+				//thrust.ThrustPercent = MovementInput.Dot(thrust.ThrustForwardVector);
+				Vector3 torque = (thrust.Position - CenterOfMass).Cross(thrust.ThrustForwardVector);
+
+				thrust.SetThrustPercent(RotationInput.Dot(torque));
+			}
+		}
 
 		Speed = LinearVelocity.Length();
 
@@ -154,7 +165,10 @@ public partial class CubeGrid : RigidBody3D
 
 	public Vector3 RoundGlobalCoord(Vector3 global)
 	{
-		return ToGlobal((Vector3) GlobalToBlockCoord(global) * 2.5f);
+		if (IsInsideTree())
+			return ToGlobal((Vector3) GlobalToBlockCoord(global) * 2.5f);
+		else
+			return global;
 	}
 
 	public Vector3 PlaceProjectionGlobal(Vector3 from, Vector3 to)

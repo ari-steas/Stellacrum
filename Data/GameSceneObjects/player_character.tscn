@@ -9,6 +9,7 @@
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
 motion_mode = 1
+platform_on_leave = 2
 script = ExtResource("1_u14pr")
 
 [node name="PlayerCollision" type="CollisionShape3D" parent="."]

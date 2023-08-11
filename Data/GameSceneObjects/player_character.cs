@@ -8,7 +8,7 @@ public partial class player_character : CharacterBody3D
 
 	#region movement
 
-	public const float Speed = 1.0f;
+	public const float Speed = 60.0f;
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
 	private float lastX = 0, lastY = 0, lastZ = 0;
@@ -22,31 +22,32 @@ public partial class player_character : CharacterBody3D
 	private SpotLight3D light;
 	private Camera3D camera;
 	private hud_scene HUD;
+	private long DelayedEnableCollision = 0;
 
 	public PlaceBox PlayerPlaceBox { get; private set; }
 	public Vector3 lookPosition;
 
 	public RayCast3D interactCast;
 
-    public override void _Ready()
-    {
+	public override void _Ready()
+	{
 		scene = GetParent<GameScene>();
 
-        light = GetNode<SpotLight3D>("SpotLight3D");
+		light = GetNode<SpotLight3D>("SpotLight3D");
 		camera = GetNode<Camera3D>("PlayerCamera");
 		interactCast = GetNode<RayCast3D>("InteractCast");
 		interactCast.TargetPosition = new (0, 0, -10);
 
-        PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
+		PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
 		HUD = GetNode<hud_scene>("HudScene");
 
 		// Wait 1 second after scene start to place blocks
 		nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
-    }
+	}
 
 	private bool justLookedAtGrid = false;
-    public override void _Process(double delta)
-    {
+	public override void _Process(double delta)
+	{
 		if (!scene.isActive)
 			return;
 
@@ -60,6 +61,7 @@ public partial class player_character : CharacterBody3D
 				{
 					justLookedAtGrid = true;
 
+					// Snap PlayerPlaceBox to looked-at grid
 					RemoveChild(PlayerPlaceBox);
 					grid.AddChild(PlayerPlaceBox);
 				
@@ -79,7 +81,8 @@ public partial class player_character : CharacterBody3D
 				Vector3 rot = PlayerPlaceBox.GlobalRotation;
 				PlayerPlaceBox.GetParent().RemoveChild(PlayerPlaceBox);
 				AddChild(PlayerPlaceBox);
-				PlayerPlaceBox.GlobalRotation = rot;
+				if (PlayerPlaceBox.IsInsideTree())
+					PlayerPlaceBox.GlobalRotation = rot;
 
 				justLookedAtGrid = false;
 			}
@@ -87,7 +90,13 @@ public partial class player_character : CharacterBody3D
 
 		if (PlayerPlaceBox.IsInsideTree())
 			PlayerPlaceBox.GlobalPosition = lookPosition;
-    }
+
+		if (DelayedEnableCollision > 0 && (DateTime.Now.Ticks - DelayedEnableCollision > 0))
+		{
+			DelayedEnableCollision = 0;
+			(FindChild("PlayerCollision") as CollisionShape3D).Disabled = false;
+		}
+	}
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -103,6 +112,9 @@ public partial class player_character : CharacterBody3D
 
 	public bool IsInCockpit = false;
 	public CubeGrid currentGrid;
+
+	private Vector3 relativePosition = Vector3.Zero;
+	private CockpitBlock currentCockpit;
 	private void TryEnter(CubeGrid grid)
 	{
 		if (grid.Cockpits.Count > 0)
@@ -119,13 +131,37 @@ public partial class player_character : CharacterBody3D
 				}
 			}
 
+			relativePosition = GlobalPosition - grid.GlobalPosition;
+			GD.Print(relativePosition);
+
 			Position = Vector3.Zero;
 			Rotation = Vector3.Zero;
+
 			(FindChild("PlayerCollision") as CollisionShape3D).Disabled = true;
 			GetParent().RemoveChild(this);
 			closest.AddChild(this);
+
 			IsInCockpit = true;
 			currentGrid = grid;
+			currentCockpit = closest;
+		}
+	}
+
+	private void TryExit()
+	{
+		if (IsInCockpit)
+		{
+			Velocity = currentGrid.LinearVelocity;
+			GetParent().RemoveChild(this);
+			scene.AddChild(this);
+			// Add 0.1s to re-enable collision, because otherwise the grid gets flung
+			DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
+
+			GlobalPosition = currentGrid.ToGlobal(relativePosition);
+
+			IsInCockpit = false;
+			currentGrid = null;
+			relativePosition = Vector3.Zero;
 		}
 	}
 
@@ -135,6 +171,8 @@ public partial class player_character : CharacterBody3D
 		{
 			if (!IsInCockpit && interactCast.GetCollider() is CubeGrid grid)
 				TryEnter(grid);
+			else if (IsInCockpit)
+				TryExit();
 		}
 
 		if (IsInCockpit)
@@ -251,23 +289,26 @@ public partial class player_character : CharacterBody3D
 	private void _ToggleThirdPerson(bool enabled)
 	{
 		if (enabled)
-			camera.Position = new Vector3(0, 0.5f, 0);
-		else
 			camera.Position = new Vector3(0, 1.5f, 3f);
+		else
+			camera.Position = new Vector3(0, 0.5f, 0);
 	}
 
 	#region movement
 
 	private void HandleRotation(double delta)
 	{
-		if (IsInCockpit)
-			return;
-
 		if (Input.IsActionPressed("RotateClockwise"))
 			lastZ = 1;
 
 		if (Input.IsActionPressed("RotateAntiClockwise"))
 			lastZ = -1;
+
+		if (IsInCockpit)
+		{
+			currentGrid.RotationInput = currentCockpit.Basis * new Vector3(lastX, lastY, lastZ);
+			return;
+		}
 
 		RotateObjectLocal(Vector3.Up, (float)(lastX*delta));
 		RotateObjectLocal(Vector3.Right, (float)(lastY*delta));
@@ -276,14 +317,11 @@ public partial class player_character : CharacterBody3D
 
 	private void HandleMovement(double delta)
 	{
-		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
-		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
-
-		Vector3 inputDir = new (horizontalInput.X, verticalInput, horizontalInput.Y);
+		Vector3 inputDir = MovementVector();
 
 		if (IsInCockpit)
 		{
-			currentGrid.MovementInput = inputDir.Clamp(-Vector3.One, Vector3.One);
+			currentGrid.MovementInput = currentCockpit.Basis * inputDir.Clamp(-Vector3.One, Vector3.One);
 			return;
 		}
 
@@ -291,12 +329,20 @@ public partial class player_character : CharacterBody3D
 		
 		Vector3 direction = Quaternion * inputDir;
 		if (direction != Vector3.Zero)
-			velocity += ClampIndividual(direction, 1) * Speed;
+			velocity += ClampIndividual(direction, 1) * Speed * (float) delta;
 		else if (_dampenersEnabled)
-			velocity = IndividualDampen(velocity, Vector3.Zero, Speed*1.15f);
+			velocity = IndividualDampen(velocity, Vector3.Zero, Speed*(float) delta*1.15f);
 		
 		Velocity = velocity;
 		MoveAndSlide();
+	}
+
+	private Vector3 MovementVector()
+	{
+		Vector2 horizontalInput = Input.GetVector("MoveLeft", "MoveRight", "MoveForward", "MoveBackward");
+		float verticalInput = Input.GetAxis("MoveDown", "MoveUp");
+
+		return new (horizontalInput.X, verticalInput, horizontalInput.Y);
 	}
 
 	private Vector3 IndividualDampen(Vector3 vel, Vector3 endVel, float delta)
@@ -336,7 +382,7 @@ public partial class player_character : CharacterBody3D
 		if (vec.Z > max)
 			vec.Z = max;
 
-        return vec;
+		return vec;
 	}
 
 	#endregion

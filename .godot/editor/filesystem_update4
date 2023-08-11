@@ -1,13 +1,14 @@
+res://Data/GameSceneObjects/GameScene.tscn
 res://Data/CubeObjects/cube_grid.tscn
 res://Data/CubeObjects/cube_block.tscn
 res://Data/GameSceneObjects/hud_scene.tscn
 res://Data/GameSceneObjects/player_character.tscn
-res://Data/GameSceneObjects/GameScene.tscn
 res://addons/debug_drawing/control/DebugDock.cs
 res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
 res://addons/debug_drawing/demo/DemoDrawTarget.cs
 res://addons/debug_drawing/demo/DrawDemo.cs
+res://Data/CubeObjects/CockpitBlock.cs
 res://Data/CubeObjects/CubeBlock.cs
 res://Data/CubeObjects/ThrusterBlock.cs
 res://Data/GameSceneObjects/GameScene.cs
@@ -20,6 +21,3 @@ res://Data/MenuScenes/MenuButtonPivot.cs
 res://Data/MenuScenes/menus.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
-res://Assets/Images/Particles/ThrusterProcessMaterial.tres
-res://Assets/Images/Particles/ThrusterDrawPass.tres
-res://Data/CubeObjects/CockpitBlock.cs

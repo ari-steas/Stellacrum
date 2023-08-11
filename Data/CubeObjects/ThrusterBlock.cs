@@ -5,10 +5,27 @@ using System.Collections.Generic;
 public partial class ThrusterBlock : CubeBlock
 {
 	CubeGrid parent;
-	public float ThrustPercent = 0;
-	public float MaximumThrust { get; private set; }= 0;
+	public float ThrustPercent { get; private set; } = 0;
+	public float MaximumThrust { get; private set; } = 0;
+	public Vector3 ThrustForwardVector { get; private set; }
 	private Node3D thrustNode;
 	private GpuParticles3D particles;
+
+	public void SetThrustPercent(float pct)
+	{
+		if (pct > 1)
+		{
+			ThrustPercent = 1;
+			return;
+		}
+		else if (pct < 0)
+		{
+			ThrustPercent = 0;
+			return;
+		}
+
+		ThrustPercent = pct;
+	}
 
 	public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 	{
@@ -52,26 +69,20 @@ public partial class ThrusterBlock : CubeBlock
 			Emitting = false
 		};
 		AddChild(particles);
+
+		ThrustForwardVector = Basis * Vector3.Forward;
 	}
 
 	public override void _Process(double delta)
 	{
-		float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
-		if (pct > 0)
-		{
-			ThrustPercent = pct;
-			particles.Emitting = true;
-		}
-		else
-		{
-			ThrustPercent = 0;
-			particles.Emitting = false;
-		}
+		//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
 
-		if (pct > 0.004)
-				particles.Amount = (int) (128*pct);
-			else
-				particles.Emitting = false;
+
+		particles.Emitting = ThrustPercent > 0;
+		if (ThrustPercent > 0.004)
+			particles.Amount = (int) (128*ThrustPercent);
+		else
+			particles.Emitting = false;
 	}
 
 	public override void _PhysicsProcess(double delta)
