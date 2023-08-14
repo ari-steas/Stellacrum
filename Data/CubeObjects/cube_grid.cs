@@ -17,45 +17,69 @@ public partial class CubeGrid : RigidBody3D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		thrustPid = new(1, 0, 0);
+		thrustPid = new(0, 0, 0f);
 		AxisLockLinearX = true;
 		AxisLockLinearY = true;
 		AxisLockLinearZ = true;
+		DesiredRotation = Rotation;
 	}
+
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		DebugDraw.Text("Desired: " + Basis * DesiredRotation);
+		DebugDraw.Text("Current: " + AngularVelocity);
+		DebugDraw.Text("Ki: " + thrustPid.Ki);
+		DebugDraw.Text("Kd: " + thrustPid.Kd);
+		DebugDraw.Text("Kp: " + thrustPid.Kp);
+
 		if (Input.IsActionJustPressed("Interact"))
 			doRotate = !doRotate;
+
+		if (!doRotate)
+		{
+			foreach (var block in CubeBlocks.Values)
+			if (block is ThrusterBlock thruster)
+				thruster.SetDesiredAngularVelocity(AngularVelocity);
+			return;
+		}
+		
+		foreach (var block in CubeBlocks.Values)
+			if (block is ThrusterBlock thruster)
+				thruster.SetDesiredAngularVelocity(Basis * DesiredRotation);
+
+		if (Input.IsActionPressed("BlockRotateX-"))
+			thrustPid.Kp += 0.001f;
+		if (Input.IsActionPressed("BlockRotateX+"))
+			thrustPid.Kp -= 0.001f;
+
+		if (Input.IsActionPressed("BlockRotateX-") && Input.IsActionPressed("BlockRotateX+"))
+			thrustPid.Kp = 0f;
+		
+		if (Input.IsActionPressed("BlockRotateY+"))
+			thrustPid.Ki += 0.001f;
+		if (Input.IsActionPressed("BlockRotateY-"))
+			thrustPid.Ki -= 0.001f;
+
+		if (Input.IsActionPressed("BlockRotateY-") && Input.IsActionPressed("BlockRotateY+"))
+			thrustPid.Ki = 0f;
+
+		if (Input.IsActionPressed("BlockRotateZ+"))
+			thrustPid.Kd += 0.001f;
+		if (Input.IsActionPressed("BlockRotateZ-"))
+			thrustPid.Kd -= 0.001f;
+
+		if (Input.IsActionPressed("BlockRotateZ-") && Input.IsActionPressed("BlockRotateZ+"))
+			thrustPid.Kd = 0f;
 	}
 
 	private bool doRotate = false;
 
 	public override void _PhysicsProcess(double delta)
-    {
-		DebugDraw.Arrow(ToGlobal(CenterOfMass), DesiredRotation, 1, Colors.Blue);
-
-		Vector3 pidOut = Vector3.Zero;
-
-		if (doRotate)
-			pidOut = thrustPid.Update(Basis * Vector3.Forward, DesiredRotation, (float) delta);
-
-		DebugDraw.Arrow(ToGlobal(CenterOfMass), Basis * Vector3.Forward, 1, Colors.Red);
-
-
-        foreach (var block in CubeBlocks.Values)
-		{
-			if (block is ThrusterBlock thrust)
-			{
-				Vector3 torque = (thrust.Position - CenterOfMass).Cross(thrust.ThrustForwardVector());
-				DebugDraw.Arrow(thrust.GlobalPosition, torque, 0.5f, Colors.Green);
-
-				float t = (torque * pidOut).Length();
-				thrust.SetThrustPercent(t);
-				DebugDraw.Text3D(t, thrust.GlobalPosition);
-			}
-		}
+	{
+		DebugDraw.Arrow(ToGlobal(CenterOfMass), Basis * DesiredRotation, 1, Colors.Blue);
+		DebugDraw.Arrow(ToGlobal(CenterOfMass), Vector3.Forward, 1, Colors.Red);
 
 		Speed = LinearVelocity.Length();
 
@@ -64,8 +88,6 @@ public partial class CubeGrid : RigidBody3D
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
 	}
 
-	
-
 	public Aabb BoundingBox()
 	{
 		return new Aabb(Position + Size.Position*2.5f - Vector3.One*1.25f, Size.End*2.5f);
@@ -73,19 +95,19 @@ public partial class CubeGrid : RigidBody3D
 
 	#region blocks
 
-	public void AddBlock(RayCast3D ray, Vector3 rotation, string blockId)
+	public void AddBlock(RayCast3D ray, Vector3 rotation, string blocKid)
 	{
-		AddBlock(ray.GetCollisionPoint() + ray.GetCollisionNormal(), rotation, blockId);
+		AddBlock(ray.GetCollisionPoint() + ray.GetCollisionNormal(), rotation, blocKid);
 	}
 
-	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blockId)
+	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blocKid)
 	{
-		AddBlock(GlobalToBlockCoord(globalPosition), rotation, blockId);
+		AddBlock(GlobalToBlockCoord(globalPosition), rotation, blocKid);
 	}
 
-	public void AddBlock(Vector3I position, Vector3 rotation, string blockId)
+	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
 	{
-		AddBlock(position, rotation, CubeBlockLoader.FromId(blockId).Copy());
+		AddBlock(position, rotation, CubeBlockLoader.FromId(blocKid).Copy());
 	}
 
 	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
@@ -101,6 +123,7 @@ public partial class CubeGrid : RigidBody3D
 			block.collisionId = CreateShapeOwner(this);
 			ShapeOwnerAddShape(block.collisionId, block.collision);
 			ShapeOwnerSetTransform(block.collisionId, block.Transform);
+			
 			Mass += block.Mass;
 
 			RecalcSize();

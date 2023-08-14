@@ -312,7 +312,7 @@ public partial class player_character : CharacterBody3D
 
 		if (IsInCockpit)
 		{
-			currentGrid.DesiredRotation = currentCockpit.Basis * new Vector3(lastX, lastY, lastZ);
+			currentGrid.DesiredRotation = currentCockpit.Basis * new Vector3(lastY, lastX, lastZ);
 			return;
 		}
 

@@ -3,21 +3,26 @@ using System;
 
 public class VectorPID
 {
-    PID pX, pY, pZ;
+    public float Kp, Ki, Kd;
+    Vector3 pError = Vector3.Zero, integral = Vector3.Zero;
 
-    public VectorPID(float kP, float kI, float kD)
+    public VectorPID(float Kp, float Ki, float Kd)
     {
-        pX = new(kP, kI, kD);
-        pY = new(kP, kI, kD);
-        pZ = new(kP, kI, kD);
+        this.Kp = Kp;
+        this.Ki = Ki;
+        this.Kd = Kd;
     }
 
     public Vector3 Update(Vector3 current, Vector3 target, float delta)
     {
-        return new(
-            pX.Update(current.X, target.X, delta),
-            pY.Update(current.Y, target.Y, delta),
-            pX.Update(current.Z, target.Z, delta)
-        );
+        Vector3 error = target - current;
+        integral += error * delta;
+        Vector3 derivative = (error - pError) / delta;
+
+        Vector3 output = Kp * error + Ki * integral + Kd * derivative;
+
+        pError = error;
+
+        return output;
     }
 }

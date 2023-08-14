@@ -13,18 +13,7 @@ public partial class ThrusterBlock : CubeBlock
 
 	public void SetThrustPercent(float pct)
 	{
-		if (pct > 1)
-		{
-			ThrustPercent = 1;
-			return;
-		}
-		else if (pct < 0)
-		{
-			ThrustPercent = 0;
-			return;
-		}
-
-		ThrustPercent = pct;
+		ThrustPercent = Mathf.Clamp(pct, 0, 1);
 	}
 
 	public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
@@ -69,22 +58,49 @@ public partial class ThrusterBlock : CubeBlock
 			Emitting = false
 		};
 		AddChild(particles);
+
+		pid = new (5, 0, 75f);
 	}
 
+	VectorPID pid;
+	Vector3 desired = Vector3.Zero;
 	public override void _Process(double delta)
 	{
         //float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
+		//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);
+		Vector3 pidOut = -parent.AngularVelocity - desired;
+
+		SetThrustPercent(pidOut.Dot(parent.Basis * GetAngularAccel()));
 
 		particles.Emitting = ThrustPercent > 0;
-		if ((int) (64*ThrustPercent) > 0)
-			particles.Amount = (int) (64*ThrustPercent);
-		else
+		if (!((int) (64*ThrustPercent) > 0.01))
 			particles.Emitting = false;
+	}
+
+	// LOCAL
+	public void SetDesiredAngularVelocity(Vector3 vel)
+	{
+		desired = vel;
 	}
 
 	public Vector3 ThrustForwardVector()
 	{
-		return GlobalTransform.Basis * Vector3.Forward;
+		return Basis * Vector3.Forward;
+	}
+
+	public Vector3 GetForce()
+	{
+		return ThrustForwardVector() * MaximumThrust;
+	}
+
+	public Vector3 GetTorque()
+	{
+		return (Position - parent.CenterOfMass).Cross(GetForce());
+	}
+
+	public Vector3 GetAngularAccel()
+	{
+		return GetTorque() / PhysicsServer3D.BodyGetDirectState(parent.GetRid()).InverseInertia.Inverse();
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -94,7 +110,7 @@ public partial class ThrusterBlock : CubeBlock
 		particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
 
 		parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float) delta, GlobalPosition - parent.GlobalPosition);
-		
+
 	}
 
 	public ThrusterBlock FromCubeBlock(CubeBlock c)
