@@ -9,38 +9,51 @@ public partial class CubeGrid : RigidBody3D
 	public float Speed { get; private set; } = 0;
 	public readonly List<CockpitBlock> Cockpits = new();
 
-	public Vector3 MovementInput = Vector3.Zero;
-	public Vector3 RotationInput = Vector3.Zero;
+	public Vector3 MovementInput = Vector3.Forward;
+	public Vector3 DesiredRotation = Vector3.Forward;
 
-	private PID thrustPid;
+	private VectorPID thrustPid;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		thrustPid = new(1, 1, 1);
+		thrustPid = new(1, 0, 0);
+		AxisLockLinearX = true;
+		AxisLockLinearY = true;
+		AxisLockLinearZ = true;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (Input.IsActionJustPressed("Interact"))
+			doRotate = !doRotate;
 	}
+
+	private bool doRotate = false;
 
 	public override void _PhysicsProcess(double delta)
     {
-		DebugDraw.Text(RotationInput);
+		DebugDraw.Arrow(ToGlobal(CenterOfMass), DesiredRotation, 1, Colors.Blue);
 
-		Vector3 pidOut = thrustPid.Update(Rotation, Vector3.Zero, (float) delta);
-		DebugDraw.Text(pidOut);
-		DebugDraw.Text(Rotation);
+		Vector3 pidOut = Vector3.Zero;
+
+		if (doRotate)
+			pidOut = thrustPid.Update(Basis * Vector3.Forward, DesiredRotation, (float) delta);
+
+		DebugDraw.Arrow(ToGlobal(CenterOfMass), Basis * Vector3.Forward, 1, Colors.Red);
+
 
         foreach (var block in CubeBlocks.Values)
 		{
 			if (block is ThrusterBlock thrust)
 			{
-				//thrust.ThrustPercent = MovementInput.Dot(thrust.ThrustForwardVector);
-				Vector3 torque = (thrust.Position - CenterOfMass).Cross(thrust.ThrustForwardVector);
+				Vector3 torque = (thrust.Position - CenterOfMass).Cross(thrust.ThrustForwardVector());
+				DebugDraw.Arrow(thrust.GlobalPosition, torque, 0.5f, Colors.Green);
 
-				thrust.SetThrustPercent(pidOut.Dot(torque));
+				float t = (torque * pidOut).Length();
+				thrust.SetThrustPercent(t);
+				DebugDraw.Text3D(t, thrust.GlobalPosition);
 			}
 		}
 
@@ -50,6 +63,8 @@ public partial class CubeGrid : RigidBody3D
 
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
 	}
+
+	
 
 	public Aabb BoundingBox()
 	{
@@ -81,8 +96,7 @@ public partial class CubeGrid : RigidBody3D
 			CubeBlocks.Add(position_GridLocal, block);
 
 			block.Position = (Vector3) position_GridLocal*2.5f;
-			if (block.IsInsideTree())
-				block.GlobalRotation = rotation;
+			block.GlobalRotation = rotation;
 
 			block.collisionId = CreateShapeOwner(this);
 			ShapeOwnerAddShape(block.collisionId, block.collision);
@@ -219,7 +233,10 @@ public partial class CubeGrid : RigidBody3D
 	public void Close()
 	{
 		foreach (var block in CubeBlocks)
+		{
 			RemoveShapeOwner(block.Value.collisionId);
+			block.Value.QueueFree();
+		}
 	}
 
 	public bool IsEmpty()

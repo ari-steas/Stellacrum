@@ -23,6 +23,7 @@ public partial class player_character : CharacterBody3D
 	private Camera3D camera;
 	private hud_scene HUD;
 	private long DelayedEnableCollision = 0;
+	private Sprite3D shipCrosshair;
 
 	public PlaceBox PlayerPlaceBox { get; private set; }
 	public Vector3 lookPosition;
@@ -40,6 +41,7 @@ public partial class player_character : CharacterBody3D
 
 		PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
 		HUD = GetNode<hud_scene>("HudScene");
+		shipCrosshair = GetNode<Sprite3D>("ShipCrosshair3D");
 
 		// Wait 1 second after scene start to place blocks
 		nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
@@ -141,6 +143,8 @@ public partial class player_character : CharacterBody3D
 			GetParent().RemoveChild(this);
 			closest.AddChild(this);
 
+			shipCrosshair.Visible = true;
+
 			IsInCockpit = true;
 			currentGrid = grid;
 			currentCockpit = closest;
@@ -158,6 +162,8 @@ public partial class player_character : CharacterBody3D
 			DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
 
 			GlobalPosition = currentGrid.ToGlobal(relativePosition);
+
+			shipCrosshair.Visible = false;
 
 			IsInCockpit = false;
 			currentGrid = null;
@@ -306,7 +312,7 @@ public partial class player_character : CharacterBody3D
 
 		if (IsInCockpit)
 		{
-			currentGrid.RotationInput = currentCockpit.Basis * new Vector3(lastX, lastY, lastZ);
+			currentGrid.DesiredRotation = currentCockpit.Basis * new Vector3(lastX, lastY, lastZ);
 			return;
 		}
 

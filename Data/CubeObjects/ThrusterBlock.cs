@@ -7,7 +7,7 @@ public partial class ThrusterBlock : CubeBlock
 	CubeGrid parent;
 	public float ThrustPercent { get; private set; } = 0;
 	public float MaximumThrust { get; private set; } = 0;
-	public Vector3 ThrustForwardVector { get; private set; }
+	//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 	private Node3D thrustNode;
 	private GpuParticles3D particles;
 
@@ -64,25 +64,27 @@ public partial class ThrusterBlock : CubeBlock
 			Rotation = thrustNode.Rotation,
 			ProcessMaterial = GD.Load<ParticleProcessMaterial>("res://Assets/Images/Particles/ThrusterProcessMaterial.tres"),
 			DrawPass1 = GD.Load<Mesh>("res://Assets/Images/Particles/ThrusterDrawPass.tres"),
-			Amount = 128,
+			Amount = 64,
 			TransformAlign = GpuParticles3D.TransformAlignEnum.ZBillboardYToVelocity,
 			Emitting = false
 		};
 		AddChild(particles);
-
-		ThrustForwardVector = Basis * Vector3.Forward;
 	}
 
 	public override void _Process(double delta)
 	{
-		//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
-
+        //float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
 
 		particles.Emitting = ThrustPercent > 0;
-		if ((int) (128*ThrustPercent) > 0)
-			particles.Amount = (int) (128*ThrustPercent);
+		if ((int) (64*ThrustPercent) > 0)
+			particles.Amount = (int) (64*ThrustPercent);
 		else
 			particles.Emitting = false;
+	}
+
+	public Vector3 ThrustForwardVector()
+	{
+		return GlobalTransform.Basis * Vector3.Forward;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -92,6 +94,7 @@ public partial class ThrusterBlock : CubeBlock
 		particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
 
 		parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float) delta, GlobalPosition - parent.GlobalPosition);
+		
 	}
 
 	public ThrusterBlock FromCubeBlock(CubeBlock c)
@@ -123,5 +126,11 @@ public partial class ThrusterBlock : CubeBlock
 		block.thrustNode = thrustNode;
 
 		return block;
+	}
+
+	public override void _ExitTree()
+	{
+		base._ExitTree();
+		particles.QueueFree();
 	}
 }

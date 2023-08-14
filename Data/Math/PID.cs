@@ -3,8 +3,8 @@ using System;
 
 public class PID
 {
-    float kP, kI, kD;
-    Vector3 pError = Vector3.Zero, integral = Vector3.Zero;
+    readonly float kP, kI, kD;
+    float pError = 0, integral = 0;
 
     public PID(float kP, float kI, float kD)
     {
@@ -13,13 +13,13 @@ public class PID
         this.kD = kD;
     }
 
-    public Vector3 Update(Vector3 current, Vector3 target, float delta)
+    public float Update(float current, float target, float delta)
     {
-        Vector3 error = target - current;
+        float error = target - current;
         integral += error * delta;
-        Vector3 derivative = (error - pError) / delta;
+        float derivative = (error - pError) / delta;
 
-        Vector3 output = kP * error + kI * integral + kD * derivative;
+        float output = kP * error + kI * integral + kD * derivative;
 
         pError = error;
 

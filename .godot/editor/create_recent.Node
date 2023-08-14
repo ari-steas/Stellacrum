@@ -1,4 +1,6 @@
 GPUParticles3D
+Sprite3D
+WorldEnvironment
 CollisionShape3D
 TextureRect
 HBoxContainer

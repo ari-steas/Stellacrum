@@ -1,7 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cey0g83qn2irp"]
+[gd_scene load_steps=7 format=3 uid="uid://cey0g83qn2irp"]
 
 [ext_resource type="Script" path="res://Data/GameSceneObjects/player_character.cs" id="1_u14pr"]
 [ext_resource type="Script" path="res://Data/GameSceneObjects/PlaceBox.cs" id="2_ym5iq"]
+[ext_resource type="Texture2D" uid="uid://b1y45lewwc0y5" path="res://Assets/Images/GUI/SelectWheel.png" id="3_q3h1k"]
+[ext_resource type="Texture2D" uid="uid://juxgcejolv08" path="res://Assets/Images/GUI/Crosshair.png" id="4_1n628"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0sxp0"]
 
@@ -37,3 +39,24 @@ target_position = Vector3(0, 0, -10)
 
 [node name="PlaceBox" type="Node3D" parent="."]
 script = ExtResource("2_ym5iq")
+
+[node name="ShipCrosshair3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -250)
+visible = false
+pixel_size = 0.002
+billboard = 1
+double_sided = false
+no_depth_test = true
+fixed_size = true
+render_priority = 2
+texture = ExtResource("3_q3h1k")
+
+[node name="Crosshair3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -250)
+pixel_size = 0.001
+billboard = 1
+double_sided = false
+no_depth_test = true
+fixed_size = true
+render_priority = 1
+texture = ExtResource("4_1n628")
