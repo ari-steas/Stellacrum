@@ -77,7 +77,7 @@ public partial class hud_scene : CanvasLayer
 			EmitSignal(SignalName.ThirdPersonToggle, _thirdPerson);
 		}
 
-		speedLabel.Text = "Speed: " + (int)(player.Velocity.Length()*100)/100f;
+		speedLabel.Text = "Speed: " + (int)((player.IsInCockpit ? (player.GetParent().GetParent() as CubeGrid).Speed : player.Velocity.Length())*100)/100f;
 	}
 
 	public void SetToolbar(int slot, string subTypeId)

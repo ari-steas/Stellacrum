@@ -10,7 +10,6 @@ public partial class player_character : CharacterBody3D
 
 	public const float Speed = 60.0f;
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
-	public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
 	private float lastX = 0, lastY = 0, lastZ = 0;
 	private bool _dampenersEnabled = true;
 
@@ -23,7 +22,8 @@ public partial class player_character : CharacterBody3D
 	private Camera3D camera;
 	private hud_scene HUD;
 	private long DelayedEnableCollision = 0;
-	private Sprite3D shipCrosshair;
+	private Node3D shipCrosshair;
+	private CollisionShape3D collision;
 
 	public PlaceBox PlayerPlaceBox { get; private set; }
 	public Vector3 lookPosition;
@@ -41,7 +41,8 @@ public partial class player_character : CharacterBody3D
 
 		PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
 		HUD = GetNode<hud_scene>("HudScene");
-		shipCrosshair = GetNode<Sprite3D>("ShipCrosshair3D");
+		shipCrosshair = GetNode<Node3D>("ShipCrosshair3D");
+		collision = FindChild("PlayerCollision") as CollisionShape3D;
 
 		// Wait 1 second after scene start to place blocks
 		nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
@@ -96,7 +97,7 @@ public partial class player_character : CharacterBody3D
 		if (DelayedEnableCollision > 0 && (DateTime.Now.Ticks - DelayedEnableCollision > 0))
 		{
 			DelayedEnableCollision = 0;
-			(FindChild("PlayerCollision") as CollisionShape3D).Disabled = false;
+			collision.Disabled = false;
 		}
 	}
 
@@ -134,16 +135,16 @@ public partial class player_character : CharacterBody3D
 			}
 
 			relativePosition = GlobalPosition - grid.GlobalPosition;
-			GD.Print(relativePosition);
 
 			Position = Vector3.Zero;
 			Rotation = Vector3.Zero;
 
-			(FindChild("PlayerCollision") as CollisionShape3D).Disabled = true;
+			collision.Disabled = true;
 			GetParent().RemoveChild(this);
 			closest.AddChild(this);
 
 			shipCrosshair.Visible = true;
+			shipCrosshair.Rotation = Vector3.Zero;
 
 			IsInCockpit = true;
 			currentGrid = grid;
@@ -156,6 +157,7 @@ public partial class player_character : CharacterBody3D
 		if (IsInCockpit)
 		{
 			Velocity = currentGrid.LinearVelocity;
+			currentGrid.DesiredRotation = Vector3.Zero;
 			GetParent().RemoveChild(this);
 			scene.AddChild(this);
 			// Add 0.1s to re-enable collision, because otherwise the grid gets flung
@@ -295,24 +297,49 @@ public partial class player_character : CharacterBody3D
 	private void _ToggleThirdPerson(bool enabled)
 	{
 		if (enabled)
-			camera.Position = new Vector3(0, 1.5f, 3f);
+			camera.Position = new Vector3(0, 1.5f, 10f);
 		else
 			camera.Position = new Vector3(0, 0.5f, 0);
 	}
 
 	#region movement
 
+	private Vector3 prevCrosshair = Vector3.Zero;
 	private void HandleRotation(double delta)
 	{
+		// Q and E keys
 		if (Input.IsActionPressed("RotateClockwise"))
 			lastZ = 1;
-
 		if (Input.IsActionPressed("RotateAntiClockwise"))
 			lastZ = -1;
 
 		if (IsInCockpit)
 		{
-			currentGrid.DesiredRotation = currentCockpit.Basis * new Vector3(lastY, lastX, lastZ);
+			shipCrosshair.GlobalRotation = prevCrosshair;
+			
+			Vector3 crosshairForward = shipCrosshair.Basis * Vector3.Forward;
+			
+
+			Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, (float)(lastX*delta));
+			rotatedPos = rotatedPos.Rotated(Vector3.Right, (float)(lastY*delta));
+
+			float scalar = Vector3.Forward.Dot(rotatedPos);
+
+			DebugDraw.Text(scalar);
+
+			if (Vector3.Forward.Dot(rotatedPos) > 0.5f)
+			{
+				shipCrosshair.Rotate(Vector3.Up, (float)(lastX * scalar * delta));
+				shipCrosshair.Rotate(Vector3.Right, (float)(lastY * scalar * delta));
+				crosshairForward = shipCrosshair.Basis * Vector3.Forward;
+
+				currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-crosshairForward.Y, crosshairForward.X, lastZ);
+			}
+
+			prevCrosshair = shipCrosshair.GlobalRotation;
+
+			// Direct input, kinda sucks
+			//currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-lastY, -lastX, lastZ);
 			return;
 		}
 

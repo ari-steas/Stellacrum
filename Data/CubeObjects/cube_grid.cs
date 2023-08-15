@@ -5,19 +5,19 @@ using System.Collections.Generic;
 public partial class CubeGrid : RigidBody3D
 {
 	public Aabb Size { get; private set; } = new Aabb();
-	private readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
 	public float Speed { get; private set; } = 0;
 	public readonly List<CockpitBlock> Cockpits = new();
 
 	public Vector3 MovementInput = Vector3.Forward;
 	public Vector3 DesiredRotation = Vector3.Forward;
 
-	private VectorPID thrustPid;
+	public float Ki = 0, Kd = 0, Kp = 0;
+
+	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		thrustPid = new(0, 0, 0f);
 		AxisLockLinearX = true;
 		AxisLockLinearY = true;
 		AxisLockLinearZ = true;
@@ -28,63 +28,52 @@ public partial class CubeGrid : RigidBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		DebugDraw.Text("Desired: " + Basis * DesiredRotation);
+		Vector3 dRot = DesiredRotation;
+
+		// Print debug text to HUD. Order is inverted because... reasons.
+		DebugDraw.Text("Desired: " + dRot);
 		DebugDraw.Text("Current: " + AngularVelocity);
-		DebugDraw.Text("Ki: " + thrustPid.Ki);
-		DebugDraw.Text("Kd: " + thrustPid.Kd);
-		DebugDraw.Text("Kp: " + thrustPid.Kp);
+		DebugDraw.Text("Ki: " + Ki);
+		DebugDraw.Text("Kd: " + Kd);
+		DebugDraw.Text("Kp: " + Kp);
 
-		if (Input.IsActionJustPressed("Interact"))
-			doRotate = !doRotate;
-
-		if (!doRotate)
-		{
-			foreach (var block in CubeBlocks.Values)
-			if (block is ThrusterBlock thruster)
-				thruster.SetDesiredAngularVelocity(AngularVelocity);
-			return;
-		}
-		
 		foreach (var block in CubeBlocks.Values)
-			if (block is ThrusterBlock thruster)
-				thruster.SetDesiredAngularVelocity(Basis * DesiredRotation);
+				if (block is ThrusterBlock thruster)
+					thruster.SetDesiredAngularVelocity(dRot);
 
-		if (Input.IsActionPressed("BlockRotateX-"))
-			thrustPid.Kp += 0.001f;
-		if (Input.IsActionPressed("BlockRotateX+"))
-			thrustPid.Kp -= 0.001f;
+		// PID Testing
 
-		if (Input.IsActionPressed("BlockRotateX-") && Input.IsActionPressed("BlockRotateX+"))
-			thrustPid.Kp = 0f;
-		
-		if (Input.IsActionPressed("BlockRotateY+"))
-			thrustPid.Ki += 0.001f;
-		if (Input.IsActionPressed("BlockRotateY-"))
-			thrustPid.Ki -= 0.001f;
-
-		if (Input.IsActionPressed("BlockRotateY-") && Input.IsActionPressed("BlockRotateY+"))
-			thrustPid.Ki = 0f;
-
-		if (Input.IsActionPressed("BlockRotateZ+"))
-			thrustPid.Kd += 0.001f;
-		if (Input.IsActionPressed("BlockRotateZ-"))
-			thrustPid.Kd -= 0.001f;
-
-		if (Input.IsActionPressed("BlockRotateZ-") && Input.IsActionPressed("BlockRotateZ+"))
-			thrustPid.Kd = 0f;
+		//if (Input.IsActionPressed("BlockRotateX-"))
+		//	Kp += 0.001f;
+		//if (Input.IsActionPressed("BlockRotateX+"))
+		//	Kp -= 0.001f;
+		//
+		//if (Input.IsActionPressed("BlockRotateX-") && Input.IsActionPressed("BlockRotateX+"))
+		//	Kp = 0f;
+		//
+		//if (Input.IsActionPressed("BlockRotateY+"))
+		//	Ki += 0.001f;
+		//if (Input.IsActionPressed("BlockRotateY-"))
+		//	Ki -= 0.001f;
+		//
+		//if (Input.IsActionPressed("BlockRotateY-") && Input.IsActionPressed("BlockRotateY+"))
+		//	Ki = 0f;
+		//
+		//if (Input.IsActionPressed("BlockRotateZ+"))
+		//	Kd += 0.001f;
+		//if (Input.IsActionPressed("BlockRotateZ-"))
+		//	Kd -= 0.001f;
+		//
+		//if (Input.IsActionPressed("BlockRotateZ-") && Input.IsActionPressed("BlockRotateZ+"))
+		//	Kd = 0f;
 	}
-
-	private bool doRotate = false;
 
 	public override void _PhysicsProcess(double delta)
 	{
-		DebugDraw.Arrow(ToGlobal(CenterOfMass), Basis * DesiredRotation, 1, Colors.Blue);
-		DebugDraw.Arrow(ToGlobal(CenterOfMass), Vector3.Forward, 1, Colors.Red);
-
 		Speed = LinearVelocity.Length();
 
+		// DebugDraw in PhysicsProcess to match framerate
 		DebugDraw.Point(ToGlobal(CenterOfMass), 1, Colors.Yellow);
-
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
 	}
 

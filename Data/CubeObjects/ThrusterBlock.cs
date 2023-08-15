@@ -7,6 +7,7 @@ public partial class ThrusterBlock : CubeBlock
 	CubeGrid parent;
 	public float ThrustPercent { get; private set; } = 0;
 	public float MaximumThrust { get; private set; } = 0;
+	public bool Dampen = true;
 	//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 	private Node3D thrustNode;
 	private GpuParticles3D particles;
@@ -14,34 +15,6 @@ public partial class ThrusterBlock : CubeBlock
 	public void SetThrustPercent(float pct)
 	{
 		ThrustPercent = Mathf.Clamp(pct, 0, 1);
-	}
-
-	public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
-	{
-		ThrusterBlock block = FromCubeBlock(base.Init(subTypeId, blockData));
-		
-		try
-		{
-			block.MaximumThrust = blockData["ThrusterStrength"].As<float>();
-		}
-		catch
-		{
-			GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
-		}
-
-		// ThrustNode shows where particles should be emitted
-		foreach (var node in block.meshes)
-		{
-			if (node.Name.ToString().Equals("ThrustNode"))
-			{
-				block.thrustNode = node;
-				break;
-			}
-		}
-		if (block.thrustNode == null)
-			throw new($"{subTypeId} missing ThrustNode!");
-
-		return block;
 	}
 
 	public override void _Ready()
@@ -59,25 +32,36 @@ public partial class ThrusterBlock : CubeBlock
 		};
 		AddChild(particles);
 
-		pid = new (5, 0, 75f);
+		pid = new (parent.Kp, parent.Ki, parent.Kd);
 	}
 
 	VectorPID pid;
 	Vector3 desired = Vector3.Zero;
 	public override void _Process(double delta)
 	{
-        //float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
-		//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);
-		Vector3 pidOut = -parent.AngularVelocity - desired;
+		if (Dampen)
+		{
+			pid.Kp = parent.Kp;
+			pid.Ki = parent.Ki;
+			pid.Kd = parent.Kd;
 
-		SetThrustPercent(pidOut.Dot(parent.Basis * GetAngularAccel()));
+			//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
+			//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);
+			Vector3 pidOut = -parent.AngularVelocity - desired;
+
+			float rotationThrottle = pidOut.Dot(parent.Basis * GetAngularAccel());
+
+			SetThrustPercent(rotationThrottle);
+		}
 
 		particles.Emitting = ThrustPercent > 0;
 		if (!((int) (64*ThrustPercent) > 0.01))
 			particles.Emitting = false;
 	}
 
-	// LOCAL
+	/// <summary>
+	/// Sets local desired angular velocity for PID control.
+	/// </summary>
 	public void SetDesiredAngularVelocity(Vector3 vel)
 	{
 		desired = vel;
@@ -111,6 +95,36 @@ public partial class ThrusterBlock : CubeBlock
 
 		parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float) delta, GlobalPosition - parent.GlobalPosition);
 
+	}
+
+	#region boilerplate
+
+	public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+	{
+		ThrusterBlock block = FromCubeBlock(base.Init(subTypeId, blockData));
+		
+		try
+		{
+			block.MaximumThrust = blockData["ThrusterStrength"].As<float>();
+		}
+		catch
+		{
+			GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
+		}
+
+		// ThrustNode shows where particles should be emitted
+		foreach (var node in block.meshes)
+		{
+			if (node.Name.ToString().Equals("ThrustNode"))
+			{
+				block.thrustNode = node;
+				break;
+			}
+		}
+		if (block.thrustNode == null)
+			throw new($"{subTypeId} missing ThrustNode!");
+
+		return block;
 	}
 
 	public ThrusterBlock FromCubeBlock(CubeBlock c)
@@ -149,4 +163,6 @@ public partial class ThrusterBlock : CubeBlock
 		base._ExitTree();
 		particles.QueueFree();
 	}
+
+	#endregion
 }

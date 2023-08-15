@@ -22,7 +22,7 @@ mesh = SubResource("CapsuleMesh_d3poe")
 skeleton = NodePath("")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.490247, -0.562982)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 shadow_enabled = true
 distance_fade_enabled = true
 spot_range = 50.0
@@ -35,24 +35,13 @@ fov = 90.0
 
 [node name="InteractCast" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-target_position = Vector3(0, 0, -10)
+target_position = Vector3(0, 0.5, -10)
 
 [node name="PlaceBox" type="Node3D" parent="."]
 script = ExtResource("2_ym5iq")
 
-[node name="ShipCrosshair3D" type="Sprite3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -250)
-visible = false
-pixel_size = 0.002
-billboard = 1
-double_sided = false
-no_depth_test = true
-fixed_size = true
-render_priority = 2
-texture = ExtResource("3_q3h1k")
-
 [node name="Crosshair3D" type="Sprite3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -250)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -250)
 pixel_size = 0.001
 billboard = 1
 double_sided = false
@@ -60,3 +49,17 @@ no_depth_test = true
 fixed_size = true
 render_priority = 1
 texture = ExtResource("4_1n628")
+
+[node name="ShipCrosshair3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+visible = false
+
+[node name="ShipCrosshairSprite" type="Sprite3D" parent="ShipCrosshair3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -250)
+pixel_size = 0.002
+billboard = 1
+double_sided = false
+no_depth_test = true
+fixed_size = true
+render_priority = 2
+texture = ExtResource("3_q3h1k")

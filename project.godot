@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="StellacrumTest"
+config/name="Stellacrum"
 run/main_scene="res://Data/MenuScenes/menus.tscn"
 config/features=PackedStringArray("4.1", "C#", "Forward Plus")
 boot_splash/image="res://Assets/Images/GUI/SelectWheel.png"

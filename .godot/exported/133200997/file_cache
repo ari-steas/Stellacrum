@@ -3,8 +3,10 @@ res://addons/debug_drawing/demo/demo.tscn::69f767d0adab9ba96cbc4f94b1e42ef2::169
 res://Data/MenuScenes/main_menu.tscn::ab6b4f5b44615a103db5dc955fe311f1::1691367580::res://.godot/exported/133200997/export-7841314b7713eb1b101b8c42ec2059df-main_menu.scn
 res://Data/MenuScenes/menus.tscn::70fa3d43638586e4bbc4d6683bc27f6e::1691265876::res://.godot/exported/133200997/export-7907b70602c6924524cd70dead98ceb5-menus.scn
 res://Data/MenuScenes/saves_menu.tscn::179a417766c2bd5dd2aced8329041c7b::1691367580::res://.godot/exported/133200997/export-b7db247306fff8fcd123ed941eeafaf0-saves_menu.scn
-res://Data/cube_block.tscn::f19a1a22b61743a6281a6fb51d1612b1::1691370376::res://.godot/exported/133200997/export-9f54f3de996b0f4719fbb57ad4cca59a-cube_block.scn
-res://Data/cube_grid.tscn::17f93d6c7c221ed9082279dcb2f9ec31::1691370376::res://.godot/exported/133200997/export-22be8c4d014c645dcd84b481b8117444-cube_grid.scn
-res://Data/GameScene.tscn::5361979ad3ea16e5f3172457ad24f75f::1691371271::res://.godot/exported/133200997/export-f6cfb386e637cac839c67b377874d5f2-GameScene.scn
-res://Data/hud_scene.tscn::3d46d8642eb50624b326d7cbdce60e69::1691370376::res://.godot/exported/133200997/export-0109b92866a4f3ff5ecdead93381ab17-hud_scene.scn
-res://Data/player_character.tscn::1a554fed30e3cf0e5a213201e2f7bfc8::1691370376::res://.godot/exported/133200997/export-1bc6b61774b3399b2515fa88c373ebf5-player_character.scn
+res://Assets/Images/Particles/ThrusterDrawPass.tres::cc5291f33f33e4c1b4d362fd4f40a6c9::1691687314::res://.godot/exported/133200997/export-8d44c55e4c0e542caef1f3d00e2ec68f-ThrusterDrawPass.res
+res://Assets/Images/Particles/ThrusterProcessMaterial.tres::14e8fb9c5a310701950b5b32f3d66bbb::1691687617::res://.godot/exported/133200997/export-0e4ff292b53b260efb2f6b23f08ffe38-ThrusterProcessMaterial.res
+res://Data/CubeObjects/cube_block.tscn::615ae87f576b593a9d39d11b5ac2b20f::1692032091::res://.godot/exported/133200997/export-658700a081fe806e62a1237c11e43adc-cube_block.scn
+res://Data/CubeObjects/cube_grid.tscn::364764c7d10431959b21a626e2434cca::1691983442::res://.godot/exported/133200997/export-793eb77ad3968a9d548c77bf31201177-cube_grid.scn
+res://Data/GameSceneObjects/GameScene.tscn::782bc5a2836fe60617846147221554b2::1692032091::res://.godot/exported/133200997/export-779a3c58cdbbafb46f5491d0fca1ae14-GameScene.scn
+res://Data/GameSceneObjects/hud_scene.tscn::827a4a32aadeda6ab9aa87752d060fb4::1692032091::res://.godot/exported/133200997/export-dd97bfa409a592064145503a4b53c8d6-hud_scene.scn
+res://Data/GameSceneObjects/player_character.tscn::d0768f8c2c6de07ba1bb1ec0065ff7c9::1692032091::res://.godot/exported/133200997/export-d390911b761e5ff4e4d32e5bc1eb2510-player_character.scn
