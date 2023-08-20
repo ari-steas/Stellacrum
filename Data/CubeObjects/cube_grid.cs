@@ -233,6 +233,7 @@ public partial class CubeGrid : RigidBody3D
 	{
 		foreach (var block in CubeBlocks)
 		{
+			ShapeOwnerClearShapes(block.Value.collisionId);
 			RemoveShapeOwner(block.Value.collisionId);
 			block.Value.QueueFree();
 		}

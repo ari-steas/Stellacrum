@@ -30,7 +30,7 @@ public partial class menus : Node2D
 
 	}
 
-	private void _SwitchMenu(int toShow)
+	public void _SwitchMenu(int toShow)
 	{
 		if (toShow == 0)
 			EmitSignal(SignalName.ToggleActive, true);
@@ -44,10 +44,12 @@ public partial class menus : Node2D
 			return;
 
 		for (int i = 0; i < _children.Count; i++)
+		{
 			if (_children[i] is CanvasLayer)
 			{
-				GD.Print($"Set {i} ({_children[i].Name}) to {(i == toShow - 1)}");
-				((CanvasLayer) _children[i]).Visible = (i == toShow - 1);
+				GD.Print($"Set {i} ({_children[i].Name}) to {i == toShow - 1}");
+				((CanvasLayer) _children[i]).Visible = i == toShow - 1;
 			}
+		}
 	}
 }

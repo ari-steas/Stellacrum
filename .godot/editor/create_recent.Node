@@ -1,3 +1,8 @@
+ColorRect
+Button
+VBoxContainer
+TabContainer
+CanvasLayer
 MultiplayerSynchronizer
 Node3D
 CharacterBody3D
@@ -14,16 +19,12 @@ MeshInstance3D
 StaticBody3D
 Camera3D
 Label
-CanvasLayer
 DirectionalLight3D
 SpotLight3D
 DirectionalLight2D
 Node
 GridContainer
-Button
-ColorRect
 ItemList
-VBoxContainer
 Node2D
 RichTextLabel
 Window

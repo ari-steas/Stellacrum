@@ -56,7 +56,7 @@ public partial class hud_scene : CanvasLayer
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		Visible = ((Node3D)GetParent()).Visible;
+		Visible = player.Visible;
 
 		if (Input.IsActionJustPressed("SpotlightToggle"))
 		{
@@ -77,7 +77,7 @@ public partial class hud_scene : CanvasLayer
 			EmitSignal(SignalName.ThirdPersonToggle, _thirdPerson);
 		}
 
-		speedLabel.Text = "Speed: " + (int)((player.IsInCockpit ? (player.GetParent().GetParent() as CubeGrid).Speed : player.Velocity.Length())*100)/100f;
+		speedLabel.Text = "Speed: " + (int)((player.IsInCockpit ? player.currentGrid.Speed : player.Velocity.Length())*100)/100f;
 	}
 
 	public void SetToolbar(int slot, string subTypeId)

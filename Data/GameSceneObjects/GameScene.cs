@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+
 
 public partial class GameScene : Node3D
 {
@@ -21,8 +23,14 @@ public partial class GameScene : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-
 		DebugDraw.Text(grids.Count + " CubeGrids");
+
+		if (Input.IsActionPressed("Pause"))
+		{
+			Input.ActionRelease("Pause");
+			GetParent<menus>()._SwitchMenu(3);
+			Visible = true;
+		}
 	}
 
 	private void _ToggleActive(bool active)
@@ -34,10 +42,13 @@ public partial class GameScene : Node3D
 		{
 			Input.MouseMode = Input.MouseModeEnum.Captured;
 			ProcessMode = ProcessModeEnum.Inherit;
+			playerCharacter.HUD.Visible = true;
 		}
 		else
 		{
+			Input.MouseMode = Input.MouseModeEnum.Visible;
 			ProcessMode = ProcessModeEnum.Disabled;
+			playerCharacter.HUD.Visible = false;
 		}
 	}
 
@@ -132,6 +143,8 @@ public partial class GameScene : Node3D
 			grid.Close();
 
 		GD.Print("Closed all grids in GameScene.");
+
+		GetTree().ReloadCurrentScene();
 	}
 
 	private void _OnTreeExited()

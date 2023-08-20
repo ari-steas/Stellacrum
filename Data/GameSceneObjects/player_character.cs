@@ -20,7 +20,7 @@ public partial class player_character : CharacterBody3D
 
 	private SpotLight3D light;
 	private Camera3D camera;
-	private hud_scene HUD;
+	public hud_scene HUD;
 	private long DelayedEnableCollision = 0;
 	private Node3D shipCrosshair;
 	private CollisionShape3D collision;
