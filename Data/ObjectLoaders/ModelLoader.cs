@@ -1,39 +1,54 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+
 
 public class ModelLoader
 {
     public static readonly Dictionary<string, List<Node3D>> Models = new ();
 
-    public static void StartLoad(string path)
+	#nullable enable
+    public static Thread? StartLoad(string path, bool threaded = false)
 	{
-		GD.Print("\n\nStart Model load from " + path);
-
-		if (path[^1] != '/')
-			path += '/';
-
-		List<string> allModels = FileHelper.FindFilesWithExtension(path, ".glb");
-
-		foreach (var model in allModels)
+		if (threaded)
 		{
-			int slashIndex = model.LastIndexOf('/');
-			string name = model.Substring(slashIndex == -1 ? 0 : slashIndex, model.LastIndexOf('.'));
-			if (Models.ContainsKey(name))
-			    continue;
-
-			try
-			{
-				Models.Add(name, UnPackScene(GD.Load<PackedScene>(path + model)));
-				GD.Print("Loaded model \"" + name + "\".");
-			}
-			catch (Exception e)
-			{
-				GD.PrintErr("Failed to load model \"" + name + "\"!\n" + e.Message);
-			}
+			Thread t = new(Load);
+			t.Start(path);
+			return t;
 		}
 
-		GD.Print($"Loaded {Models.Count} Models.");
+		Load(path);
+		return null;
+	}
+
+	static void Load(object data)
+	{
+		if (data is string path)
+		{
+			GD.Print("\n\nStart Model load from " + path);
+
+			List<string> allModels = FileHelper.FindFilesWithExtension(path, ".glb", true);
+
+			foreach (var model in allModels)
+			{
+				GD.Print(model);
+				int slashIndex = model.LastIndexOf('/') + 1;
+				string name = model.Substring(slashIndex, model.LastIndexOf('.') - slashIndex);
+
+				try
+				{
+					Models.Add(name, UnPackScene(GD.Load<PackedScene>(model)));
+					GD.Print("Loaded model \"" + name + "\".");
+				}
+				catch (Exception e)
+				{
+					GD.PrintErr("Failed to load model \"" + name + "\"!\n" + e.Message);
+				}
+			}
+
+			GD.Print($"Loaded {Models.Count} Models.");
+		}
 	}
 
 	public void Clear()

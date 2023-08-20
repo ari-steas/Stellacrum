@@ -17,13 +17,13 @@ public class CubeBlockLoader
 		if (path[^1] != '/')
 			path += '/';
 
-		List<string> allDataFiles = FileHelper.FindFilesWithExtension(path, ".json");
+		List<string> allDataFiles = FileHelper.FindFilesWithExtension(path, ".json", true);
 		
 		foreach (var filePath in allDataFiles)
 		{
 			try
 			{
-				LoadCubeBlockFromPath(path + filePath);
+				LoadCubeBlockFromPath(filePath);
 			}
 			catch (Exception e)
 			{

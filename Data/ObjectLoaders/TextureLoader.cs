@@ -1,36 +1,46 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+
 
 public class TextureLoader
 {
     private readonly static Dictionary<string, Texture2D> Textures = new();
 
-    public static void StartLoad(string path)
+    public static Thread StartLoad(string path)
     {
-        GD.Print("\n\nStarting texture load from " + path);
+        Thread t = new(Load);
+		t.Start(path);
+		return t;
+    }
 
-        if (path[^1] != '/')
-			path += '/';
-
-        List<string> allTextures = FileHelper.FindFilesWithExtension(path, ".png");
-
-        foreach (var texture in allTextures)
+    static void Load(object data)
+    {
+        if (data is string path)
         {
-            if (Textures.ContainsKey(texture))
-                continue;
-            try
+            GD.Print("\n\nStarting texture load from " + path);
+
+            List<string> allTextures = FileHelper.FindFilesWithExtension(path, ".png", true);
+
+            foreach (var texture in allTextures)
             {
-                Textures.Add(texture, GD.Load<Texture2D>(path + texture));
-                GD.Print("Loaded texture \"" + texture + "\".");
+                string t = texture[(texture.LastIndexOf('/') + 1)..];
+                if (!Textures.TryAdd(t, GD.Load<Texture2D>(texture)))
+                    GD.PrintErr("Duplicate texture " + t);
+                else
+                    GD.Print("Loaded texture \"" + t + "\".");
             }
-            catch (Exception e)
+
+            GD.Print($"Loaded {Textures.Count} Textures.\n\n");
+
+            if (!Textures.ContainsKey("missing.png"))
             {
-                GD.PrintErr(e);
+                GD.PrintErr("Loading GUI textures [missing.png]");
+                Load("res://Assets/Images/GUI");
             }
         }
-
-        GD.Print($"Loaded {Textures.Count} Textures.\n\n");
     }
 
     public static Texture2D Get(string name)
@@ -38,7 +48,8 @@ public class TextureLoader
         // Fail-over in case all textures are missing. missing.png should always be in this folder.
         if (Textures.Count == 0)
         {
-            StartLoad("res://Assets/Images/GUI");
+            GD.PrintErr("Critical missing [missing.png]!");
+            Load("res://Assets/Images/GUI");
             return Get(name);
         }
 

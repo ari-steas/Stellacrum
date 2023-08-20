@@ -4,11 +4,14 @@ using System.Collections.Generic;
 
 public class FileHelper
 {
-    public static List<string> FindFilesWithExtension(string path, string extension)
+    public static List<string> FindFilesWithExtension(string path, string extension, bool recursive = false)
 	{
 		DirAccess cdir = DirAccess.Open(path);
 
 		List<string> files = new();
+		
+		if (path[^1] != '/')
+            path += '/';
 
 		if (cdir == null)
 			return files;
@@ -17,15 +20,17 @@ public class FileHelper
 		{
 			try
 			{
+				// PCK files add ".import" to end of file name, this fixes.
 				string fR = file.Replace(".import", "");
-				if (fR.EndsWith(extension))
-					files.Add(fR);
+				if (fR.EndsWith(extension) && !files.Contains(path + fR))
+					files.Add(path + fR);
 			}
 			catch {}
 		}
 
-		foreach (var dir in cdir.GetDirectories())
-			files.AddRange(FindFilesWithExtension(dir, extension));
+		if (recursive)
+			foreach (var dir in cdir.GetDirectories())
+				files.AddRange(FindFilesWithExtension(path + dir, extension, true));
 
 		return files;
 	}

@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+
 
 public class WorldLoader
 {
@@ -11,7 +13,12 @@ public class WorldLoader
 	{
 		List<WorldSave> bufferWorlds = new ();
 
-		foreach (var dir in DirAccess.Open("user://Saves/").GetDirectories())
+		if (!DirAccess.DirExistsAbsolute("user://Saves/"))
+			DirAccess.MakeDirAbsolute("user://Saves/");
+
+		DirAccess d = DirAccess.Open("user://Saves/");
+
+		foreach (var dir in d.GetDirectories())
 			bufferWorlds.Add(GetSaveInfo(dir));
 
 		return bufferWorlds;
@@ -32,7 +39,11 @@ public class WorldLoader
 		GD.PrintErr("TODO world_loader.LoadWorld()");
 
 		ModelLoader.StartLoad("res://Assets/Models");
-		TextureLoader.StartLoad("res://Assets/Images/Blocks");
+		//Thread textureThread = TextureLoader.StartLoad("res://Assets/Images/Blocks");
+
+		//modelThread.Join();
+		//textureThread.Join();
+
 		CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
 	}
 

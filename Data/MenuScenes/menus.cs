@@ -14,6 +14,8 @@ public partial class menus : Node2D
 	{
 		_children = GetChildren();
 		_SwitchMenu(1);
+
+		TextureLoader.StartLoad("res://Assets/Images/");
 	}
 
 	private void _Fullscreen()
