@@ -11,7 +11,7 @@ public partial class player_character : CharacterBody3D
 	public const float Speed = 60.0f;
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	private float lastX = 0, lastY = 0, lastZ = 0;
-	private bool _dampenersEnabled = true;
+	public bool _dampenersEnabled = true;
 
 	#endregion
 
@@ -144,7 +144,11 @@ public partial class player_character : CharacterBody3D
 			closest.AddChild(this);
 
 			shipCrosshair.Visible = true;
-			shipCrosshair.Rotation = Vector3.Zero;
+			shipCrosshair.GlobalRotation = grid.GlobalRotation;
+			prevCrosshair = grid.GlobalRotation;
+			_dampenersEnabled = grid.ThrustControl.Dampen;
+
+			grid.ControlGrid();
 
 			IsInCockpit = true;
 			currentGrid = grid;
@@ -164,6 +168,8 @@ public partial class player_character : CharacterBody3D
 			DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
 
 			GlobalPosition = currentGrid.ToGlobal(relativePosition);
+			currentGrid.ReleaseControl();
+			_dampenersEnabled = currentGrid.Speed < 0.1f;
 
 			shipCrosshair.Visible = false;
 
@@ -287,6 +293,8 @@ public partial class player_character : CharacterBody3D
 	private void _ToggleDampeners(bool enabled)
 	{
 		_dampenersEnabled = enabled;
+		if (IsInCockpit)
+			currentGrid.ThrustControl.Dampen = enabled;
 	}
 
 	private void _ToggleLight(bool enabled)

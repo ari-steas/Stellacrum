@@ -31,27 +31,19 @@ public partial class ThrusterBlock : CubeBlock
 			Emitting = false
 		};
 		AddChild(particles);
-
-		pid = new (parent.Kp, parent.Ki, parent.Kd);
 	}
 
 	VectorPID pid;
-	Vector3 desired = Vector3.Zero;
+	Vector3 angularDesired = Vector3.Zero;
+	Vector3 linearDesired = Vector3.Zero;
+
 	public override void _Process(double delta)
 	{
 		if (Dampen)
 		{
-			pid.Kp = parent.Kp;
-			pid.Ki = parent.Ki;
-			pid.Kd = parent.Kd;
-
-			//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
-			//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);
-			Vector3 pidOut = -parent.AngularVelocity - desired;
-
-			float rotationThrottle = pidOut.Dot(parent.Basis * GetAngularAccel());
-
-			SetThrustPercent(rotationThrottle);
+			//SetThrustPercent(AngularControl());
+			//SetThrustPercent(LinearControl());
+			SetThrustPercent(AngularControl() + LinearControl());
 		}
 
 		particles.Emitting = ThrustPercent > 0;
@@ -59,12 +51,37 @@ public partial class ThrusterBlock : CubeBlock
 			particles.Emitting = false;
 	}
 
+	float AngularControl()
+	{
+		//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
+		//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);
+		Vector3 angularDiff = -parent.AngularVelocity - angularDesired;
+
+		float rotationThrottle = angularDiff.Dot(parent.Basis * GetAngularAccel());
+
+		return rotationThrottle;
+	}
+
+	float LinearControl()
+	{
+		Vector3 linearDiff = linearDesired - parent.LinearVelocity;
+
+		float linearThrottle = linearDiff.Dot(parent.Basis * ThrustForwardVector());
+		
+		return linearThrottle;
+	}
+
 	/// <summary>
 	/// Sets local desired angular velocity for PID control.
 	/// </summary>
 	public void SetDesiredAngularVelocity(Vector3 vel)
 	{
-		desired = vel;
+		angularDesired = vel;
+	}
+
+	public void SetDesiredLinearVelocity(Vector3 vel)
+	{
+		linearDesired = vel;
 	}
 
 	public Vector3 ThrustForwardVector()

@@ -10,62 +10,33 @@ public partial class CubeGrid : RigidBody3D
 
 	public Vector3 MovementInput = Vector3.Forward;
 	public Vector3 DesiredRotation = Vector3.Forward;
+	public GridThrustControl ThrustControl { get; private set; } = new();
 
-	public float Ki = 0, Kd = 0, Kp = 0;
+	bool underControl = false;
 
 	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
+	readonly List<ThrusterBlock> ThrusterBlocks = new();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		AxisLockLinearX = true;
-		AxisLockLinearY = true;
-		AxisLockLinearZ = true;
 		DesiredRotation = Rotation;
+		ThrustControl.Init(ThrusterBlocks);
 	}
 
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		Vector3 dRot = DesiredRotation;
+		//Vector3 dRot = underControl ? angularPID.Update(AngularVelocity, DesiredRotation, (float) delta) : Vector3.Zero;
 
-		// Print debug text to HUD. Order is inverted because... reasons.
-		DebugDraw.Text("Desired: " + dRot);
-		DebugDraw.Text("Current: " + AngularVelocity);
-		DebugDraw.Text("Ki: " + Ki);
-		DebugDraw.Text("Kd: " + Kd);
-		DebugDraw.Text("Kp: " + Kp);
+		if (underControl)
+		{
+			ThrustControl.SetInputLinear(Basis * MovementInput);
+			ThrustControl.SetInputAngular(DesiredRotation);
+		}
 
-		foreach (var block in CubeBlocks.Values)
-				if (block is ThrusterBlock thruster)
-					thruster.SetDesiredAngularVelocity(dRot);
-
-		// PID Testing
-
-		//if (Input.IsActionPressed("BlockRotateX-"))
-		//	Kp += 0.001f;
-		//if (Input.IsActionPressed("BlockRotateX+"))
-		//	Kp -= 0.001f;
-		//
-		//if (Input.IsActionPressed("BlockRotateX-") && Input.IsActionPressed("BlockRotateX+"))
-		//	Kp = 0f;
-		//
-		//if (Input.IsActionPressed("BlockRotateY+"))
-		//	Ki += 0.001f;
-		//if (Input.IsActionPressed("BlockRotateY-"))
-		//	Ki -= 0.001f;
-		//
-		//if (Input.IsActionPressed("BlockRotateY-") && Input.IsActionPressed("BlockRotateY+"))
-		//	Ki = 0f;
-		//
-		//if (Input.IsActionPressed("BlockRotateZ+"))
-		//	Kd += 0.001f;
-		//if (Input.IsActionPressed("BlockRotateZ-"))
-		//	Kd -= 0.001f;
-		//
-		//if (Input.IsActionPressed("BlockRotateZ-") && Input.IsActionPressed("BlockRotateZ+"))
-		//	Kd = 0f;
+		ThrustControl.Update(LinearVelocity, AngularVelocity, delta);
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -75,6 +46,18 @@ public partial class CubeGrid : RigidBody3D
 		// DebugDraw in PhysicsProcess to match framerate
 		DebugDraw.Point(ToGlobal(CenterOfMass), 1, Colors.Yellow);
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
+	}
+
+	public void ControlGrid()
+	{
+		underControl = true;
+	}
+
+	public void ReleaseControl()
+	{
+		underControl = false;
+		ThrustControl.SetInputLinear(Vector3.Zero);
+		ThrustControl.SetInputAngular(Vector3.Zero);
 	}
 
 	public Aabb BoundingBox()
@@ -120,6 +103,8 @@ public partial class CubeGrid : RigidBody3D
 
 			if (block is CockpitBlock c)
 				Cockpits.Add(c);
+			if (block is ThrusterBlock t)
+				ThrusterBlocks.Add(t);
 		}
 		else
 		{
@@ -195,6 +180,8 @@ public partial class CubeGrid : RigidBody3D
 		if (CenterOfMassMode != CenterOfMassModeEnum.Custom)
 			CenterOfMassMode = CenterOfMassModeEnum.Custom;
 		CenterOfMass = centerOfMass;
+
+		ThrustControl.SetCenterOfMass(CenterOfMass);
 	}
 
 	public Vector3 RoundGlobalCoord(Vector3 global)

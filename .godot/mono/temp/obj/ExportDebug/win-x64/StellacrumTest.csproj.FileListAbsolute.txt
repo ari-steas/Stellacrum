@@ -220,7 +220,6 @@ C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\Expo
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\hostfxr.dll
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\hostpolicy.dll
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\mscordaccore.dll
-C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\mscordaccore_amd64_amd64_6.0.2023.32017.dll
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\mscordbi.dll
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\mscorrc.dll
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\msquic.dll
@@ -236,3 +235,4 @@ C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\Expo
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\ExportDebug\win-x64\StellacrumTest.pdb
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\ExportDebug\win-x64\StellacrumTest.genruntimeconfig.cache
 C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\obj\ExportDebug\win-x64\ref\StellacrumTest.dll
+C:\Users\jnick\OneDrive\Documents\GoDot\StellacrumTest\.godot\mono\temp\bin\ExportDebug\win-x64\mscordaccore_amd64_amd64_6.0.2123.36311.dll

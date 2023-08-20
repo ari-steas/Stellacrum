@@ -66,7 +66,7 @@ public partial class hud_scene : CanvasLayer
 
 		if (Input.IsActionJustPressed("DampenersToggle"))
 		{
-			_dampenersEnabled = !_dampenersEnabled;
+			_dampenersEnabled = !player._dampenersEnabled;
 			EmitSignal(SignalName.DampenersToggle, _dampenersEnabled);
 			dampenersLabel.Text = "DAMPENERS " + (_dampenersEnabled ? "ENABLED" : "DISABLED");
 		}
