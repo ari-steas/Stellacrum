@@ -229,8 +229,29 @@ public partial class CubeGrid : RigidBody3D
 
 	#endregion
 
+	public string Save()
+	{
+		Godot.Collections.Array blocks = new();
+
+		foreach (var block in CubeBlocks.Values)
+		{
+			blocks.Add(block.Save());
+		}
+
+		Godot.Collections.Dictionary<string, Variant> saveData = new()
+        {
+            { "Name", Name },
+			{ "Position", Position },
+			{ "Rotation", Rotation },
+			{ "Blocks", Json.Stringify(blocks) },
+        };
+
+		return Json.Stringify(saveData);
+	}
+
 	public void Close()
 	{
+		GD.Print(Save());
 		foreach (var block in CubeBlocks)
 		{
 			ShapeOwnerClearShapes(block.Value.collisionId);

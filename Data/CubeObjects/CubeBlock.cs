@@ -117,4 +117,16 @@ public partial class CubeBlock : StaticBody3D
 		Aabb size = new(position, Vector3I.One);
 		return size;
 	}
+
+	public virtual string Save()
+	{
+		Godot.Collections.Dictionary<string, Variant> data = new()
+		{
+			{ "SubTypeId", subTypeId },
+			{ "Position", Position },
+			{ "Rotation", Rotation },
+		};
+
+		return Json.Stringify(data);
+	}
 }

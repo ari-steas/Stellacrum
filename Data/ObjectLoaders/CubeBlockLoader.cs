@@ -126,4 +126,20 @@ public class CubeBlockLoader
 			}
 		}
 	}
+
+	public static CubeBlock LoadFromJson(string jsonData)
+	{
+		Json json = new ();
+
+		if (json.Parse(jsonData) != Error.Ok)
+			throw new Exception("Unable to load saved CubeBlock @ " + jsonData + " - " + json.GetErrorMessage());
+
+		Godot.Collections.Dictionary<string, Variant> data = json.Data.AsGodotDictionary<string, Variant>();
+
+		CubeBlock block = CubeBlocks[data["SubTypeId"].AsString()];
+		block.Position = data["Position"].AsVector3();
+		block.Rotation = data["Position"].AsVector3();
+
+		return block;
+	}
 }

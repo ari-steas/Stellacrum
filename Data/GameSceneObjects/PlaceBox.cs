@@ -71,26 +71,29 @@ public partial class PlaceBox : Node3D
 
 	public void SnapLocal()
 	{
-		Vector3 rotation = Rotation;
-		Vector3 mod = rotation % nd;
+		Rotation = Rotation.Snapped(Vector3.One*nd);
+
+		//Vector3 rotation = Rotation;
+		//Vector3 mod = rotation % nd;
+		
 
 		// Attempts to round to closest snap rotation
-		if (mod.X > nd/2)
-			rotation.X += nd - mod.X;
-		else
-			rotation.X -= mod.X;
-
-		if (mod.Y > nd/2)
-			rotation.Y += nd - mod.Y;
-		else
-			rotation.Y -= mod.Y;
-
-		if (mod.Z > nd/2)
-			rotation.Z += nd - mod.Z;
-		else
-			rotation.Z -= mod.Z;
-
-		Rotation = rotation;
+		//if (mod.X > nd/2)
+		//	rotation.X += nd - mod.X;
+		//else
+		//	rotation.X -= mod.X;
+		//
+		//if (mod.Y > nd/2)
+		//	rotation.Y += nd - mod.Y;
+		//else
+		//	rotation.Y -= mod.Y;
+		//
+		//if (mod.Z > nd/2)
+		//	rotation.Z += nd - mod.Z;
+		//else
+		//	rotation.Z -= mod.Z;
+		//
+		//Rotation = rotation;
 	}
 
 	private const float nd = Mathf.Pi/2;

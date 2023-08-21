@@ -244,17 +244,19 @@ public partial class player_character : CharacterBody3D
 			if (interactCast.GetCollider() is CubeGrid)
 			{
 				if (Input.IsActionJustPressed("BlockRotateX+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Right, nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Right, nd);
 				if (Input.IsActionJustPressed("BlockRotateX-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Right, -nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Right, -nd);
 				if (Input.IsActionJustPressed("BlockRotateY+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Up, nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Up, nd);
 				if (Input.IsActionJustPressed("BlockRotateY-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Up, -nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Up, -nd);
 				if (Input.IsActionJustPressed("BlockRotateZ+"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Forward, nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Forward, nd);
 				if (Input.IsActionJustPressed("BlockRotateZ-"))
-					PlayerPlaceBox.RotateObjectLocal(Vector3.Forward, -nd);
+					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Forward, -nd);
+				
+				PlayerPlaceBox.SnapLocal();
 			}
 			else // Else rotate 90 degrees per second
 			{
