@@ -52,7 +52,10 @@ public class WorldLoader
 		LoadSaveData(CurrentSave);
 
 		foreach (var grid in CurrentSave.grids)
-			scene.AddChild(grid);
+			scene.SpawnPremadeGrid(grid);
+		
+		scene.playerCharacter.Position = CurrentSave.playerObject.position;
+		scene.playerCharacter.Rotation = CurrentSave.playerObject.rotation;
 	}
 
 	public static void SaveWorld(WorldSave save, string jsonData)
@@ -111,6 +114,8 @@ public class WorldLoader
 		if (json.Parse(infoFile.GetAsText()) != Error.Ok)
 			throw new Exception("Invalid world.scw @ " + save.Path + " - " + json.GetErrorMessage());
 
+		CurrentSave.ResetData();
+
 		var worldData = json.Data.AsGodotDictionary<string, Variant>();
 
 		if (worldData.ContainsKey("PlayerCharacter"))
@@ -136,8 +141,8 @@ public class WorldLoader
 		CubeGrid grid = new()
 		{
 			Name = data["Name"].AsString(),
-			Position = data["Position"].AsVector3(),
-			Rotation = data["Rotation"].AsVector3(),
+			Position = JsonHelper.VariantToVec3(data["Position"]),
+			Rotation = JsonHelper.VariantToVec3(data["Rotation"]),
 		};
 
 		foreach (var block in data["Blocks"].AsGodotArray<Godot.Collections.Dictionary<string, Variant>>())

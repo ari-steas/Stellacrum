@@ -57,6 +57,12 @@ public class WorldSave
 	{
 		GD.PrintErr("TODO Create in WorldSave.cs");
 	}
+
+	public void ResetData()
+	{
+		playerObject = null;
+		grids.Clear();
+	}
 }
 
 public class SaveObject

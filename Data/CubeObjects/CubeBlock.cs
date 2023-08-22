@@ -123,8 +123,8 @@ public partial class CubeBlock : StaticBody3D
 		Godot.Collections.Dictionary<string, Variant> data = new()
 		{
 			{ "SubTypeId", subTypeId },
-			{ "Position", Position },
-			{ "Rotation", Rotation },
+			{ "Position", JsonHelper.StoreVec(Position) },
+			{ "Rotation", JsonHelper.StoreVec(Rotation) },
 		};
 
 		return data;

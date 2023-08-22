@@ -270,8 +270,8 @@ public partial class CubeGrid : RigidBody3D
 		Godot.Collections.Dictionary<string, Variant> saveData = new()
 		{
 			{ "Name", Name },
-			{ "Position", Position },
-			{ "Rotation", Rotation },
+			{ "Position", JsonHelper.StoreVec(Position) },
+			{ "Rotation", JsonHelper.StoreVec(Rotation) },
 			{ "Blocks", blocks },
 		};
 

@@ -1,9 +1,9 @@
+res://Data/MenuScenes/menus.tscn
 res://Data/GameSceneObjects/player_character.tscn
 res://Data/GameSceneObjects/GameScene.tscn
 res://Data/CubeObjects/cube_block.tscn
 res://Data/MenuScenes/PauseMenu.tscn
 res://Data/MenuScenes/main_menu.tscn
-res://Data/MenuScenes/menus.tscn
 res://addons/debug_drawing/control/DebugDock.cs
 res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
@@ -23,3 +23,4 @@ res://Data/MenuScenes/menus.cs
 res://Data/MenuScenes/PauseMenu.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
+res://Data/Helpers/JsonHelper.cs

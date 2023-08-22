@@ -72,6 +72,14 @@ public partial class GameScene : Node3D
 		GD.Print("Spawned grid " + newGrid.Name + " @ " + newGrid.Position);
 	}
 
+	public void SpawnPremadeGrid(CubeGrid grid)
+	{
+		AddChild(grid);
+		grids.Add(grid);
+
+		GD.Print("Spawned existing grid " + grid.Name + " @ " + grid.Position);
+	}
+
 	public void TryPlaceBlock(string blockId, RayCast3D cast, Vector3 rotation)
 	{
 		if (cast.IsColliding())
@@ -147,8 +155,8 @@ public partial class GameScene : Node3D
 			{
 				"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
 				{
-					{ "Position", playerCharacter.GlobalPosition },
-					{ "Rotation", playerCharacter.GlobalRotation },
+					{ "Position", JsonHelper.StoreVec(playerCharacter.GlobalPosition) },
+					{ "Rotation", JsonHelper.StoreVec(playerCharacter.GlobalRotation) },
 				}
 			},
 		};
