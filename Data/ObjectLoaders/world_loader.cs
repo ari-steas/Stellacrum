@@ -21,6 +21,9 @@ public class WorldLoader
 		foreach (var dir in d.GetDirectories())
 			bufferWorlds.Add(GetSaveInfo(dir));
 
+		if (CurrentSave == null)
+			CurrentSave = new WorldSave();
+
 		return bufferWorlds;
 	}
 
@@ -34,7 +37,7 @@ public class WorldLoader
 		CurrentSave = Worlds[worldId];
 	}
 
-	public static void LoadWorld()
+	public static void LoadWorld(GameScene scene)
 	{
 		GD.PrintErr("TODO world_loader.LoadWorld()");
 
@@ -45,9 +48,17 @@ public class WorldLoader
 		//textureThread.Join();
 
 		CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
+
+		LoadSaveData(CurrentSave);
+
+		foreach (var grid in CurrentSave.grids)
+			scene.AddChild(grid);
 	}
 
-
+	public static void SaveWorld(WorldSave save, string jsonData)
+	{
+		save.Update(jsonData);
+	}
 
 
 
@@ -83,9 +94,64 @@ public class WorldLoader
 			thumbnail = TextureLoader.Get("missing.png");
 
 		GD.Print("Read SaveInfo of \"" + name + "\" with description \"" + description + "\", created on " + creationDate.ToLongDateString());
+
+		WorldSave save = new WorldSave(name, description, creationDate, modifiedDate, size, path, thumbnail);
 		
-		return new WorldSave(name, description, creationDate, modifiedDate, size, path, thumbnail);
+		return save;
 	}
+
+	private static void LoadSaveData(WorldSave save)
+	{
+		DirAccess dirAccess = DirAccess.Open(save.Path);
+		if (dirAccess == null)
+			throw new UriFormatException("Unable to find WorldSave data @ " + save.Path);
+
+		Json json = new();
+		FileAccess infoFile = FileAccess.Open(save.Path + "/world.scw", FileAccess.ModeFlags.Read);
+		if (json.Parse(infoFile.GetAsText()) != Error.Ok)
+			throw new Exception("Invalid world.scw @ " + save.Path + " - " + json.GetErrorMessage());
+
+		var worldData = json.Data.AsGodotDictionary<string, Variant>();
+
+		if (worldData.ContainsKey("PlayerCharacter"))
+			save.playerObject = SaveObject.FromDictionary(worldData["PlayerCharacter"].AsGodotDictionary<string, Vector3>());
+		else
+			save.playerObject = new(Vector3.Zero, Vector3.Zero);
+
+		//List<Dictionary<string, Variant>> gridList = worldData["Grids"].As<List<Dictionary<string, Variant>>>();
+
+		if (worldData.ContainsKey("Grids"))
+		{
+			foreach (var grid in worldData["Grids"].AsGodotArray<Godot.Collections.Dictionary<string, Variant>>())
+			{
+				CubeGrid cubeGrid = GridFromData(grid);
+
+				save.grids.Add(cubeGrid);
+			}
+		}
+	}
+
+	private static CubeGrid GridFromData(Godot.Collections.Dictionary<string, Variant> data)
+	{
+		CubeGrid grid = new()
+		{
+			Name = data["Name"].AsString(),
+			Position = data["Position"].AsVector3(),
+			Rotation = data["Rotation"].AsVector3(),
+		};
+
+		foreach (var block in data["Blocks"].AsGodotArray<Godot.Collections.Dictionary<string, Variant>>())
+		{
+			grid.AddFullBlock(CubeBlockLoader.LoadFromData(block));
+		}
+
+		return grid;
+	}
+
+
+
+
+
 
 	private static List<string> ScanDirectory(string directory)
 	{

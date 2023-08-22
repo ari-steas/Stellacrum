@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+
 
 public class WorldSave
 {
@@ -11,6 +13,9 @@ public class WorldSave
 	public float Size { get; private set; } = 0;
 	public string Path { get; private set; } = "";
 	public Texture2D Thumbnail { get; private set; }
+
+	public SaveObject playerObject;
+	public List<CubeGrid> grids = new();
 
 	public WorldSave(string name, string description, DateTime creationDate, DateTime modifiedDate, float size, string path, Texture2D thumbnail)
 	{
@@ -28,8 +33,45 @@ public class WorldSave
 		
 	}
 
-	public void Create(string name)
+	public void Update(string data)
+	{
+		GD.PrintErr(data);
+
+		GD.Print("Writing save to " + Path + "/world.scw");
+		DirAccess.RemoveAbsolute(Path + "/world.scw");
+
+		FileAccess worldSaveData = FileAccess.Open(Path + "/world.scw", FileAccess.ModeFlags.Write);
+
+		if (worldSaveData == null)
+		{
+			GD.PrintErr(FileAccess.GetOpenError());
+			return;
+		}
+
+		worldSaveData.StoreString(data);
+
+		worldSaveData.Close();
+	}
+
+	public static void Create(string name)
 	{
 		GD.PrintErr("TODO Create in WorldSave.cs");
+	}
+}
+
+public class SaveObject
+{
+	public Vector3 position;
+	public Vector3 rotation;
+
+	public SaveObject(Vector3 position, Vector3 rotation)
+	{
+		this.position = position;
+		this.rotation = rotation;
+	}
+
+	public static SaveObject FromDictionary(Godot.Collections.Dictionary<string, Vector3> dict)
+	{
+		return new SaveObject(dict["Position"], dict["Rotation"]);
 	}
 }

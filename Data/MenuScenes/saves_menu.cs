@@ -33,7 +33,7 @@ public partial class saves_menu : CanvasLayer
 
 	private void _StartGame()
 	{
-		WorldLoader.LoadWorld();
+		WorldLoader.LoadWorld(GetParent().FindChild("GameScene") as GameScene);
 		EmitSignal(SignalName.SSwitchMenu, 0);
 	}
 }

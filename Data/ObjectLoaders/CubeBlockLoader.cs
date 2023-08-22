@@ -77,7 +77,7 @@ public class CubeBlockLoader
 		foreach (var subTypeId in allData.Keys)
 		{
 			if (CubeBlocks.ContainsKey(subTypeId))
-			    continue;
+				continue;
 				
 			Texture2D texture = TextureLoader.Get("missing.png");
 			Type type = typeof(CubeBlock);
@@ -119,7 +119,7 @@ public class CubeBlockLoader
 				{
 					GD.PrintErr($"Block {subTypeId} failed to init!\n" + e.Message);
 				}
-        	}
+			}
 			else
 			{
 				GD.PrintErr($"Type {type.Name} does not inherit CubeBlock!");
@@ -127,15 +127,8 @@ public class CubeBlockLoader
 		}
 	}
 
-	public static CubeBlock LoadFromJson(string jsonData)
+	public static CubeBlock LoadFromData(Godot.Collections.Dictionary<string, Variant> data)
 	{
-		Json json = new ();
-
-		if (json.Parse(jsonData) != Error.Ok)
-			throw new Exception("Unable to load saved CubeBlock @ " + jsonData + " - " + json.GetErrorMessage());
-
-		Godot.Collections.Dictionary<string, Variant> data = json.Data.AsGodotDictionary<string, Variant>();
-
 		CubeBlock block = CubeBlocks[data["SubTypeId"].AsString()];
 		block.Position = data["Position"].AsVector3();
 		block.Rotation = data["Position"].AsVector3();

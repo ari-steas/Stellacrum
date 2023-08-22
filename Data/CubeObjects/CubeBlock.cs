@@ -118,7 +118,7 @@ public partial class CubeBlock : StaticBody3D
 		return size;
 	}
 
-	public virtual string Save()
+	public virtual Godot.Collections.Dictionary<string, Variant> Save()
 	{
 		Godot.Collections.Dictionary<string, Variant> data = new()
 		{
@@ -127,6 +127,6 @@ public partial class CubeBlock : StaticBody3D
 			{ "Rotation", Rotation },
 		};
 
-		return Json.Stringify(data);
+		return data;
 	}
 }

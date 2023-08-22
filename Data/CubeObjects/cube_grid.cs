@@ -112,6 +112,35 @@ public partial class CubeGrid : RigidBody3D
 		}
 	}
 
+	public void AddFullBlock(CubeBlock block)
+	{
+		Vector3I position_GridLocal = (Vector3I)(block.Position/2.5f);
+
+		if (!CubeBlocks.ContainsKey(position_GridLocal))
+		{
+			AddChild(block);
+			CubeBlocks.Add(position_GridLocal, block);
+
+			block.collisionId = CreateShapeOwner(this);
+			ShapeOwnerAddShape(block.collisionId, block.collision);
+			ShapeOwnerSetTransform(block.collisionId, block.Transform);
+			
+			Mass += block.Mass;
+
+			RecalcSize();
+			RecalcMass();
+
+			if (block is CockpitBlock c)
+				Cockpits.Add(c);
+			if (block is ThrusterBlock t)
+				ThrusterBlocks.Add(t);
+		}
+		else
+		{
+			DebugDraw.Text("Failed to place block @ " + position_GridLocal, 5);
+		}
+	}
+
 	public void RemoveBlock(RayCast3D ray)
 	{
 		RemoveBlock(ray.GetCollisionPoint() - ray.GetCollisionNormal());
@@ -229,7 +258,7 @@ public partial class CubeGrid : RigidBody3D
 
 	#endregion
 
-	public string Save()
+	public Godot.Collections.Dictionary<string, Variant> Save()
 	{
 		Godot.Collections.Array blocks = new();
 
@@ -239,19 +268,18 @@ public partial class CubeGrid : RigidBody3D
 		}
 
 		Godot.Collections.Dictionary<string, Variant> saveData = new()
-        {
-            { "Name", Name },
+		{
+			{ "Name", Name },
 			{ "Position", Position },
 			{ "Rotation", Rotation },
-			{ "Blocks", Json.Stringify(blocks) },
-        };
+			{ "Blocks", blocks },
+		};
 
-		return Json.Stringify(saveData);
+		return saveData;
 	}
 
 	public void Close()
 	{
-		GD.Print(Save());
 		foreach (var block in CubeBlocks)
 		{
 			ShapeOwnerClearShapes(block.Value.collisionId);

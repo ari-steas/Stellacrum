@@ -1,4 +1,5 @@
 using Godot;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -8,9 +9,9 @@ public partial class GameScene : Node3D
 {
 	public bool isActive = false;
 
-	private readonly List<CubeGrid> grids = new();
+	public readonly List<CubeGrid> grids = new();
 
-	private player_character playerCharacter;
+	public player_character playerCharacter;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -137,18 +138,46 @@ public partial class GameScene : Node3D
 		return true;
 	}
 
+	public void Save()
+	{
+		GD.Print("\n\nStart world save...");
+
+		Godot.Collections.Dictionary<string, Variant> data = new()
+		{
+			{
+				"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
+				{
+					{ "Position", playerCharacter.GlobalPosition },
+					{ "Rotation", playerCharacter.GlobalRotation },
+				}
+			},
+		};
+		GD.Print("Saved data for player.");
+
+		Godot.Collections.Array<Godot.Collections.Dictionary<string, Variant>> allGridsData = new();
+
+		foreach (CubeGrid grid in grids)
+			allGridsData.Add(grid.Save());
+
+		data.Add("Grids", allGridsData);
+
+	 	string str = Json.Stringify(data);
+		GD.Print($"Saved grid data for {grids.Count} grids." + str);
+
+		WorldLoader.SaveWorld(WorldLoader.CurrentSave, str);
+	}
+
 	public void Close()
 	{
 		foreach (var grid in grids)
 			grid.Close();
 
+		grids.Clear();
 		GD.Print("Closed all grids in GameScene.");
 
-		GetTree().ReloadCurrentScene();
-	}
+		playerCharacter = null;
+		GD.Print("Closed player in GameScene.\nFinished closing!\n\n");
 
-	private void _OnTreeExited()
-	{
-		Close();
+		GetTree().ReloadCurrentScene();
 	}
 }

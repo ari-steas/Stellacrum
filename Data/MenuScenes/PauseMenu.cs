@@ -34,6 +34,7 @@ public partial class PauseMenu : CanvasLayer
 	void MenuPress()
 	{
 		EmitSignal(SignalName.SwitchMenu, 1);
+		gameScene.Save();
 		gameScene.Visible = false;
 		gameScene.Close();
 	}
