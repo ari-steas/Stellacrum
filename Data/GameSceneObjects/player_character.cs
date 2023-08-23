@@ -144,8 +144,8 @@ public partial class player_character : CharacterBody3D
 			closest.AddChild(this);
 
 			shipCrosshair.Visible = true;
-			shipCrosshair.GlobalRotation = grid.GlobalRotation;
-			prevCrosshair = grid.GlobalRotation;
+			shipCrosshair.Rotation = Vector3.Zero;
+			prevCrosshair = shipCrosshair.GlobalRotation;
 			_dampenersEnabled = grid.ThrustControl.Dampen;
 
 			grid.ControlGrid();
@@ -334,8 +334,6 @@ public partial class player_character : CharacterBody3D
 			rotatedPos = rotatedPos.Rotated(Vector3.Right, (float)(lastY*delta));
 
 			float scalar = Vector3.Forward.Dot(rotatedPos);
-
-			DebugDraw.Text(scalar);
 
 			if (Vector3.Forward.Dot(rotatedPos) > 0.5f)
 			{
