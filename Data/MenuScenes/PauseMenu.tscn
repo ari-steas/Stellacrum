@@ -5,6 +5,10 @@
 [node name="PauseMenu" type="CanvasLayer"]
 script = ExtResource("1_h6h80")
 
+[node name="InfoOutputLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 z_index = 2
 z_as_relative = false
@@ -23,15 +27,29 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 alignment = 1
 
-[node name="MenuButton" type="Button" parent="VBoxContainer"]
+[node name="ReturnButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
-text = "MAIN MENU"
+text = "RETURN"
 
 [node name="OptionsButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "OPTIONS
 "
 
-[node name="ReturnButton" type="Button" parent="VBoxContainer"]
+[node name="SaveButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
-text = "RETURN"
+text = "SAVE"
+
+[node name="MenuButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "QUIT"
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -471.0
+offset_bottom = 52.0
+grow_horizontal = 0
+text = "IDK how to design UI, okay. just click save and then click quit.
+you can press return if you want ig"

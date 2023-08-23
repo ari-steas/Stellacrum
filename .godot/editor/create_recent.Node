@@ -1,5 +1,7 @@
-ColorRect
+RichTextLabel
+Label
 Button
+ColorRect
 VBoxContainer
 TabContainer
 CanvasLayer
@@ -18,7 +20,6 @@ RayCast3D
 MeshInstance3D
 StaticBody3D
 Camera3D
-Label
 DirectionalLight3D
 SpotLight3D
 DirectionalLight2D
@@ -26,5 +27,4 @@ Node
 GridContainer
 ItemList
 Node2D
-RichTextLabel
 Window

@@ -46,11 +46,14 @@ public partial class GameScene : Node3D
 			Input.MouseMode = Input.MouseModeEnum.Captured;
 			ProcessMode = ProcessModeEnum.Inherit;
 			playerCharacter.HUD.Visible = true;
-			playerCharacter.Position = bufferPlayerPosition;
-			playerCharacter.Rotation = bufferPlayerRotation;
-			playerCharacter.Velocity = bufferPlayerVelocity;
 
-			GD.Print(playerCharacter.Position);
+			if (isPlayerDataSet)
+			{
+				GD.Print("Delayed-set playerCharacterData");
+				playerCharacter.Position = bufferPlayerPosition;
+				playerCharacter.Rotation = bufferPlayerRotation;
+				playerCharacter.Velocity = bufferPlayerVelocity;
+			}
 		}
 		else
 		{
@@ -175,11 +178,13 @@ public partial class GameScene : Node3D
 
 
 	Vector3 bufferPlayerVelocity = Vector3.Zero, bufferPlayerPosition = Vector3.Zero, bufferPlayerRotation = Vector3.Zero;
+	bool isPlayerDataSet = false;
 	public void SetPlayerData(Vector3 pos, Vector3 rot, Vector3 vel)
 	{
 		bufferPlayerPosition = pos;
 		bufferPlayerRotation = rot;
 		bufferPlayerVelocity = vel;
+		isPlayerDataSet = true;
 
 		GD.Print("Pre-setting player data...");
 	}
