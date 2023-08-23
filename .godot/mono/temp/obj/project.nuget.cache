@@ -1,12 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "W/n6noCs+Z+dZvzSXSqLr94AtssnON0WXEdw90A+rB36uedw5W4034fvco2oiI15/6px64G9R/4G4fWnVceQCw==",
+  "dgSpecHash": "P/FSY5n7SWbb5Vs1ydbWgim2FnVNHu7mXS0tdz87COzYGziyTG7wtnzmcpubixtFYAI7jBJV954ra0f8ncVqzg==",
   "success": true,
   "projectFilePath": "C:\\Users\\jnick\\OneDrive\\Documents\\GoDot\\StellacrumTest\\StellacrumTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jnick\\.nuget\\packages\\godot.sourcegenerators\\4.1.1\\godot.sourcegenerators.4.1.1.nupkg.sha512",
     "C:\\Users\\jnick\\.nuget\\packages\\godotsharp\\4.1.1\\godotsharp.4.1.1.nupkg.sha512",
-    "C:\\Users\\jnick\\.nuget\\packages\\godotsharpeditor\\4.1.1\\godotsharpeditor.4.1.1.nupkg.sha512"
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\6.0.21\\microsoft.netcore.app.runtime.win-x64.6.0.21.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\6.0.21\\microsoft.windowsdesktop.app.runtime.win-x64.6.0.21.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\6.0.21\\microsoft.aspnetcore.app.runtime.win-x64.6.0.21.nupkg.sha512"
   ],
   "logs": []
 }

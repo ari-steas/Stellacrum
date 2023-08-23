@@ -52,4 +52,12 @@ offset_left = -471.0
 offset_bottom = 52.0
 grow_horizontal = 0
 text = "IDK how to design UI, okay. just click save and then click quit.
-you can press return if you want ig"
+
+WASD + C/Space for translational control
+Mouse for rotational control
+F to getin/out of a grid
+Tilda to stop all grids
+Insert/Home/PgUp/Del/End/PgDown for block rotation
+Esc for pause (duh)
+LMB to place
+RMB to remove"

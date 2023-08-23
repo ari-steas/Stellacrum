@@ -33,7 +33,15 @@ public partial class GameScene : Node3D
 			Visible = true;
 		}
 
-		DebugDraw.Text(playerCharacter.Position);
+		if (Input.IsActionJustPressed("DebugStop"))
+		{
+			foreach (var grid in grids)
+			{
+				grid.LinearVelocity = Vector3.Zero;
+				grid.AngularVelocity = Vector3.Zero;
+			}
+		}
+				
 	}
 
 	private void _ToggleActive(bool active)
