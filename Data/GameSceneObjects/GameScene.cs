@@ -11,7 +11,7 @@ public partial class GameScene : Node3D
 
 	public readonly List<CubeGrid> grids = new();
 
-	public player_character playerCharacter;
+	player_character playerCharacter;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -32,6 +32,8 @@ public partial class GameScene : Node3D
 			GetParent<menus>()._SwitchMenu(3);
 			Visible = true;
 		}
+
+		DebugDraw.Text(playerCharacter.Position);
 	}
 
 	private void _ToggleActive(bool active)
@@ -44,6 +46,11 @@ public partial class GameScene : Node3D
 			Input.MouseMode = Input.MouseModeEnum.Captured;
 			ProcessMode = ProcessModeEnum.Inherit;
 			playerCharacter.HUD.Visible = true;
+			playerCharacter.Position = bufferPlayerPosition;
+			playerCharacter.Rotation = bufferPlayerRotation;
+			playerCharacter.Velocity = bufferPlayerVelocity;
+
+			GD.Print(playerCharacter.Position);
 		}
 		else
 		{
@@ -150,19 +157,10 @@ public partial class GameScene : Node3D
 	{
 		GD.Print("\n\nStart world save...");
 
-		Godot.Collections.Dictionary<string, Variant> data = new()
-		{
-			{
-				"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
-				{
-					{ "Position", JsonHelper.StoreVec(playerCharacter.GlobalPosition) },
-					{ "Rotation", JsonHelper.StoreVec(playerCharacter.GlobalRotation) },
-				}
-			},
-		};
-		GD.Print("Saved data for player.");
-
+		Godot.Collections.Dictionary<string, Variant> data = new();
 		Godot.Collections.Array<Godot.Collections.Dictionary<string, Variant>> allGridsData = new();
+
+		data.Add("PlayerCharacter", playerCharacter.Save());
 
 		foreach (CubeGrid grid in grids)
 			allGridsData.Add(grid.Save());
@@ -170,9 +168,24 @@ public partial class GameScene : Node3D
 		data.Add("Grids", allGridsData);
 
 	 	string str = Json.Stringify(data);
-		GD.Print($"Saved grid data for {grids.Count} grids." + str);
+		GD.Print($"Saved grid data for {grids.Count} grids.");
 
 		WorldLoader.SaveWorld(WorldLoader.CurrentSave, str);
+	}
+
+
+	Vector3 bufferPlayerVelocity = Vector3.Zero, bufferPlayerPosition = Vector3.Zero, bufferPlayerRotation = Vector3.Zero;
+	public void SetPlayerData(Vector3 pos, Vector3 rot, Vector3 vel)
+	{
+		bufferPlayerPosition = pos;
+		bufferPlayerRotation = rot;
+		bufferPlayerVelocity = vel;
+
+		GD.Print("Pre-setting player data...");
+	}
+	public void SetPlayerData(SaveObject saveObject)
+	{
+		SetPlayerData(saveObject.Position, saveObject.Rotation, saveObject.LinearVelocity);
 	}
 
 	public void Close()

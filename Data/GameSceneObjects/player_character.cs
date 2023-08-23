@@ -429,4 +429,20 @@ public partial class player_character : CharacterBody3D
 	}
 
 	#endregion
+
+	public Godot.Collections.Dictionary<string, Variant> Save()
+	{
+		GD.Print("Saving data for player.");
+		return new()
+		{
+			//{
+				//"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
+				//{
+					{ "Position", JsonHelper.StoreVec(GlobalPosition) },
+					{ "Rotation", JsonHelper.StoreVec(GlobalRotation) },
+					{ "LinearVelocity", JsonHelper.StoreVec(Velocity) },
+				//}
+			//},
+		};
+	}
 }

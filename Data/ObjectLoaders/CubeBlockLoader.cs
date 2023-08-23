@@ -129,11 +129,10 @@ public class CubeBlockLoader
 
 	public static CubeBlock LoadFromData(Godot.Collections.Dictionary<string, Variant> data)
 	{
+		GD.PrintErr("TODO CubeBlockLoader.cs LoadFromData for inherited types");
 		CubeBlock block = FromId(data["SubTypeId"].AsString()).Copy();
-		block.Position = JsonHelper.VariantToVec3(data["Position"]);
-		block.Rotation = JsonHelper.VariantToVec3(data["Rotation"]);
-
-		GD.Print("Block " + block.Position + ", " + data["Position"] + ", " + data["Position"]);
+		block.Position = JsonHelper.LoadVec(data["Position"]);
+		block.Rotation = JsonHelper.LoadVec(data["Rotation"]);
 
 		return block;
 	}

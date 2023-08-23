@@ -39,8 +39,6 @@ public class WorldLoader
 
 	public static void LoadWorld(GameScene scene)
 	{
-		GD.PrintErr("TODO world_loader.LoadWorld()");
-
 		ModelLoader.StartLoad("res://Assets/Models");
 		//Thread textureThread = TextureLoader.StartLoad("res://Assets/Images/Blocks");
 
@@ -54,8 +52,7 @@ public class WorldLoader
 		foreach (var grid in CurrentSave.grids)
 			scene.SpawnPremadeGrid(grid);
 		
-		scene.playerCharacter.Position = CurrentSave.playerObject.position;
-		scene.playerCharacter.Rotation = CurrentSave.playerObject.rotation;
+		scene.SetPlayerData(CurrentSave.playerObject);
 	}
 
 	public static void SaveWorld(WorldSave save, string jsonData)
@@ -68,7 +65,13 @@ public class WorldLoader
 
 
 
-
+	/// <summary>
+	/// Reads info.json of world located at <paramref name="path">.
+	/// </summary>
+	/// <param name="path"></param>
+	/// <returns></returns>
+	/// <exception cref="UriFormatException"></exception>
+	/// <exception cref="Exception"></exception>
 	private static WorldSave GetSaveInfo(string path)
 	{
 		path = "user://Saves/" + path;
@@ -103,6 +106,12 @@ public class WorldLoader
 		return save;
 	}
 
+	/// <summary>
+	/// Reads world.scw of world <paramref name="save">.
+	/// </summary>
+	/// <param name="save"></param>
+	/// <exception cref="UriFormatException"></exception>
+	/// <exception cref="Exception"></exception>
 	private static void LoadSaveData(WorldSave save)
 	{
 		DirAccess dirAccess = DirAccess.Open(save.Path);
@@ -111,6 +120,8 @@ public class WorldLoader
 
 		Json json = new();
 		FileAccess infoFile = FileAccess.Open(save.Path + "/world.scw", FileAccess.ModeFlags.Read);
+		if (infoFile == null)
+			throw new Exception("Missing world.scw @ " + save.Path);
 		if (json.Parse(infoFile.GetAsText()) != Error.Ok)
 			throw new Exception("Invalid world.scw @ " + save.Path + " - " + json.GetErrorMessage());
 
@@ -119,14 +130,17 @@ public class WorldLoader
 		var worldData = json.Data.AsGodotDictionary<string, Variant>();
 
 		if (worldData.ContainsKey("PlayerCharacter"))
-			save.playerObject = SaveObject.FromDictionary(worldData["PlayerCharacter"].AsGodotDictionary<string, Vector3>());
+			save.playerObject = SaveObject.FromDictionary(worldData["PlayerCharacter"].AsGodotDictionary<string, Variant>());
 		else
+		{
+			GD.PrintErr("Missing PlayerCharacter from save!");
 			save.playerObject = new(Vector3.Zero, Vector3.Zero);
-
-		//List<Dictionary<string, Variant>> gridList = worldData["Grids"].As<List<Dictionary<string, Variant>>>();
+		}
 
 		if (worldData.ContainsKey("Grids"))
 		{
+			// I HATE GODOT ARRAYS SO FUCKING MUCH
+			// WORK OF THE DEVIL
 			foreach (var grid in worldData["Grids"].AsGodotArray<Godot.Collections.Dictionary<string, Variant>>())
 			{
 				CubeGrid cubeGrid = GridFromData(grid);
@@ -141,14 +155,14 @@ public class WorldLoader
 		CubeGrid grid = new()
 		{
 			Name = data["Name"].AsString(),
-			Position = JsonHelper.VariantToVec3(data["Position"]),
-			Rotation = JsonHelper.VariantToVec3(data["Rotation"]),
+			Position = JsonHelper.LoadVec(data["Position"]),
+			Rotation = JsonHelper.LoadVec(data["Rotation"]),
+			LinearVelocity = JsonHelper.LoadVec(data["LinearVelocity"]),
+			AngularVelocity = JsonHelper.LoadVec(data["AngularVelocity"]),
 		};
 
 		foreach (var block in data["Blocks"].AsGodotArray<Godot.Collections.Dictionary<string, Variant>>())
-		{
 			grid.AddFullBlock(CubeBlockLoader.LoadFromData(block));
-		}
 
 		return grid;
 	}

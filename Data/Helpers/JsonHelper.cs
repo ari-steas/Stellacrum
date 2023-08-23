@@ -3,11 +3,22 @@ using Godot;
 
 public class JsonHelper
 {
+	/// <summary>
+	/// Converts Vector3 to float[] Variant.
+	/// </summary>
+	/// <param name="vec"></param>
+	/// <returns></returns>
 	public static float[] StoreVec(Vector3 vec)
 	{
 		return new float[] {vec.X, vec.Y, vec.Z};
 	}
-	public static Vector3 VariantToVec3(Variant v)
+
+	/// <summary>
+	/// Converts float[] Variant to Vector3.
+	/// </summary>
+	/// <param name="v"></param>
+	/// <returns></returns>
+	public static Vector3 LoadVec(Variant v)
 	{
 		try
 		{

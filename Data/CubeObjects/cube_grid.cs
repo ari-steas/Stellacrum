@@ -112,9 +112,13 @@ public partial class CubeGrid : RigidBody3D
 		}
 	}
 
+	/// <summary>
+	/// Adds CubeBlock to grid. This method is to be used with fully constructed blocks ONLY, such as those loaded from save files.
+	/// </summary>
+	/// <param name="block"></param>
 	public void AddFullBlock(CubeBlock block)
 	{
-		Vector3I position_GridLocal = (Vector3I)(block.Position/2.5f);
+		Vector3I position_GridLocal = LocalToBlockCoord(block.Position);
 
 		if (!CubeBlocks.ContainsKey(position_GridLocal))
 		{
@@ -272,6 +276,8 @@ public partial class CubeGrid : RigidBody3D
 			{ "Name", Name },
 			{ "Position", JsonHelper.StoreVec(Position) },
 			{ "Rotation", JsonHelper.StoreVec(Rotation) },
+			{ "LinearVelocity", JsonHelper.StoreVec(LinearVelocity) },
+			{ "AngularVelocity", JsonHelper.StoreVec(AngularVelocity) },
 			{ "Blocks", blocks },
 		};
 

@@ -23,4 +23,3 @@ res://Data/MenuScenes/menus.cs
 res://Data/MenuScenes/PauseMenu.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
-res://Data/Helpers/JsonHelper.cs

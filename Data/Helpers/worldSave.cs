@@ -35,8 +35,6 @@ public class WorldSave
 
 	public void Update(string data)
 	{
-		GD.PrintErr(data);
-
 		GD.Print("Writing save to " + Path + "/world.scw");
 		DirAccess.RemoveAbsolute(Path + "/world.scw");
 
@@ -67,17 +65,36 @@ public class WorldSave
 
 public class SaveObject
 {
-	public Vector3 position;
-	public Vector3 rotation;
+	public Vector3 Position, Rotation, LinearVelocity, AngularVelocity;
 
-	public SaveObject(Vector3 position, Vector3 rotation)
+	public SaveObject(Vector3 Position, Vector3 Rotation, Vector3 LinearVelocity = new(), Vector3 AngularVelocity = new())
 	{
-		this.position = position;
-		this.rotation = rotation;
+		this.Position = Position;
+		this.Rotation = Rotation;
+		this.LinearVelocity = LinearVelocity;
+		this.AngularVelocity = AngularVelocity;
 	}
 
-	public static SaveObject FromDictionary(Godot.Collections.Dictionary<string, Vector3> dict)
+	/// <summary>
+	/// Create new SaveObject from Godot.Collections.Dictionary. Checks for:
+	/// <list type="bullet">
+	/// <item>Vector3 Position</item>
+	/// <item>Vector3 Rotation</item>
+	/// <item>Vector3 LinearVelocity (default Vector3.Zero)</item>
+	/// <item>Vector3 AngularVelocity = (default Vector3.Zero)</item>
+	/// </list>
+	/// </summary>
+	/// <param name="dict"></param>
+	/// <returns></returns>
+	public static SaveObject FromDictionary(Godot.Collections.Dictionary<string, Variant> dict)
 	{
-		return new SaveObject(dict["Position"], dict["Rotation"]);
+		SaveObject saveObject = new(JsonHelper.LoadVec(dict["Position"]), JsonHelper.LoadVec(dict["Rotation"]));
+
+		if (dict.ContainsKey("LinearVelocity"))
+			saveObject.LinearVelocity = JsonHelper.LoadVec(dict["LinearVelocity"]);
+		if (dict.ContainsKey("AngularVelocity"))
+			saveObject.AngularVelocity = JsonHelper.LoadVec(dict["AngularVelocity"]);
+
+		return saveObject;
 	}
 }
