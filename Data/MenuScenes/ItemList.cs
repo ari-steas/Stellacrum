@@ -6,14 +6,29 @@ public partial class ItemList : Godot.ItemList
 	[Signal]
 	public delegate void ShowWorldEventHandler();
 
-	private int[] selectedItems;
-	private int currentlySelected = -1;
+	int[] selectedItems;
+	int currentlySelected = -1;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		Update();
+	}
+
+	public void Update()
+	{
+		Clear();
+		
+		
+		currentlySelected = -1;
+
+		WorldLoader.ScanWorlds();
+
 		foreach (var world in WorldLoader.Worlds)
+		{
 			AddItem(world.Name);
+			GD.Print("AddItem " + world.Name);
+		}
 		AddItem("NEW SAVE");
 	}
 

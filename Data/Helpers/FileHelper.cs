@@ -34,4 +34,20 @@ public class FileHelper
 
 		return files;
 	}
+
+	public static void RecursiveDelete(string path)
+	{
+		if (!path.EndsWith('/'))
+			path += "/";
+		
+		DirAccess toDelete = DirAccess.Open(path);
+
+		foreach (var dir in toDelete.GetDirectories())
+			RecursiveDelete(path + dir);
+
+	    foreach (var file in toDelete.GetFiles())
+			DirAccess.RemoveAbsolute(path + file);
+
+		GD.PrintErr(DirAccess.RemoveAbsolute(path));
+	}
 }

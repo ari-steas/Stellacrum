@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Threading;
 
 
-public class WorldLoader
+public static class WorldLoader
 {
 	public static List<WorldSave> Worlds { get; private set; } = FindWorlds();
 	public static WorldSave CurrentSave { get; private set; }
 
-	public static List<WorldSave> FindWorlds()
+	private static List<WorldSave> FindWorlds()
 	{
 		List<WorldSave> bufferWorlds = new ();
 
@@ -19,7 +19,17 @@ public class WorldLoader
 		DirAccess d = DirAccess.Open("user://Saves/");
 
 		foreach (var dir in d.GetDirectories())
-			bufferWorlds.Add(GetSaveInfo(dir));
+		{
+			try
+			{
+				bufferWorlds.Add(GetSaveInfo(dir));
+			}
+			catch (Exception e)
+			{
+				GD.PrintErr("Failed to find worldInfo!");
+				GD.PrintErr(e);
+			}
+		}
 
 		if (CurrentSave == null)
 			CurrentSave = new WorldSave();
@@ -27,16 +37,40 @@ public class WorldLoader
 		return bufferWorlds;
 	}
 
+	public static void ScanWorlds()
+	{
+		Worlds = FindWorlds();
+	}
+
 	public static void SetWorld(int worldId)
 	{
+		if (Worlds.Count <= worldId)
+			return;
+
 		if (worldId == -1)
 		{
-			CurrentSave = new WorldSave();
+			string uniqueName = CreateUniqueWorldName("New Save");
+			CurrentSave = new WorldSave()
+			{
+				Path = $"user://Saves/{uniqueName}/",
+				Name = uniqueName,
+			};
 			return;
 		}
 		CurrentSave = Worlds[worldId];
 	}
 
+	public static void Delete(WorldSave world)
+	{
+		if (Worlds.Contains(world))
+		{
+			GD.Print("Deleting world! " + world.Path);
+			FileHelper.RecursiveDelete(world.Path);
+			Worlds.Remove(world);
+		}
+	}
+
+	public static string ErrorMessage { get; private set; } = "";
 	public static void LoadWorld(GameScene scene)
 	{
 		ModelLoader.StartLoad("res://Assets/Models");
@@ -47,7 +81,21 @@ public class WorldLoader
 
 		CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
 
-		LoadSaveData(CurrentSave);
+		if (!Worlds.Contains(CurrentSave))
+		{
+			WorldSave.Create(CurrentSave);
+			Worlds.Add(CurrentSave);
+		}
+
+		try
+		{
+			LoadSaveData(CurrentSave);
+		}
+		catch
+		{
+			ErrorMessage = "Unable to read save file!";
+		}
+		
 
 		foreach (var grid in CurrentSave.grids)
 			scene.SpawnPremadeGrid(grid);
@@ -102,6 +150,8 @@ public class WorldLoader
 		GD.Print("Read SaveInfo of \"" + name + "\" with description \"" + description + "\", created on " + creationDate.ToLongDateString());
 
 		WorldSave save = new WorldSave(name, description, creationDate, modifiedDate, size, path, thumbnail);
+
+		infoFile.Close();
 		
 		return save;
 	}
@@ -119,10 +169,10 @@ public class WorldLoader
 			throw new UriFormatException("Unable to find WorldSave data @ " + save.Path);
 
 		Json json = new();
-		FileAccess infoFile = FileAccess.Open(save.Path + "/world.scw", FileAccess.ModeFlags.Read);
-		if (infoFile == null)
+		FileAccess dataFile = FileAccess.Open(save.Path + "/world.scw", FileAccess.ModeFlags.Read);
+		if (dataFile == null)
 			throw new Exception("Missing world.scw @ " + save.Path);
-		if (json.Parse(infoFile.GetAsText()) != Error.Ok)
+		if (json.Parse(dataFile.GetAsText()) != Error.Ok)
 			throw new Exception("Invalid world.scw @ " + save.Path + " - " + json.GetErrorMessage());
 
 		CurrentSave.ResetData();
@@ -148,6 +198,8 @@ public class WorldLoader
 				save.grids.Add(cubeGrid);
 			}
 		}
+
+		dataFile.Close();
 	}
 
 	private static CubeGrid GridFromData(Godot.Collections.Dictionary<string, Variant> data)
@@ -204,5 +256,14 @@ public class WorldLoader
 			size += DirSize(di);   
 		}
 		return size;
+	}
+
+	private static string CreateUniqueWorldName(string name, int iterations = 0)
+	{
+		foreach (var world in Worlds)
+			if (world.Name == name + (iterations > 0 ? $" ({iterations})" : ""))
+				return CreateUniqueWorldName(name, iterations + 1);
+
+		return name + (iterations > 0 ? $" ({iterations})" : "");
 	}
 }

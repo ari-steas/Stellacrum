@@ -1,20 +1,19 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 
 public class WorldSave
 {
-	public string Name { get; private set; } = "ERROR";
-	public string Description { get; private set; } = "ERROR";
+	public string Name = "ERROR";
+	public string Description = "ERROR";
 	public DateTime CreationDate { get; private set; } = DateTime.MinValue;
 	public DateTime ModifiedDate { get; private set; } = DateTime.MinValue;
 	public float Size { get; private set; } = 0;
-	public string Path { get; private set; } = "";
-	public Texture2D Thumbnail { get; private set; }
+	public string Path = "";
+	public Texture2D Thumbnail;
 
-	public SaveObject playerObject;
+	public SaveObject playerObject = new(Vector3.Zero, Vector3.Zero);
 	public List<CubeGrid> grids = new();
 
 	public WorldSave(string name, string description, DateTime creationDate, DateTime modifiedDate, float size, string path, Texture2D thumbnail)
@@ -26,6 +25,9 @@ public class WorldSave
 		Size = size;
 		Path = path;
 		Thumbnail = thumbnail;
+
+		if (!Path.EndsWith('/'))
+			Path += '/';
 	}
 	
 	public WorldSave()
@@ -35,10 +37,10 @@ public class WorldSave
 
 	public void Update(string data)
 	{
-		GD.Print("Writing save to " + Path + "/world.scw");
-		DirAccess.RemoveAbsolute(Path + "/world.scw");
+		GD.Print("Writing save to " + Path + "world.scw");
+		DirAccess.RemoveAbsolute(Path + "world.scw");
 
-		FileAccess worldSaveData = FileAccess.Open(Path + "/world.scw", FileAccess.ModeFlags.Write);
+		FileAccess worldSaveData = FileAccess.Open(Path + "world.scw", FileAccess.ModeFlags.Write);
 
 		if (worldSaveData == null)
 		{
@@ -51,9 +53,23 @@ public class WorldSave
 		worldSaveData.Close();
 	}
 
-	public static void Create(string name)
+	public static void Create(WorldSave baseSave)
 	{
-		GD.PrintErr("TODO Create in WorldSave.cs");
+		DirAccess.MakeDirAbsolute(baseSave.Path);
+
+		FileAccess infoFile = FileAccess.Open(baseSave.Path + "info.json", FileAccess.ModeFlags.Write);
+
+		infoFile.StoreString(Json.Stringify(
+			new Godot.Collections.Dictionary<string, Variant>()
+			{
+				{ "Name", baseSave.Name },
+				{ "Description", baseSave.Description },
+			}
+		));
+
+		infoFile.Close();
+
+		GD.Print("Saved new worldinfo to " + baseSave.Path);
 	}
 
 	public void ResetData()

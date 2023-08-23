@@ -7,10 +7,16 @@ public partial class saves_menu : CanvasLayer
 	[Signal]
 	public delegate void SSwitchMenuEventHandler(int toShow);
 
+	ItemList SavesList;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		Visible = false;
+
+		(FindChild("DeleteWorldButton") as Button).Pressed += DeletePress;
+		(FindChild("LoadWorldButton") as Button).Pressed += LoadPress;
+		SavesList = FindChild("SavesList") as ItemList;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -35,5 +41,16 @@ public partial class saves_menu : CanvasLayer
 	{
 		WorldLoader.LoadWorld(GetParent().FindChild("GameScene") as GameScene);
 		EmitSignal(SignalName.SSwitchMenu, 0);
+	}
+
+	private void DeletePress()
+	{
+		WorldLoader.Delete(WorldLoader.CurrentSave);
+		SavesList.Update();
+	}
+
+	private void LoadPress()
+	{
+		SavesList.Update();
 	}
 }

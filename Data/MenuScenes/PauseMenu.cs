@@ -36,10 +36,8 @@ public partial class PauseMenu : CanvasLayer
 				EmitSignal(SignalName.SwitchMenu, 0);
 			}
 
-			GD.Print((nextDeleteTime != 0) + ", " + (DateTime.Now.Ticks > nextDeleteTime));
 			if (nextDeleteTime != 0 && DateTime.Now.Ticks > nextDeleteTime)
 			{
-				GD.Print("Trimmed");
 				InfoOutputLabel.Text = InfoOutputLabel.Text.Substring(InfoOutputLabel.Text.IndexOf('\n') + 1);
 
 				if (InfoOutputLabel.Text.Length > 0)
