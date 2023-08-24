@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://4vqwfik5l3dg"
-path="res://.godot/imported/ArmorBlock1x1.glb-f046e02239325a4a79cb9cef98b22318.scn"
+path="res://.godot/imported/ArmorBlock1x1.glb-853797e523c8c0b0882a4cdef152a084.scn"
 
 [deps]
 
-source_file="res://Assets/Models/ArmorBlock1x1.glb"
-dest_files=["res://.godot/imported/ArmorBlock1x1.glb-f046e02239325a4a79cb9cef98b22318.scn"]
+source_file="res://Assets/Models/ArmorBlocks/ArmorBlock1x1.glb"
+dest_files=["res://.godot/imported/ArmorBlock1x1.glb-853797e523c8c0b0882a4cdef152a084.scn"]
 
 [params]
 

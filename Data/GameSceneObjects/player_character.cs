@@ -436,7 +436,7 @@ public partial class player_character : CharacterBody3D
 			//{
 				//"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
 				//{
-					{ "Position", JsonHelper.StoreVec(GlobalPosition) },
+					{ "Position", JsonHelper.StoreVec(Position) },
 					{ "Rotation", JsonHelper.StoreVec(GlobalRotation) },
 					{ "LinearVelocity", JsonHelper.StoreVec(Velocity) },
 				//}

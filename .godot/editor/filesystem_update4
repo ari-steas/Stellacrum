@@ -1,5 +1,5 @@
-res://Data/GameSceneObjects/player_character.tscn
 res://Data/GameSceneObjects/GameScene.tscn
+res://Data/GameSceneObjects/player_character.tscn
 res://Data/MenuScenes/PauseMenu.tscn
 res://Data/MenuScenes/main_menu.tscn
 res://Data/MenuScenes/menus.tscn

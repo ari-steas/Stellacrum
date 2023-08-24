@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://btfuhu07l6u6s"
-path="res://.godot/imported/ArmorBlock1x1Slope.glb-dd108430f443c23ab0e1a2ab339f1d36.scn"
+uid="uid://c4o8dghvfv7ix"
+path="res://.godot/imported/ArmorBlock2x1SlopeTip.glb-69f592ecf490f6057e9b628e3a35585b.scn"
 
 [deps]
 
-source_file="res://Assets/Models/ArmorBlocks/ArmorBlock1x1Slope.glb"
-dest_files=["res://.godot/imported/ArmorBlock1x1Slope.glb-dd108430f443c23ab0e1a2ab339f1d36.scn"]
+source_file="res://Assets/Models/ArmorBlocks/ArmorBlock2x1SlopeTip.glb"
+dest_files=["res://.godot/imported/ArmorBlock2x1SlopeTip.glb-69f592ecf490f6057e9b628e3a35585b.scn"]
 
 [params]
 

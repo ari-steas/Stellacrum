@@ -41,7 +41,12 @@ public partial class GameScene : Node3D
 				grid.AngularVelocity = Vector3.Zero;
 			}
 		}
-				
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		if(playerCharacter.GlobalPosition.Length() > 2000)
+			ShiftOrigin();
 	}
 
 	private void _ToggleActive(bool active)
@@ -109,7 +114,8 @@ public partial class GameScene : Node3D
 			}
 		}
 
-		SpawnGridWithBlock(blockId, cast.ToGlobal(cast.TargetPosition), rotation);
+		// Have to convert global to local coordinates, because Issues:tm:
+		SpawnGridWithBlock(blockId, ToLocal(cast.ToGlobal(cast.TargetPosition)), rotation);
 	}
 
 	public void RemoveBlock(RayCast3D ray)
@@ -163,6 +169,13 @@ public partial class GameScene : Node3D
 			return false;
 		return true;
 	}
+
+	private void ShiftOrigin()
+	{
+		GlobalPosition -= playerCharacter.GlobalPosition;
+	}
+
+
 
 	public void Save()
 	{

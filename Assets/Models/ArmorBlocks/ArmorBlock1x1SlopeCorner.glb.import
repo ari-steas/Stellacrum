@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dunekhxdyxqta"
-path="res://.godot/imported/ArmorBlock1x1SlopeCorner.glb-55741264c55d17b368978aa3bd4f2777.scn"
+path="res://.godot/imported/ArmorBlock1x1SlopeCorner.glb-a6e17ff04dbf961056da2531976e3220.scn"
 
 [deps]
 
-source_file="res://Assets/Models/ArmorBlock1x1SlopeCorner.glb"
-dest_files=["res://.godot/imported/ArmorBlock1x1SlopeCorner.glb-55741264c55d17b368978aa3bd4f2777.scn"]
+source_file="res://Assets/Models/ArmorBlocks/ArmorBlock1x1SlopeCorner.glb"
+dest_files=["res://.godot/imported/ArmorBlock1x1SlopeCorner.glb-a6e17ff04dbf961056da2531976e3220.scn"]
 
 [params]
 
