@@ -5,7 +5,7 @@
 		"Icon":"ArmorBlock1x1.png",
 		"TypeId":"CubeBlock",
 
-		"Mass":100
+		"Mass":500
 	},
 
 	"ArmorBlockSlope":{
@@ -14,7 +14,7 @@
 		"Icon":"ArmorBlock1x1Slope.png",
 		"TypeId":"CubeBlock",
 
-		"Mass":50
+		"Mass":250
 	},
 
 	"ArmorBlockSlopeCorner":{
@@ -23,7 +23,7 @@
 		"Icon":"ArmorBlock1x1SlopeCorner.png",
 		"TypeId":"CubeBlock",
 
-		"Mass":25
+		"Mass":125
 	},
 
 	"ArmorBlockSlopeCornerInv":{
@@ -32,6 +32,59 @@
 		"Icon":"ArmorBlock1x1SlopeCornerInv.png",
 		"TypeId":"CubeBlock",
 
-		"Mass":75
+		"Mass":375
+	},
+
+	"ArmorBlockSlope2x1Base":{
+		"Model":"ArmorBlock2x1SlopeBase",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeBase.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":380
+	},
+
+	"ArmorBlockSlope2x1Tip":{
+		"Model":"ArmorBlock2x1SlopeTip",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeTip.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":120
+	},
+
+	"ArmorBlockSlope2x1BaseCorner":{
+		"Model":"ArmorBlock2x1SlopeBaseCorner",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeBaseCorner.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":190
+	},
+
+	"ArmorBlockSlope2x1TipCorner":{
+		"Model":"ArmorBlock2x1SlopeTipCorner",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeTipCorner.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":60
+	},
+	"ArmorBlockSlope2x1BaseCornerInv":{
+		"Model":"ArmorBlock2x1SlopeBaseCornerInv",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeBaseCornerInv.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":190
+	},
+
+	"ArmorBlockSlope2x1TipCornerInv":{
+		"Model":"ArmorBlock2x1SlopeTipCornerInv",
+		"BlockSize":[1, 1, 1],
+		"Icon":"ArmorBlock2x1SlopeTipCornerInv.png",
+		"TypeId":"CubeBlock",
+
+		"Mass":60
 	}
 }
