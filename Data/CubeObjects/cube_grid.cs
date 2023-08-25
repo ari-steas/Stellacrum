@@ -67,6 +67,34 @@ public partial class CubeGrid : RigidBody3D
 
 	#region blocks
 
+
+	public readonly Dictionary<PlaceBox.MirrorMode, Vector3I> GridMirrors = new();
+	public void SetMirror(Vector3I position, PlaceBox.MirrorMode mode)
+	{
+		if (mode == PlaceBox.MirrorMode.X || mode == PlaceBox.MirrorMode.HalfX)
+		{
+			GridMirrors.Remove(PlaceBox.MirrorMode.X);
+			GridMirrors.Remove(PlaceBox.MirrorMode.HalfX);
+		}
+		if (mode == PlaceBox.MirrorMode.Y || mode == PlaceBox.MirrorMode.HalfY)
+		{
+			GridMirrors.Remove(PlaceBox.MirrorMode.Y);
+			GridMirrors.Remove(PlaceBox.MirrorMode.HalfY);
+		}
+		if (mode == PlaceBox.MirrorMode.Z || mode == PlaceBox.MirrorMode.HalfZ)
+		{
+			GridMirrors.Remove(PlaceBox.MirrorMode.Z);
+			GridMirrors.Remove(PlaceBox.MirrorMode.HalfZ);
+		}
+
+		GridMirrors.Add(mode, position);
+	}
+
+	public void RemoveMirror(PlaceBox.MirrorMode mode)
+	{
+		GridMirrors.Remove(mode);
+	}
+
 	public void AddBlock(RayCast3D ray, Vector3 rotation, string blocKid)
 	{
 		AddBlock(ray.GetCollisionPoint() + ray.GetCollisionNormal(), rotation, blocKid);
@@ -74,7 +102,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blocKid)
 	{
-		AddBlock(GlobalToBlockCoord(globalPosition), rotation, blocKid);
+		AddBlock(GlobalToGridCoordinates(globalPosition), rotation, blocKid);
 	}
 
 	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
@@ -118,7 +146,7 @@ public partial class CubeGrid : RigidBody3D
 	/// <param name="block"></param>
 	public void AddFullBlock(CubeBlock block)
 	{
-		Vector3I position_GridLocal = LocalToBlockCoord(block.Position);
+		Vector3I position_GridLocal = LocalToGridCoordinates(block.Position);
 
 		if (!CubeBlocks.ContainsKey(position_GridLocal))
 		{
@@ -152,7 +180,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void RemoveBlock(Vector3 globalPosition)
 	{
-		RemoveBlock(GlobalToBlockCoord(globalPosition));
+		RemoveBlock(GlobalToGridCoordinates(globalPosition));
 	}
 
 	public void RemoveBlock(Vector3I position)
@@ -220,7 +248,7 @@ public partial class CubeGrid : RigidBody3D
 	public Vector3 RoundGlobalCoord(Vector3 global)
 	{
 		if (IsInsideTree())
-			return ToGlobal((Vector3) GlobalToBlockCoord(global) * 2.5f);
+			return ToGlobal((Vector3) GlobalToGridCoordinates(global) * 2.5f);
 		else
 			return global;
 	}
@@ -247,17 +275,27 @@ public partial class CubeGrid : RigidBody3D
 		return RoundGlobalCoord(ray.GetCollisionPoint() + ray.GetCollisionNormal());
 	}
 
-	public Vector3I GlobalToBlockCoord(Vector3 global)
+	public Vector3I GlobalToGridCoordinates(Vector3 global)
 	{
 		if (!IsInsideTree())
 			return Vector3I.Zero;
 			
-		return LocalToBlockCoord(ToLocal(global));
+		return LocalToGridCoordinates(ToLocal(global));
 	}
 
-	public Vector3I LocalToBlockCoord(Vector3 local)
+	public Vector3I LocalToGridCoordinates(Vector3 local)
 	{
 		return (Vector3I) (local/2.5f).Round();
+	}
+
+	public Vector3 GridToLocalCoordinates(Vector3I gridCoords)
+	{
+		return ((Vector3) gridCoords) * 2.5f;
+	}
+
+	public Vector3 GridToGlobalCoordinates(Vector3I gridCoords)
+	{
+		return ToGlobal(GridToLocalCoordinates(gridCoords));
 	}
 
 	#endregion

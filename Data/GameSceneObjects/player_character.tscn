@@ -18,9 +18,14 @@ attractor_interaction_enabled = false
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j2tgc"]
 transparency = 1
 albedo_texture = ExtResource("4_1n628")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.3
+rim = 0.4
 
 [sub_resource type="QuadMesh" id="QuadMesh_m6afp"]
 material = SubResource("StandardMaterial3D_j2tgc")
+size = Vector2(0.5, 0.5)
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
 motion_mode = 1
@@ -51,14 +56,39 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 target_position = Vector3(0, 0.5, -10)
 
 [node name="PlaceBox" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
 script = ExtResource("2_ym5iq")
 
-[node name="MirrorParticles" type="GPUParticles3D" parent="PlaceBox"]
+[node name="MirrorParticlesX" type="GPUParticles3D" parent="PlaceBox"]
 emitting = false
-amount = 128
-explosiveness = 0.25
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
 visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_ty11j")
+draw_pass_1 = SubResource("QuadMesh_m6afp")
+
+[node name="MirrorParticlesY" type="GPUParticles3D" parent="PlaceBox"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+emitting = false
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
+visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_ty11j")
+draw_pass_1 = SubResource("QuadMesh_m6afp")
+
+[node name="MirrorParticlesZ" type="GPUParticles3D" parent="PlaceBox"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+emitting = false
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
+visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
 transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_ty11j")
 draw_pass_1 = SubResource("QuadMesh_m6afp")

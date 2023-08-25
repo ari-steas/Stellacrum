@@ -16,9 +16,3 @@ script = ExtResource("1_3x2mn")
 [node name="PauseMenu" parent="." instance=ExtResource("4_njyww")]
 
 [node name="GameScene" parent="." instance=ExtResource("4_6ikny")]
-
-[connection signal="ToggleActive" from="." to="GameScene" method="_ToggleActive"]
-[connection signal="Fullscreen" from="MainMenu" to="." method="_Fullscreen"]
-[connection signal="MSwitchMenu" from="MainMenu" to="." method="_SwitchMenu"]
-[connection signal="SSwitchMenu" from="SavesMenu" to="." method="_SwitchMenu"]
-[connection signal="SwitchMenu" from="PauseMenu" to="." method="_SwitchMenu"]

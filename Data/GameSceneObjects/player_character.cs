@@ -190,7 +190,14 @@ public partial class player_character : CharacterBody3D
 		}
 
 		if (IsInCockpit)
-			return;            
+			return;       
+
+		if (Input.IsActionJustPressed("MirrorMode"))
+			if (interactCast.GetCollider() is CubeGrid grid)
+				PlayerPlaceBox.ShowMirrors(grid);
+		
+		//if (Input.IsActionJustPressed("MirrorModeRotate") && PlayerPlaceBox.IsPlacingMirror)
+
 
 		// Prevents placing 60 blocks per second. Rate-limited to 6 per second.
 		if (PlayerPlaceBox.IsHoldingBlock && nextPlaceTime < DateTime.Now.Ticks)

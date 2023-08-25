@@ -150,6 +150,5 @@ theme_override_font_sizes/font_size = 32
 text = "BACK"
 
 [connection signal="visibility_changed" from="." to="." method="OnVisibilityChanged"]
-[connection signal="ShowWorld" from="SaveContainer/SavesList" to="SaveInfoContainer" method="_ShowWorld"]
 [connection signal="pressed" from="SaveInfoContainer/ButtonContainer/LoadWorldButton" to="." method="_StartGame"]
 [connection signal="pressed" from="BackButton" to="." method="_GoToMenu" binds= [1]]
