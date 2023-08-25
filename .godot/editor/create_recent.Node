@@ -1,3 +1,5 @@
+GPUParticles3D
+MeshInstance3D
 GridMap
 RichTextLabel
 Label
@@ -9,7 +11,6 @@ CanvasLayer
 MultiplayerSynchronizer
 Node3D
 CharacterBody3D
-GPUParticles3D
 Sprite3D
 WorldEnvironment
 CollisionShape3D
@@ -18,7 +19,6 @@ HBoxContainer
 RigidBody3D
 ResourcePreloader
 RayCast3D
-MeshInstance3D
 StaticBody3D
 Camera3D
 DirectionalLight3D
