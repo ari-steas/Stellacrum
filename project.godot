@@ -28,7 +28,7 @@ window/stretch/mode="canvas_items"
 
 [dotnet]
 
-project/assembly_name="Stellacrum"
+project/assembly_name="StellacrumTest"
 
 [editor_plugins]
 
