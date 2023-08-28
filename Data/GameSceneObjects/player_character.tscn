@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cey0g83qn2irp"]
+[gd_scene load_steps=16 format=3 uid="uid://cey0g83qn2irp"]
 
 [ext_resource type="Script" path="res://Data/GameSceneObjects/player_character.cs" id="1_u14pr"]
 [ext_resource type="Script" path="res://Data/GameSceneObjects/PlaceBox.cs" id="2_ym5iq"]
@@ -17,14 +17,59 @@ attractor_interaction_enabled = false
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j2tgc"]
 transparency = 1
+albedo_color = Color(1, 0, 0, 1)
 albedo_texture = ExtResource("4_1n628")
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 0.3
 rim = 0.4
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_m6afp"]
 material = SubResource("StandardMaterial3D_j2tgc")
+size = Vector2(0.5, 0.5)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_0ht4y"]
+load_path = "res://.godot/imported/Crosshair.png-da3a254feb5945426be89edeae5e1b34.s3tc.ctex"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ksnj0"]
+transparency = 1
+albedo_color = Color(0, 1, 0, 1)
+albedo_texture = SubResource("CompressedTexture2D_0ht4y")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.3
+rim = 0.4
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_5fkky"]
+material = SubResource("StandardMaterial3D_ksnj0")
+size = Vector2(0.5, 0.5)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_sgoma"]
+load_path = "res://.godot/imported/Crosshair.png-da3a254feb5945426be89edeae5e1b34.s3tc.ctex"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d6pmo"]
+transparency = 1
+albedo_color = Color(0, 0, 1, 1)
+albedo_texture = SubResource("CompressedTexture2D_sgoma")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.3
+rim = 0.4
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_1e5pp"]
+material = SubResource("StandardMaterial3D_d6pmo")
 size = Vector2(0.5, 0.5)
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
@@ -58,41 +103,6 @@ target_position = Vector3(0, 0.5, -10)
 [node name="PlaceBox" type="Node3D" parent="."]
 script = ExtResource("2_ym5iq")
 
-[node name="MirrorParticlesX" type="GPUParticles3D" parent="PlaceBox"]
-emitting = false
-amount = 512
-lifetime = 10.0
-preprocess = 5.0
-visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
-local_coords = true
-transform_align = 1
-process_material = SubResource("ParticleProcessMaterial_ty11j")
-draw_pass_1 = SubResource("QuadMesh_m6afp")
-
-[node name="MirrorParticlesY" type="GPUParticles3D" parent="PlaceBox"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
-emitting = false
-amount = 512
-lifetime = 10.0
-preprocess = 5.0
-visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
-local_coords = true
-transform_align = 1
-process_material = SubResource("ParticleProcessMaterial_ty11j")
-draw_pass_1 = SubResource("QuadMesh_m6afp")
-
-[node name="MirrorParticlesZ" type="GPUParticles3D" parent="PlaceBox"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
-emitting = false
-amount = 512
-lifetime = 10.0
-preprocess = 5.0
-visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
-local_coords = true
-transform_align = 1
-process_material = SubResource("ParticleProcessMaterial_ty11j")
-draw_pass_1 = SubResource("QuadMesh_m6afp")
-
 [node name="Crosshair3D" type="Sprite3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -250)
 pixel_size = 0.001
@@ -116,3 +126,38 @@ no_depth_test = true
 fixed_size = true
 render_priority = 2
 texture = ExtResource("3_q3h1k")
+
+[node name="MirrorParticlesX" type="GPUParticles3D" parent="."]
+visible = false
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
+visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_ty11j")
+draw_pass_1 = SubResource("QuadMesh_m6afp")
+
+[node name="MirrorParticlesY" type="GPUParticles3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+visible = false
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
+visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_ty11j")
+draw_pass_1 = SubResource("QuadMesh_5fkky")
+
+[node name="MirrorParticlesZ" type="GPUParticles3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+visible = false
+amount = 512
+lifetime = 10.0
+preprocess = 5.0
+visibility_aabb = AABB(0, -4, -4, 0, 8, 8)
+local_coords = true
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_ty11j")
+draw_pass_1 = SubResource("QuadMesh_1e5pp")

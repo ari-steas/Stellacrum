@@ -30,6 +30,8 @@ public partial class player_character : CharacterBody3D
 
 	public RayCast3D interactCast;
 
+	MirrorManager mirrorManager;
+
 	public override void _Ready()
 	{
 		scene = GetParent<GameScene>();
@@ -44,6 +46,11 @@ public partial class player_character : CharacterBody3D
 		shipCrosshair = GetNode<Node3D>("ShipCrosshair3D");
 		collision = FindChild("PlayerCollision") as CollisionShape3D;
 
+		GpuParticles3D MirrorParticlesX = FindChild("MirrorParticlesX") as GpuParticles3D;
+		GpuParticles3D MirrorParticlesY = FindChild("MirrorParticlesY") as GpuParticles3D;
+		GpuParticles3D MirrorParticlesZ = FindChild("MirrorParticlesZ") as GpuParticles3D;
+		mirrorManager = new(MirrorParticlesX, MirrorParticlesY, MirrorParticlesZ);
+
 		// Wait 1 second after scene start to place blocks
 		nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
 	}
@@ -55,33 +62,41 @@ public partial class player_character : CharacterBody3D
 			return;
 
 		InputHandler();
+		DebugDraw.Text("Mirror " + mirrorManager.GetMirrorsEnabled());
 		
 		if (interactCast.IsColliding())
 		{
 			if (interactCast.GetCollider() is CubeGrid grid)
 			{
-				if (!justLookedAtGrid)
+				// If just looked at grid
+				if (!justLookedAtGrid && PlayerPlaceBox.IsHoldingBlock)
 				{
 					justLookedAtGrid = true;
 
 					// Snap PlayerPlaceBox to looked-at grid
 					RemoveChild(PlayerPlaceBox);
 					grid.AddChild(PlayerPlaceBox);
+					mirrorManager.SetActiveGrid(grid);
 				
 					// Clamp to 90 degree rotations
 					PlayerPlaceBox.SnapLocal();
 				}
 
 				lookPosition = grid.PlaceProjectionGlobal(interactCast);
+
+				mirrorManager.MoveActiveMirror(grid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()));
 			}
 		}
 		else
 		{
 			lookPosition = ToGlobal(interactCast.TargetPosition);
 
+			// If just looked away from grid
 			if (justLookedAtGrid)
 			{
 				Vector3 rot = PlayerPlaceBox.GlobalRotation;
+				mirrorManager.SetMirrorsEnabled(false);
+
 				PlayerPlaceBox.GetParent().RemoveChild(PlayerPlaceBox);
 				AddChild(PlayerPlaceBox);
 				if (PlayerPlaceBox.IsInsideTree())
@@ -193,8 +208,24 @@ public partial class player_character : CharacterBody3D
 			return;       
 
 		if (Input.IsActionJustPressed("MirrorMode"))
-			if (interactCast.GetCollider() is CubeGrid grid)
-				PlayerPlaceBox.ShowMirrors(grid);
+			mirrorManager.SetMirrorsEnabled(!mirrorManager.GetMirrorsEnabled());
+		if (Input.IsActionPressed("MirrorModeRotate"))
+		{
+			// Order: X, Y, Z, DISABLED
+			if ((int) mirrorManager.activeMirror == 2)
+			{
+				mirrorManager.activeMirror = 0;
+				mirrorManager.PlacingMirror = false;
+			}
+			else
+			{
+				mirrorManager.PlacingMirror = true;
+				mirrorManager.activeMirror++;
+				mirrorManager.SetActiveMirror(mirrorManager.activeMirror);
+			}
+
+		}
+
 		
 		//if (Input.IsActionJustPressed("MirrorModeRotate") && PlayerPlaceBox.IsPlacingMirror)
 

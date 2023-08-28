@@ -68,32 +68,9 @@ public partial class CubeGrid : RigidBody3D
 	#region blocks
 
 
-	public readonly Dictionary<PlaceBox.MirrorMode, Vector3I> GridMirrors = new();
-	public void SetMirror(Vector3I position, PlaceBox.MirrorMode mode)
-	{
-		if (mode == PlaceBox.MirrorMode.X || mode == PlaceBox.MirrorMode.HalfX)
-		{
-			GridMirrors.Remove(PlaceBox.MirrorMode.X);
-			GridMirrors.Remove(PlaceBox.MirrorMode.HalfX);
-		}
-		if (mode == PlaceBox.MirrorMode.Y || mode == PlaceBox.MirrorMode.HalfY)
-		{
-			GridMirrors.Remove(PlaceBox.MirrorMode.Y);
-			GridMirrors.Remove(PlaceBox.MirrorMode.HalfY);
-		}
-		if (mode == PlaceBox.MirrorMode.Z || mode == PlaceBox.MirrorMode.HalfZ)
-		{
-			GridMirrors.Remove(PlaceBox.MirrorMode.Z);
-			GridMirrors.Remove(PlaceBox.MirrorMode.HalfZ);
-		}
-
-		GridMirrors.Add(mode, position);
-	}
-
-	public void RemoveMirror(PlaceBox.MirrorMode mode)
-	{
-		GridMirrors.Remove(mode);
-	}
+	public readonly bool[] GridMirrors = new[] {false, false, false};
+	public bool MirrorEnabled = false;
+	public Vector3I MirrorPosition = Vector3I.Zero;
 
 	public void AddBlock(RayCast3D ray, Vector3 rotation, string blocKid)
 	{
