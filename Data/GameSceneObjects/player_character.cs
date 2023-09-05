@@ -55,7 +55,7 @@ public partial class player_character : CharacterBody3D
 		nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
 	}
 
-	private bool justLookedAtGrid = false;
+	private bool isLookingAtGrid = false;
 	public override void _Process(double delta)
 	{
 		if (!scene.isActive)
@@ -69,9 +69,9 @@ public partial class player_character : CharacterBody3D
 			if (interactCast.GetCollider() is CubeGrid grid)
 			{
 				// If just looked at grid
-				if (!justLookedAtGrid && PlayerPlaceBox.IsHoldingBlock)
+				if (!isLookingAtGrid && PlayerPlaceBox.IsHoldingBlock)
 				{
-					justLookedAtGrid = true;
+					isLookingAtGrid = true;
 
 					// Snap PlayerPlaceBox to looked-at grid
 					RemoveChild(PlayerPlaceBox);
@@ -92,17 +92,17 @@ public partial class player_character : CharacterBody3D
 			lookPosition = ToGlobal(interactCast.TargetPosition);
 
 			// If just looked away from grid
-			if (justLookedAtGrid)
+			if (isLookingAtGrid)
 			{
 				Vector3 rot = PlayerPlaceBox.GlobalRotation;
-				mirrorManager.SetMirrorsEnabled(false);
+				mirrorManager.SetMirrorsVisible(false);
 
 				PlayerPlaceBox.GetParent().RemoveChild(PlayerPlaceBox);
 				AddChild(PlayerPlaceBox);
 				if (PlayerPlaceBox.IsInsideTree())
 					PlayerPlaceBox.GlobalRotation = rot;
 
-				justLookedAtGrid = false;
+				isLookingAtGrid = false;
 			}
 		}
 
@@ -208,20 +208,35 @@ public partial class player_character : CharacterBody3D
 			return;       
 
 		if (Input.IsActionJustPressed("MirrorMode"))
-			mirrorManager.SetMirrorsEnabled(!mirrorManager.GetMirrorsEnabled());
-		if (Input.IsActionPressed("MirrorModeRotate"))
 		{
+			mirrorManager.SetMirrorsEnabled(!mirrorManager.GetMirrorsEnabled());
+
+			// Reset mirror placement if mirrormode disabled while placing.
+			if (!mirrorManager.GetMirrorsEnabled() && PlayerPlaceBox.IsHoldingBlock)
+			{
+				PlayerPlaceBox.Visible = true;
+				mirrorManager.UnsetActiveMirror();
+				PlayerPlaceBox.Visible = true;
+			}
+		}
+		if (Input.IsActionJustPressed("MirrorModeRotate"))
+		{
+			mirrorManager.SetMirrorsEnabled(true);
 			// Order: X, Y, Z, DISABLED
 			if ((int) mirrorManager.activeMirror == 2)
 			{
-				mirrorManager.activeMirror = 0;
-				mirrorManager.PlacingMirror = false;
+				mirrorManager.UnsetActiveMirror();
+				PlayerPlaceBox.Visible = true;
+			}
+			else if (mirrorManager.PlacingMirror == true)
+			{
+				mirrorManager.SetActiveMirror(mirrorManager.activeMirror + 1);
 			}
 			else
 			{
 				mirrorManager.PlacingMirror = true;
-				mirrorManager.activeMirror++;
-				mirrorManager.SetActiveMirror(mirrorManager.activeMirror);
+				mirrorManager.SetActiveMirror(0);
+				PlayerPlaceBox.Visible = false;
 			}
 
 		}
@@ -236,20 +251,37 @@ public partial class player_character : CharacterBody3D
 			// TODO: variable distance
 			if (Input.IsActionJustPressed("MousePressL"))
 			{
-				scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalRotation);
-				nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+				if (mirrorManager.PlacingMirror)
+				{
+					mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, scene.GetGrid(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
+				}
+				else
+				{
+					scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalRotation);
+					nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+				}
 			}
 			
 			if (Input.IsActionJustPressed("MousePressR"))
 			{
-				scene.RemoveBlock(interactCast);
-				nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+				if (mirrorManager.PlacingMirror)
+				{
+					mirrorManager.RemoveGridMirror(mirrorManager.activeMirror);
+				}
+				else
+				{
+					scene.RemoveBlock(interactCast);
+					nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+				}
 			}
 		}
 
 		// Surely there's a better way to do this, but would be a waste of dev time.
 		if (Input.IsActionJustPressed("Toolbar0"))
+		{
 			PlayerPlaceBox.SetBlock(HUD.Toolbar[0]);
+			mirrorManager.SetMirrorsEnabled(false);
+		}
 		if (Input.IsActionJustPressed("Toolbar1"))
 			PlayerPlaceBox.SetBlock(HUD.Toolbar[1]);
 		if (Input.IsActionJustPressed("Toolbar2"))

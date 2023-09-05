@@ -109,7 +109,7 @@ public class CubeBlockLoader
 
 			dynamic cube = Activator.CreateInstance(type);
 			
-			if (type == typeof(CubeBlock) || type.IsSubclassOf(typeof(CubeBlock))) {
+			if (cube is CubeBlock) {
 				try
 				{
 					CubeBlocks.Add(subTypeId, cube.Init(subTypeId, blockData));

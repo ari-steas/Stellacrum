@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Godot;
 
 public class MirrorManager
@@ -15,31 +14,37 @@ public class MirrorManager
         MirrorPlanes[2] = Z;
 
         foreach (var plane in MirrorPlanes)
-        {
             plane.Visible = false;
-            plane.Emitting = false;
-        }
     }
 
     /// <summary>
-    /// Toggles whether all mirrors are enabled.
+    /// Toggles whether all mirrors are visible.
     /// </summary>
     /// <param name="enabled"></param>
     public void SetMirrorsEnabled(bool enabled)
     {
         MirrorEnabled = enabled;
-
+        
         if (currentGrid != null)
             currentGrid.MirrorEnabled = enabled;
 
-        foreach (var plane in MirrorPlanes)
-            plane.Visible = enabled;
+        CheckGridMirrors();
 
         if (!enabled)
         {
             PlacingMirror = false;
             activeMirror = MirrorMode.X;
         }
+    }
+
+    /// <summary>
+    /// Toggles whether all mirrors are visible.
+    /// </summary>
+    /// <param name="active"></param>
+    public void SetMirrorsVisible(bool visible)
+    {
+        for (int i = 0; i < 3; i++)
+            SetMirrorVisible((MirrorMode) i, visible);
     }
 
     public bool GetMirrorsEnabled()
@@ -56,11 +61,8 @@ public class MirrorManager
         if (currentGrid != null)
             currentGrid.MirrorEnabled = false;
 
-        SetMirrorsEnabled(true);
-        if (currentGrid != null)
-            currentGrid.MirrorEnabled = false;
-
         currentGrid = grid;
+        UnsetActiveMirror();
 
         for (int i = 0; i < 3; i++)
         {
@@ -87,12 +89,12 @@ public class MirrorManager
     }
 
     /// <summary>
-    /// Sets whether a single mirror is emitting.
+    /// Sets whether a single mirror is visible.
     /// </summary>
     /// <param name="mirror"></param>
     private void SetMirrorVisible(MirrorMode mirror, bool visible)
     {
-        MirrorPlanes[(int) mirror].Emitting = visible;
+        MirrorPlanes[(int) mirror].Visible = visible;
     }
 
     /// <summary>
@@ -100,11 +102,13 @@ public class MirrorManager
     /// </summary>
     /// <param name="mirror"></param>
     /// <param name="position"></param>
-    public void PlaceMirrorOnGrid(MirrorMode mirror, Vector3I position)
+    public void PlaceGridMirror(MirrorMode mirror, Vector3I position)
     {
         MoveMirror(mirror, position);
         SetMirrorVisible(mirror, true);
         currentGrid.GridMirrors[(int) mirror] = true;
+
+        GD.Print(mirror + " " + currentGrid.GridMirrors[(int) mirror]);
     }
 
     /// <summary>
@@ -112,10 +116,12 @@ public class MirrorManager
     /// </summary>
     /// <param name="mirror"></param>
     /// <param name="position"></param>
-    public void RemoveMirrorOnGrid(MirrorMode mirror)
+    public void RemoveGridMirror(MirrorMode mirror)
     {
         SetMirrorVisible(mirror, false);
         currentGrid.GridMirrors[(int) mirror] = false;
+
+        GD.Print(mirror + " " + currentGrid.GridMirrors[(int) mirror]);
     }
 
     public MirrorMode activeMirror = MirrorMode.X;
@@ -160,6 +166,7 @@ public class MirrorManager
     public void UnsetActiveMirror()
     {
         PlacingMirror = false;
+        SetMirrorVisible(activeMirror, false);
         activeMirror = MirrorMode.X;
     }
 

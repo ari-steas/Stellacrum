@@ -66,6 +66,8 @@ public partial class GameScene : Node3D
 				playerCharacter.Position = bufferPlayerPosition;
 				playerCharacter.Rotation = bufferPlayerRotation;
 				playerCharacter.Velocity = bufferPlayerVelocity;
+
+				isPlayerDataSet = false;
 			}
 		}
 		else
@@ -116,6 +118,19 @@ public partial class GameScene : Node3D
 
 		// Have to convert global to local coordinates, because Issues:tm:
 		SpawnGridWithBlock(blockId, ToLocal(cast.ToGlobal(cast.TargetPosition)), rotation);
+	}
+
+	#nullable enable
+	public CubeGrid? GetGrid(RayCast3D cast)
+	{
+		if (cast.IsColliding())
+		{
+			if (cast.GetCollider() is CubeGrid grid)
+			{
+				return grid;
+			}
+		}
+		return null;
 	}
 
 	public void RemoveBlock(RayCast3D ray)
