@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class CubeGrid : RigidBody3D
 {
@@ -37,13 +38,12 @@ public partial class CubeGrid : RigidBody3D
 		}
 
 		ThrustControl.Update(LinearVelocity, AngularVelocity, delta);
+		Speed = LinearVelocity.Length();
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Speed = LinearVelocity.Length();
-
-		// DebugDraw in PhysicsProcess to match framerate
+		// DebugDraw in PhysicsProcess to update 60fps
 		DebugDraw.Point(ToGlobal(CenterOfMass), 1, Colors.Yellow);
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
 	}
@@ -110,6 +110,18 @@ public partial class CubeGrid : RigidBody3D
 				Cockpits.Add(c);
 			if (block is ThrusterBlock t)
 				ThrusterBlocks.Add(t);
+
+			// Place mirrored blocks
+			if (MirrorEnabled)
+			{
+				Vector3I diff = MirrorPosition - position_GridLocal;
+				if (GridMirrors[0])
+					AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), rotation, block.Copy());
+				if (GridMirrors[1])
+					AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), rotation, block.Copy());
+				if (GridMirrors[2])
+					AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), rotation, block.Copy());
+			}
 		}
 		else
 		{
@@ -182,8 +194,8 @@ public partial class CubeGrid : RigidBody3D
 
 	private void RecalcSize()
 	{
-		Vector3I max = Vector3I.Zero;
-		Vector3I min = Vector3I.Zero;
+		Vector3I max = CubeBlocks.Keys.ToList()[0];
+		Vector3I min = CubeBlocks.Keys.ToList()[0];
 
 		foreach (var pos in CubeBlocks.Keys)
 		{
@@ -232,11 +244,6 @@ public partial class CubeGrid : RigidBody3D
 
 	public Vector3 PlaceProjectionGlobal(Vector3 from, Vector3 to)
 	{
-		Aabb box = BoundingBox();
-
-		for (int i = 0; i < 8; i++)
-			DebugDraw.Point(box.GetEndpoint(i), 0.5f, Colors.Red);
-
 		Vector3 lTo = RoundGlobalCoord(to);
 		lTo = RoundGlobalCoord(lTo.MoveToward(from, 1.25f));
 		return lTo;

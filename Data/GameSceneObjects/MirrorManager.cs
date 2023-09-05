@@ -2,6 +2,11 @@ using Godot;
 
 public class MirrorManager
 {
+    /* Forgive me for creating this monstrosity.
+     * -Aristeas 9/5/2023
+    */
+
+
     bool MirrorEnabled = false;
     public bool PlacingMirror = false;
     GpuParticles3D[] MirrorPlanes = new GpuParticles3D[3];
@@ -24,6 +29,7 @@ public class MirrorManager
     public void SetMirrorsEnabled(bool enabled)
     {
         MirrorEnabled = enabled;
+        currentGrid.MirrorEnabled = enabled;
         
         if (currentGrid != null)
             currentGrid.MirrorEnabled = enabled;
@@ -63,6 +69,7 @@ public class MirrorManager
 
         currentGrid = grid;
         UnsetActiveMirror();
+        grid.MirrorEnabled = MirrorEnabled;
 
         for (int i = 0; i < 3; i++)
         {
@@ -70,9 +77,8 @@ public class MirrorManager
 
             plane.GetParent()?.RemoveChild(plane);
 			grid.AddChild(plane);
-
-            MoveMirror((MirrorMode) i, currentGrid.MirrorPosition);
         }
+        CheckGridMirrors();
     }
 
     /// <summary>
@@ -80,12 +86,53 @@ public class MirrorManager
     /// </summary>
     /// <param name="mirror"></param>
     /// <param name="position"></param>
-    private void MoveMirror(MirrorMode mirror, Vector3I position)
+    private void MoveMirror(MirrorMode mirror, Vector3I position, bool set = true)
     {
         if (currentGrid == null)
             return;
-        
-        MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(position);
+
+        Vector3I center = (Vector3I) currentGrid.Size.GetCenter();
+       
+        switch (mirror)
+        {
+            case MirrorMode.X:
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(position.X, center.Y, center.Z));
+                break;
+            case MirrorMode.Y:
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(center.X, position.Y, center.Z));
+                break;
+            case MirrorMode.Z:
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(center.X, center.Y, position.Z));
+                break;
+        }
+
+        if (!set)
+            return;
+
+        switch (mirror)
+        {
+            case MirrorMode.X:
+                currentGrid.MirrorPosition.X = position.X;
+                break;
+            case MirrorMode.Y:
+                currentGrid.MirrorPosition.Y = position.Y;
+                break;
+            case MirrorMode.Z:
+                currentGrid.MirrorPosition.Z = position.Z;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Sets the active mirror's position on grid, without actually changing the saved position.
+    /// </summary>
+    /// <param name="position"></param>
+    public void MoveActiveMirror(Vector3I position)
+    {
+        if (!PlacingMirror)
+            return;
+
+        MoveMirror(activeMirror, position, false);
     }
 
     /// <summary>
@@ -107,7 +154,7 @@ public class MirrorManager
         MoveMirror(mirror, position);
         SetMirrorVisible(mirror, true);
         currentGrid.GridMirrors[(int) mirror] = true;
-
+        
         GD.Print(mirror + " " + currentGrid.GridMirrors[(int) mirror]);
     }
 
@@ -138,26 +185,6 @@ public class MirrorManager
         SetMirrorVisible(mirror, true);
     }
 
-    public void MoveActiveMirror(Vector3I position)
-    {
-        if (currentGrid == null || !PlacingMirror)
-            return;
-        
-        MirrorPlanes[(int) activeMirror].Position = currentGrid.GridToLocalCoordinates(position);
-        switch (activeMirror)
-        {
-            case MirrorMode.X:
-                currentGrid.MirrorPosition.X = position.X;
-                break;
-            case MirrorMode.Y:
-                currentGrid.MirrorPosition.Y = position.Y;
-                break;
-            case MirrorMode.Z:
-                currentGrid.MirrorPosition.Z = position.Z;
-                break;
-        }
-    }
-
     /// <summary>
     /// Unsets active (i.e. holographic) mirror.
     /// </summary>
@@ -166,14 +193,42 @@ public class MirrorManager
     public void UnsetActiveMirror()
     {
         PlacingMirror = false;
-        SetMirrorVisible(activeMirror, false);
+        CheckGridMirrors();
         activeMirror = MirrorMode.X;
     }
 
-    private void CheckGridMirrors()
+    public void CheckGridMirrors()
     {
+        if (currentGrid == null)
+            return;
+
+        Vector3 gridSize = 2.5f * currentGrid.Size.Size;
+
         for (int i = 0; i < 3; i++)
-            MirrorPlanes[i].Visible = currentGrid.GridMirrors[i];
+        {
+            if (MirrorEnabled)
+                MirrorPlanes[i].Visible = currentGrid.GridMirrors[i];
+            MoveMirror((MirrorMode) i, currentGrid.MirrorPosition, false);
+
+            Vector3 adjustedGridSize = 0.5f * gridSize + Vector3.One*2.5f;
+
+            switch (i)
+            {
+                case 0:
+                    adjustedGridSize.Y = 0;
+                    break;
+                case 1:
+                    adjustedGridSize.Z = 0;
+                    break;
+                case 2:
+                    adjustedGridSize.X = 0;
+                    break;
+            }
+
+            MirrorPlanes[i].ProcessMaterial.Set("emission_box_extents", adjustedGridSize);
+
+            MirrorPlanes[i].Amount = (int)(16 * 2.5f * (adjustedGridSize.X > 0 ? adjustedGridSize.X : 1) * (adjustedGridSize.Y > 0 ? adjustedGridSize.Y : 1) * (adjustedGridSize.Z > 0 ? adjustedGridSize.Z : 1));
+        }
 
         if (PlacingMirror)
             MirrorPlanes[(int) activeMirror].Visible = true;

@@ -61,6 +61,18 @@ public partial class player_character : CharacterBody3D
 		if (!scene.isActive)
 			return;
 
+		HandleMovement(delta);
+		HandleRotation(delta);
+		lastX = 0;
+		lastY = 0;
+		lastZ = 0;
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		if (!scene.isActive)
+			return;
+
 		InputHandler();
 		DebugDraw.Text("Mirror " + mirrorManager.GetMirrorsEnabled());
 		
@@ -85,6 +97,14 @@ public partial class player_character : CharacterBody3D
 				lookPosition = grid.PlaceProjectionGlobal(interactCast);
 
 				mirrorManager.MoveActiveMirror(grid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()));
+
+				Vector3 diff = grid.MirrorPosition - PlayerPlaceBox.Position;
+				if (grid.GridMirrors[0])
+					DebugDraw.Point(grid.ToGlobal(new Vector3(diff.X, PlayerPlaceBox.Position.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Red);
+				if (grid.GridMirrors[1])
+					DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, diff.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Green);
+				if (grid.GridMirrors[2])
+					DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, PlayerPlaceBox.Position.Y, diff.Z)), 1, Colors.Blue);
 			}
 		}
 		else
@@ -96,6 +116,11 @@ public partial class player_character : CharacterBody3D
 			{
 				Vector3 rot = PlayerPlaceBox.GlobalRotation;
 				mirrorManager.SetMirrorsVisible(false);
+				if (mirrorManager.PlacingMirror)
+				{
+					mirrorManager.UnsetActiveMirror();
+					PlayerPlaceBox.Visible = true;
+				}
 
 				PlayerPlaceBox.GetParent().RemoveChild(PlayerPlaceBox);
 				AddChild(PlayerPlaceBox);
@@ -114,18 +139,6 @@ public partial class player_character : CharacterBody3D
 			DelayedEnableCollision = 0;
 			collision.Disabled = false;
 		}
-	}
-
-	public override void _PhysicsProcess(double delta)
-	{
-		if (!scene.isActive)
-			return;
-
-		HandleMovement(delta);
-		HandleRotation(delta);
-		lastX = 0;
-		lastY = 0;
-		lastZ = 0;
 	}
 
 	public bool IsInCockpit = false;
@@ -214,7 +227,6 @@ public partial class player_character : CharacterBody3D
 			// Reset mirror placement if mirrormode disabled while placing.
 			if (!mirrorManager.GetMirrorsEnabled() && PlayerPlaceBox.IsHoldingBlock)
 			{
-				PlayerPlaceBox.Visible = true;
 				mirrorManager.UnsetActiveMirror();
 				PlayerPlaceBox.Visible = true;
 			}
@@ -254,11 +266,14 @@ public partial class player_character : CharacterBody3D
 				if (mirrorManager.PlacingMirror)
 				{
 					mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, scene.GetGrid(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
+					mirrorManager.UnsetActiveMirror();
+					PlayerPlaceBox.Visible = true;
 				}
 				else
 				{
 					scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalRotation);
 					nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+					mirrorManager.CheckGridMirrors();
 				}
 			}
 			
@@ -267,11 +282,14 @@ public partial class player_character : CharacterBody3D
 				if (mirrorManager.PlacingMirror)
 				{
 					mirrorManager.RemoveGridMirror(mirrorManager.activeMirror);
+					mirrorManager.UnsetActiveMirror();
+					PlayerPlaceBox.Visible = true;
 				}
 				else
 				{
 					scene.RemoveBlock(interactCast);
 					nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+					mirrorManager.CheckGridMirrors();
 				}
 			}
 		}
@@ -280,7 +298,7 @@ public partial class player_character : CharacterBody3D
 		if (Input.IsActionJustPressed("Toolbar0"))
 		{
 			PlayerPlaceBox.SetBlock(HUD.Toolbar[0]);
-			mirrorManager.SetMirrorsEnabled(false);
+			mirrorManager.SetMirrorsVisible(false);
 		}
 		if (Input.IsActionJustPressed("Toolbar1"))
 			PlayerPlaceBox.SetBlock(HUD.Toolbar[1]);

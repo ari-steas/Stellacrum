@@ -37,7 +37,12 @@ public partial class ThrusterBlock : CubeBlock
 	Vector3 angularDesired = Vector3.Zero;
 	Vector3 linearDesired = Vector3.Zero;
 
+
 	public override void _Process(double delta)
+	{
+	}
+
+	public override void _PhysicsProcess(double delta)
 	{
 		if (Dampen)
 		{
@@ -49,6 +54,12 @@ public partial class ThrusterBlock : CubeBlock
 		particles.Emitting = ThrustPercent > 0;
 		if (!((int) (64*ThrustPercent) > 0.01))
 			particles.Emitting = false;
+
+		parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float) delta, GlobalPosition - parent.GlobalPosition);
+		
+		// Make particles inherit velocity of parent
+		particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
+		particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
 	}
 
 	float AngularControl()
@@ -102,16 +113,6 @@ public partial class ThrusterBlock : CubeBlock
 	public Vector3 GetAngularAccel()
 	{
 		return GetTorque() / PhysicsServer3D.BodyGetDirectState(parent.GetRid()).InverseInertia.Inverse();
-	}
-
-	public override void _PhysicsProcess(double delta)
-	{
-		// Make particles inherit velocity of parent
-		particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
-		particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
-
-		parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float) delta, GlobalPosition - parent.GlobalPosition);
-
 	}
 
 	#region boilerplate
