@@ -68,7 +68,7 @@ public partial class PauseMenu : CanvasLayer
 
 	void OptionsPress()
 	{
-		//EmitSignal(SignalName.SwitchMenu, 2);
+		EmitSignal(SignalName.SwitchMenu, 4);
 	}
 
 	void ReturnPress()

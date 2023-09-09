@@ -1,13 +1,17 @@
+ScrollContainer
+HSlider
+CheckButton
+Label
+HBoxContainer
+Button
+VBoxContainer
+CanvasLayer
 GPUParticles3D
 MeshInstance3D
 GridMap
 RichTextLabel
-Label
-Button
 ColorRect
-VBoxContainer
 TabContainer
-CanvasLayer
 MultiplayerSynchronizer
 Node3D
 CharacterBody3D
@@ -15,7 +19,6 @@ Sprite3D
 WorldEnvironment
 CollisionShape3D
 TextureRect
-HBoxContainer
 RigidBody3D
 ResourcePreloader
 RayCast3D
@@ -28,4 +31,3 @@ Node
 GridContainer
 ItemList
 Node2D
-Window

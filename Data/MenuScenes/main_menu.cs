@@ -19,11 +19,8 @@ public partial class main_menu : CanvasLayer
 	public override void _Process(double delta)
 	{
 	}
+
 	
-	private void _Fullscreen()
-	{
-		EmitSignal(SignalName.Fullscreen);
-	}
 	
 	private void _GoToMenu(int menu)
 	{

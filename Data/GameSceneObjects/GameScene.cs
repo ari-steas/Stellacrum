@@ -11,7 +11,7 @@ public partial class GameScene : Node3D
 
 	public readonly List<CubeGrid> grids = new();
 
-	player_character playerCharacter;
+	public player_character playerCharacter;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -24,6 +24,15 @@ public partial class GameScene : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if(playerCharacter.GlobalPosition.Length() > 2000)
+			ShiftOrigin();
+	}
+
+	int tick = 0;
+	public override void _PhysicsProcess(double delta)
+	{
+		tick++;
+
 		DebugDraw.Text(grids.Count + " CubeGrids");
 
 		if (Input.IsActionPressed("Pause"))
@@ -41,12 +50,25 @@ public partial class GameScene : Node3D
 				grid.AngularVelocity = Vector3.Zero;
 			}
 		}
-	}
 
-	public override void _PhysicsProcess(double delta)
-	{
-		if(playerCharacter.GlobalPosition.Length() > 2000)
-			ShiftOrigin();
+		if (tick == 100)
+		{
+			List<CubeGrid> emptyGrids = new();
+
+			foreach (var grid in grids)
+			{
+				if (grid.GetChildCount() == 0)
+				{
+					emptyGrids.Add(grid);
+					grid.QueueFree();
+				}
+			}
+
+			foreach (var grid in emptyGrids)
+				grids.Remove(grid);
+
+			tick = 0;
+		}
 	}
 
 	private void _ToggleActive(bool active)
@@ -142,11 +164,7 @@ public partial class GameScene : Node3D
 				grid.RemoveBlock(ray);
 
 				if (grid.IsEmpty())
-				{
 					grid.Close();
-					grids.Remove(grid);
-					RemoveChild(grid);
-				}
 			}
 		}
 	}

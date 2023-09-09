@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 public partial class menus : Node2D
 {
@@ -9,6 +10,8 @@ public partial class menus : Node2D
 
 	private Array<Node> _children;
 
+	public int prevMenu = 0, currentMenu = 0;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -16,22 +19,33 @@ public partial class menus : Node2D
 		_SwitchMenu(1);
 
 		TextureLoader.StartLoad("res://Assets/Images/");
+
+		OptionsHelper.AddOption("fullscreen", new("fullscreen", false, _Fullscreen));
 	}
 
-	private void _Fullscreen()
+    private void _Fullscreen(object value)
 	{
-		DisplayServer.WindowSetMode((DisplayServer.WindowGetMode() == DisplayServer.WindowMode.ExclusiveFullscreen) ? DisplayServer.WindowMode.Windowed : DisplayServer.WindowMode.ExclusiveFullscreen);
+		if (value is bool fullscreen)
+		{
+			DisplayServer.WindowSetMode(fullscreen ? DisplayServer.WindowMode.ExclusiveFullscreen : DisplayServer.WindowMode.Windowed);
+			OptionsHelper.SetOption("fullscreen", fullscreen);
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
 		GetWindow().Title = $"Stellacrum | {Engine.GetFramesPerSecond()}fps {Engine.PhysicsTicksPerSecond}tps";
-
 	}
+
 
 	public void _SwitchMenu(int toShow)
 	{
+		GD.Print("Current Menu: " + toShow);
+		GD.Print("Prev Menu: " + currentMenu + "\n");
+		prevMenu = currentMenu;
+		currentMenu = toShow;
+
 		if (toShow == 0)
 			EmitSignal(SignalName.ToggleActive, true);
 		else

@@ -1,0 +1,76 @@
+[gd_scene load_steps=3 format=3 uid="uid://bj5564fx1crm0"]
+
+[ext_resource type="Texture2D" uid="uid://cdguqt6lrqntg" path="res://Assets/Images/GUI/MenuBackground.png" id="1_8xr1d"]
+[ext_resource type="Script" path="res://Data/MenuScenes/OptionsMenu.cs" id="1_mudu8"]
+
+[node name="OptionsMenu" type="CanvasLayer"]
+script = ExtResource("1_mudu8")
+
+[node name="MenuBackground" type="TextureRect" parent="."]
+z_index = -1
+z_as_relative = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_8xr1d")
+expand_mode = 3
+stretch_mode = 1
+
+[node name="ColorMenuBackground" type="ColorRect" parent="."]
+z_index = -2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = 1.0
+offset_right = -5.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -702.5
+offset_top = -409.0
+offset_right = 702.5
+offset_bottom = 409.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+horizontal_scroll_mode = 0
+
+[node name="OptionsContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ReturnButton" type="Button" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 25.0
+offset_top = -49.0
+offset_right = 96.0
+offset_bottom = -18.0
+grow_vertical = 0
+text = "RETURN"
+
+[node name="ApplyButton" type="Button" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 138.0
+offset_top = -46.0
+offset_right = 209.0
+offset_bottom = -15.0
+grow_vertical = 0
+text = "APPLY"
+
+[connection signal="visibility_changed" from="." to="." method="VisibilityChanged"]

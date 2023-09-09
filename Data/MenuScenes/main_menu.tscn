@@ -116,4 +116,5 @@ texture = ExtResource("3_oms58")
 
 [connection signal="visibility_changed" from="." to="." method="_OnVisiblityChanged"]
 [connection signal="Fullscreen" from="MenuButtonPivot" to="." method="_Fullscreen"]
+[connection signal="OptionsMenu" from="MenuButtonPivot" to="." method="_GoToMenu" binds= [4]]
 [connection signal="SavesMenu" from="MenuButtonPivot" to="." method="_GoToMenu" binds= [2]]

@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 public partial class CubeGrid : RigidBody3D
 {
@@ -110,29 +111,36 @@ public partial class CubeGrid : RigidBody3D
 				Cockpits.Add(c);
 			if (block is ThrusterBlock t)
 				ThrusterBlocks.Add(t);
-
-			// Place mirrored blocks
-			if (MirrorEnabled)
+			
+			try
 			{
-				Vector3I diff = MirrorPosition - position_GridLocal;
+				// Place mirrored blocks
+				if (MirrorEnabled)
+				{
+					Vector3I diff = MirrorPosition - position_GridLocal;
 
-				// Flip along Y axis
-				block.RotationDegrees += new Vector3(180, 0, 0);
-				if (GridMirrors[1])
-					AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
-				block.GlobalRotation = rotation;
+					// Flip along Y axis
+					block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+					if (GridMirrors[1])
+						AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+					block.GlobalRotation = rotation;
 
-				// Flip along X axis
-				block.RotationDegrees += new Vector3(180, 0, 0);
-				if (GridMirrors[0])
-					AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
-				block.GlobalRotation = rotation;
+					// Flip along X axis
+					block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
+					block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
+					if (GridMirrors[0])
+						AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+					block.GlobalRotation = rotation;
 
-				// Flip along Z axis
-				block.RotationDegrees += new Vector3(180, 0, 0);
-				if (GridMirrors[2])
-					AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block.Copy());
-				block.GlobalRotation = rotation;
+					// Flip along Z axis
+					block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+					if (GridMirrors[2])
+						AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block.Copy());
+					block.GlobalRotation = rotation;
+				}
+			}
+			catch {
+
 			}
 		}
 	}
@@ -211,7 +219,10 @@ public partial class CubeGrid : RigidBody3D
 	private void RecalcSize()
 	{
 		if (CubeBlocks.Count == 0)
+		{
 			Close();
+			return;
+		}
 
 		Vector3I max = CubeBlocks.Keys.ToList()[0];
 		Vector3I min = CubeBlocks.Keys.ToList()[0];
@@ -328,7 +339,6 @@ public partial class CubeGrid : RigidBody3D
 			RemoveShapeOwner(block.Value.collisionId);
 			block.Value.QueueFree();
 		}
-		QueueFree();
 	}
 
 	public bool IsEmpty()

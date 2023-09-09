@@ -8,6 +8,8 @@ public partial class MenuButtonPivot : Node2D
 	public delegate void FullscreenEventHandler();
 	[Signal]
 	public delegate void SavesMenuEventHandler();
+	[Signal]
+	public delegate void OptionsMenuEventHandler();
 
 	private int selection = 1;
 	private float _desiredRotation = 0;
@@ -68,7 +70,7 @@ public partial class MenuButtonPivot : Node2D
 				EmitSignal(SignalName.SavesMenu);
 				break;
 			case 2:
-				EmitSignal(SignalName.Fullscreen);
+				EmitSignal(SignalName.OptionsMenu);
 				break;
 		}
 	}
@@ -90,7 +92,7 @@ public partial class MenuButtonPivot : Node2D
 				selection++;
 			}
 
-			GD.Print($"Current selection: {_buttons[selection].Name} ({selection+1} of {_buttons.Count})");
+			//GD.Print($"Current selection: {_buttons[selection].Name} ({selection+1} of {_buttons.Count})");
 			_desiredRotation += amount;
 			foreach (var button in _buttons)
 			{
