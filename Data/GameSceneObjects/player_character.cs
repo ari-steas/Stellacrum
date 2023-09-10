@@ -373,8 +373,8 @@ public partial class player_character : CharacterBody3D
 	{
 		if (inputEvent is InputEventMouseMotion motion)
 		{
-			lastX = -motion.Relative.X;
-			lastY = -motion.Relative.Y;
+			lastX = motion.Relative.X * (float) (OptionsHelper.GetOption("mousesensitivityx") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinvertx") ? 1 : -1);
+			lastY = motion.Relative.Y * (float) (OptionsHelper.GetOption("mousesensitivityy") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinverty") ? 1 : -1);
 			return;
 		}
 	}
@@ -416,7 +416,6 @@ public partial class player_character : CharacterBody3D
 			shipCrosshair.GlobalRotation = prevCrosshair;
 			
 			Vector3 crosshairForward = shipCrosshair.Basis * Vector3.Forward;
-			
 
 			Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, (float)(lastX*delta));
 			rotatedPos = rotatedPos.Rotated(Vector3.Right, (float)(lastY*delta));

@@ -36,7 +36,7 @@ public static class OptionsHelper
 	#nullable enable
 	public static object? GetOption(string option)
 	{
-		return Options[option];
+		return Options[option].Value;
 	}
 
 	public static void AddOption(string option, Option value)

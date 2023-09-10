@@ -73,4 +73,17 @@ offset_bottom = -15.0
 grow_vertical = 0
 text = "APPLY"
 
+[node name="OptionsLabel" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -122.0
+offset_top = 22.0
+offset_right = 122.0
+offset_bottom = 113.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 64
+text = "Options"
+horizontal_alignment = 1
+
 [connection signal="visibility_changed" from="." to="." method="VisibilityChanged"]
