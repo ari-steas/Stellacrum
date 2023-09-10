@@ -1,11 +1,13 @@
+TextureRect
+GridContainer
+Button
+CanvasLayer
 ScrollContainer
 HSlider
 CheckButton
 Label
 HBoxContainer
-Button
 VBoxContainer
-CanvasLayer
 GPUParticles3D
 MeshInstance3D
 GridMap
@@ -18,7 +20,6 @@ CharacterBody3D
 Sprite3D
 WorldEnvironment
 CollisionShape3D
-TextureRect
 RigidBody3D
 ResourcePreloader
 RayCast3D
@@ -28,6 +29,4 @@ DirectionalLight3D
 SpotLight3D
 DirectionalLight2D
 Node
-GridContainer
 ItemList
-Node2D

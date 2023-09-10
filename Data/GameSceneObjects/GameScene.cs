@@ -42,6 +42,13 @@ public partial class GameScene : Node3D
 			Visible = true;
 		}
 
+		if (Input.IsActionPressed("BlockInventory"))
+		{
+			Input.ActionRelease("BlockInventory");
+			GetParent<menus>()._SwitchMenu(5);
+			Visible = true;
+		}
+
 		if (Input.IsActionJustPressed("DebugStop"))
 		{
 			foreach (var grid in grids)

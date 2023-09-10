@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://wc0tvmgikrhm"]
+
+[ext_resource type="Script" path="res://Data/MenuScenes/BlockMenu.cs" id="1_iwf0j"]
+
+[node name="BlockMenu" type="CanvasLayer"]
+script = ExtResource("1_iwf0j")
+
+[node name="ReturnButton" type="Button" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 17.0
+offset_top = -50.0
+offset_right = 44.0
+offset_bottom = -19.0
+grow_vertical = 0
+text = "Return"
+
+[node name="BlockContainer" type="GridContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -750.0
+offset_top = -375.0
+offset_right = 750.0
+offset_bottom = 375.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 10

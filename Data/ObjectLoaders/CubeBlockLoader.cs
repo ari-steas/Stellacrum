@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 
@@ -37,6 +38,11 @@ public class CubeBlockLoader
 	public static void Clear()
 	{
 		CubeBlocks.Clear();
+	}
+
+	public static string[] GetAllIds()
+	{
+		return CubeBlocks.Keys.ToArray();
 	}
 
 	public static CubeBlock FromId(string id)

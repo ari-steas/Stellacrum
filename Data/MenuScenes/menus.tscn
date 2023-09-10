@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b8f0d3lrl21m6"]
+[gd_scene load_steps=8 format=3 uid="uid://b8f0d3lrl21m6"]
 
 [ext_resource type="Script" path="res://Data/MenuScenes/menus.cs" id="1_3x2mn"]
 [ext_resource type="PackedScene" uid="uid://dmxjww23od5xe" path="res://Data/MenuScenes/saves_menu.tscn" id="3_tmnqp"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bxf3scuytmh4d" path="res://Data/GameSceneObjects/GameScene.tscn" id="4_6ikny"]
 [ext_resource type="PackedScene" uid="uid://sx1lylolva0c" path="res://Data/MenuScenes/PauseMenu.tscn" id="4_njyww"]
 [ext_resource type="PackedScene" uid="uid://bj5564fx1crm0" path="res://Data/MenuScenes/OptionsMenu.tscn" id="5_ub2je"]
+[ext_resource type="PackedScene" uid="uid://wc0tvmgikrhm" path="res://Data/MenuScenes/block_menu.tscn" id="6_xenlt"]
 
 [node name="BaseScene" type="Node2D"]
 script = ExtResource("1_3x2mn")
@@ -18,6 +19,8 @@ script = ExtResource("1_3x2mn")
 
 [node name="OptionsMenu" parent="." instance=ExtResource("5_ub2je")]
 
+[node name="BlockMenu" parent="." instance=ExtResource("6_xenlt")]
+
 [node name="GameScene" parent="." instance=ExtResource("4_6ikny")]
 
 [connection signal="ToggleActive" from="." to="GameScene" method="_ToggleActive"]
@@ -25,3 +28,4 @@ script = ExtResource("1_3x2mn")
 [connection signal="SSwitchMenu" from="SavesMenu" to="." method="_SwitchMenu"]
 [connection signal="SwitchMenu" from="PauseMenu" to="." method="_SwitchMenu"]
 [connection signal="SwitchMenu" from="OptionsMenu" to="." method="_SwitchMenu"]
+[connection signal="SwitchMenu" from="BlockMenu" to="." method="_SwitchMenu"]

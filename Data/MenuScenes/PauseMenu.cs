@@ -26,25 +26,25 @@ public partial class PauseMenu : CanvasLayer
 		SaveButton.Pressed += SavePress;
 	}
 
-	public override void _Process(double delta)
+	public override void _PhysicsProcess(double delta)
 	{
-		if (Visible)
+		if (!Visible)
+			return;
+
+		if(Input.IsActionPressed("Pause"))
 		{
-			if(Input.IsActionPressed("Pause"))
-			{
-				Input.ActionRelease("Pause");
-				EmitSignal(SignalName.SwitchMenu, 0);
-			}
+			Input.ActionRelease("Pause");
+			EmitSignal(SignalName.SwitchMenu, 0);
+		}
 
-			if (nextDeleteTime != 0 && DateTime.Now.Ticks > nextDeleteTime)
-			{
-				InfoOutputLabel.Text = InfoOutputLabel.Text.Substring(InfoOutputLabel.Text.IndexOf('\n') + 1);
+		if (nextDeleteTime != 0 && DateTime.Now.Ticks > nextDeleteTime)
+		{
+			InfoOutputLabel.Text = InfoOutputLabel.Text.Substring(InfoOutputLabel.Text.IndexOf('\n') + 1);
 
-				if (InfoOutputLabel.Text.Length > 0)
-					nextDeleteTime = DateTime.Now.Ticks + 4_000_000;
-				else
-					nextDeleteTime = 0;
-			}
+			if (InfoOutputLabel.Text.Length > 0)
+				nextDeleteTime = DateTime.Now.Ticks + 4_000_000;
+			else
+				nextDeleteTime = 0;
 		}
 	}
 
