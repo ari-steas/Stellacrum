@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 public partial class OptionsMenu : CanvasLayer
 {
@@ -51,7 +52,6 @@ public partial class OptionsMenu : CanvasLayer
 
 	void UpdateSettings()
 	{
-		GD.Print("Updating settings...");
 		foreach (var control in controls)
 		{
 			object val = null;
@@ -62,12 +62,15 @@ public partial class OptionsMenu : CanvasLayer
 					val = c.ButtonPressed;
 					break;
 				case HSlider s:
-					val = s.Value;
+					val = (float) s.Value;
 					break;
 			}
 			OptionsHelper.SetOption(control.Key, val);
 		}
-		GD.Print("Updated settings.");
+
+		FileAccess fileAccess = FileAccess.Open("user://options.json", FileAccess.ModeFlags.Write);
+		fileAccess.StoreString(Json.Stringify(OptionsHelper.Save()));
+		GD.Print($"Saved {OptionsHelper.Options.Count} options.\n");
 	}
 
 	void UpdateControls()
@@ -92,7 +95,8 @@ public partial class OptionsMenu : CanvasLayer
 					control = new CheckButton() { ButtonPressed = v };
 					break;
 				case float v:
-					control = new HSlider() { Value = v, MinValue = -1.0f, MaxValue = 1.0f, Step = 0.01f, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+					control = new HSlider() { MinValue = 0f, MaxValue = 1.0f, Step = 0.01f, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+					((HSlider) control).Value = v;
 					break;
 				case int v:
 					control = new HSlider() { Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };

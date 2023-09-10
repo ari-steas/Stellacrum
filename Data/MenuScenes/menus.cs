@@ -20,7 +20,9 @@ public partial class menus : Node2D
 
 		TextureLoader.StartLoad("res://Assets/Images/");
 
-		OptionsHelper.AddOption("fullscreen", new("fullscreen", false, _Fullscreen));
+		OptionsHelper.AddOption("fullscreen", new("Fullscreen", false, _Fullscreen));
+
+		OptionsHelper.Load(Json.ParseString(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText()).As<Godot.Collections.Dictionary<string, Variant>>());
 	}
 
     private void _Fullscreen(object value)
@@ -28,7 +30,6 @@ public partial class menus : Node2D
 		if (value is bool fullscreen)
 		{
 			DisplayServer.WindowSetMode(fullscreen ? DisplayServer.WindowMode.ExclusiveFullscreen : DisplayServer.WindowMode.Windowed);
-			OptionsHelper.SetOption("fullscreen", fullscreen);
 		}
 	}
 

@@ -30,4 +30,26 @@ public class JsonHelper
 			return Vector3.Zero;
 		}
 	}
+
+	public static Variant ObjToVariant(object obj)
+    {
+        return obj switch
+        {
+            bool => Variant.CreateFrom((bool)obj),
+            int => Variant.CreateFrom((int)obj),
+            float => Variant.CreateFrom((float)obj),
+            _ => (Variant) obj,
+        };
+    }
+
+	public static object VariantToObj(Variant v)
+	{
+		return v.VariantType switch
+		{
+			Variant.Type.Bool => v.AsBool(),
+			Variant.Type.Int => v.AsInt32(),
+			Variant.Type.Float => v.As<float>(),
+			_ => null,
+        };
+    }
 }
