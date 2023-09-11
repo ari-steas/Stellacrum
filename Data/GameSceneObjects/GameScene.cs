@@ -47,6 +47,7 @@ public partial class GameScene : Node3D
 			Input.ActionRelease("BlockInventory");
 			GetParent<menus>()._SwitchMenu(5);
 			Visible = true;
+			playerCharacter.HUD.Visible = true;
 		}
 
 		if (Input.IsActionJustPressed("DebugStop"))

@@ -30,7 +30,7 @@ window/vsync/vsync_mode=0
 
 [dotnet]
 
-project/assembly_name="StellacrumTest"
+project/assembly_name="Stellacrum"
 
 [editor_plugins]
 

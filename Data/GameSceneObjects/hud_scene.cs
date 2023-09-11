@@ -15,7 +15,7 @@ public partial class hud_scene : CanvasLayer
 	private Label dampenersLabel, speedLabel;
 
 	private player_character player;
-	private readonly TextureRect[] toolbar = new TextureRect[10];
+	public readonly TextureRect[] ToolbarIcons = new TextureRect[10];
 
 	public string[] Toolbar = new string[] {
 		"",
@@ -39,16 +39,16 @@ public partial class hud_scene : CanvasLayer
 
 		player = GetParent<player_character>();
 
-		toolbar[0] = FindChild("Icon0") as TextureRect;
-		toolbar[1] = FindChild("Icon1") as TextureRect;
-		toolbar[2] = FindChild("Icon2") as TextureRect;
-		toolbar[3] = FindChild("Icon3") as TextureRect;
-		toolbar[4] = FindChild("Icon4") as TextureRect;
-		toolbar[5] = FindChild("Icon5") as TextureRect;
-		toolbar[6] = FindChild("Icon6") as TextureRect;
-		toolbar[7] = FindChild("Icon7") as TextureRect;
-		toolbar[8] = FindChild("Icon8") as TextureRect;
-		toolbar[9] = FindChild("Icon9") as TextureRect;
+		ToolbarIcons[0] = FindChild("Icon0") as TextureRect;
+		ToolbarIcons[1] = FindChild("Icon1") as TextureRect;
+		ToolbarIcons[2] = FindChild("Icon2") as TextureRect;
+		ToolbarIcons[3] = FindChild("Icon3") as TextureRect;
+		ToolbarIcons[4] = FindChild("Icon4") as TextureRect;
+		ToolbarIcons[5] = FindChild("Icon5") as TextureRect;
+		ToolbarIcons[6] = FindChild("Icon6") as TextureRect;
+		ToolbarIcons[7] = FindChild("Icon7") as TextureRect;
+		ToolbarIcons[8] = FindChild("Icon8") as TextureRect;
+		ToolbarIcons[9] = FindChild("Icon9") as TextureRect;
 
 		VisibilityChanged += OnVisibilityChanged;
 	}
@@ -84,11 +84,11 @@ public partial class hud_scene : CanvasLayer
 	{
 		if (subTypeId == "")
 		{
-			toolbar[slot].Texture = TextureLoader.Get("EmptyToolbar.png");
+			ToolbarIcons[slot].Texture = TextureLoader.Get("EmptyToolbar.png");
 			return;
 		}
 
-		toolbar[slot].Texture = CubeBlockLoader.GetTexture(subTypeId);
+		ToolbarIcons[slot].Texture = CubeBlockLoader.GetTexture(subTypeId);
 	}
 
 	private void OnVisibilityChanged()

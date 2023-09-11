@@ -1,7 +1,6 @@
 using Godot;
 using Godot.Collections;
 using System;
-using System.Security.Cryptography.X509Certificates;
 
 public partial class menus : Node2D
 {
@@ -22,7 +21,10 @@ public partial class menus : Node2D
 
 		OptionsHelper.AddOption("fullscreen", new("Fullscreen", false, _Fullscreen));
 
-		OptionsHelper.Load(Json.ParseString(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText()).As<Godot.Collections.Dictionary<string, Variant>>());
+		Json json = new();
+		json.Parse(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText());
+
+		OptionsHelper.Load(json.Data.As<Dictionary<string, Variant>>());
 	}
 
     private void _Fullscreen(object value)

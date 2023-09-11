@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "W/n6noCs+Z+dZvzSXSqLr94AtssnON0WXEdw90A+rB36uedw5W4034fvco2oiI15/6px64G9R/4G4fWnVceQCw==",
+  "dgSpecHash": "GNvnY4f8ZYDY67B1asT02vlIUN5za+oeWqYnX6iqDfB8M7H//dwncd4TMMtDw7VyySKvTYiF+Dap7RySkaLHMw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jnick\\OneDrive\\Documents\\GoDot\\StellacrumTest\\StellacrumTest.csproj",
+  "projectFilePath": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jnick\\.nuget\\packages\\godot.sourcegenerators\\4.1.1\\godot.sourcegenerators.4.1.1.nupkg.sha512",
     "C:\\Users\\jnick\\.nuget\\packages\\godotsharp\\4.1.1\\godotsharp.4.1.1.nupkg.sha512",

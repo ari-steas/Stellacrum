@@ -94,11 +94,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jnick\\OneDrive\\Documents\\GoDot\\StellacrumTest\\StellacrumTest.csproj",
-      "projectName": "StellacrumTest",
-      "projectPath": "C:\\Users\\jnick\\OneDrive\\Documents\\GoDot\\StellacrumTest\\StellacrumTest.csproj",
+      "projectUniqueName": "C:\\USERS\\JNICK\\ONEDRIVE\\DOCUMENTS\\GITHUB\\STELLACRUM\\Stellacrum.csproj",
+      "projectName": "Stellacrum",
+      "projectPath": "C:\\USERS\\JNICK\\ONEDRIVE\\DOCUMENTS\\GITHUB\\STELLACRUM\\Stellacrum.csproj",
       "packagesPath": "C:\\Users\\jnick\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jnick\\OneDrive\\Documents\\GoDot\\StellacrumTest\\.godot\\mono\\temp\\obj\\",
+      "outputPath": "C:\\USERS\\JNICK\\ONEDRIVE\\DOCUMENTS\\GITHUB\\STELLACRUM\\.godot\\mono\\temp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Users\\jnick\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder"

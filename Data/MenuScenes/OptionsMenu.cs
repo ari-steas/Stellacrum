@@ -44,7 +44,7 @@ public partial class OptionsMenu : CanvasLayer
 		Return();
 	}
 
-    void VisibilityChanged()
+    new void VisibilityChanged()
 	{
 		if (Visible)
 			UpdateControls();
