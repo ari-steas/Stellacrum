@@ -19,9 +19,6 @@ public partial class BlockMenu : CanvasLayer
 		ReturnButton.Pressed += ReturnPress;
 
 		BlockContainer = FindChild("BlockContainer") as GridContainer;
-
-		// kinda cringe code
-		HUD = (GetParent().FindChild("GameScene") as GameScene).playerCharacter.HUD;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -49,7 +46,10 @@ public partial class BlockMenu : CanvasLayer
 
                 BlockContainer.AddChild(icon);
             }
-		}
+
+            // kinda cringe code
+            HUD = (GetParent().FindChild("GameScene") as GameScene).playerCharacter.HUD;
+        }
 
 		// Return if esc pressed
 		if(Input.IsActionPressed("Pause"))
@@ -57,18 +57,30 @@ public partial class BlockMenu : CanvasLayer
 			Input.ActionRelease("Pause");
 			ReturnPress();
 		}
+
+		// Unset block if right-clicked
+		if (Input.IsActionJustPressed("MousePressR"))
+			OnRightClick();
 	}
 
 	void OnIconRelease(DraggableItem blockIcon, Vector2 pos)
 	{
-		foreach (var icon in HUD.ToolbarIcons)
-		{
-			if (icon._HasPoint(pos))
-			{
-                GD.Print("Release " + BlockIcons[blockIcon]);
-            }
-		}
+        for (int i = 0; i < 10; i++)
+			if (GetSlotBox(HUD.ToolbarIcons[i]).HasPoint(pos))
+				HUD.SetToolbar(i, BlockIcons[blockIcon]);
 	}
+
+	void OnRightClick()
+	{
+        for (int i = 0; i < 10; i++)
+            if (GetSlotBox(HUD.ToolbarIcons[i]).HasPoint(GetViewport().GetMousePosition()))
+                HUD.SetToolbar(i, "");
+    }
+
+    static Rect2 GetSlotBox(TextureRect rect)
+    {
+        return new(rect.GlobalPosition, rect.Size);
+    }
 
     void ReturnPress()
 	{

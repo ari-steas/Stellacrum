@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 
 public partial class hud_scene : CanvasLayer
 {
@@ -82,19 +83,33 @@ public partial class hud_scene : CanvasLayer
 
 	public void SetToolbar(int slot, string subTypeId)
 	{
-		if (subTypeId == "")
-		{
-			ToolbarIcons[slot].Texture = TextureLoader.Get("EmptyToolbar.png");
+		if (slot == 0 || Toolbar[slot].Equals(subTypeId))
 			return;
-		}
 
-		ToolbarIcons[slot].Texture = CubeBlockLoader.GetTexture(subTypeId);
+		if (CubeBlockLoader.GetAllIds().Contains(subTypeId))
+            for (int i = 0; i < 10; i++)
+                if (Toolbar[i].Equals(subTypeId))
+                    SetToolbar(i, "");
+
+		Toolbar[slot] = subTypeId;
+		UpdateToolbar(slot);
+	}
+
+	void UpdateToolbar(int slot)
+	{
+        if (!CubeBlockLoader.GetAllIds().Contains(Toolbar[slot]))
+        {
+            ToolbarIcons[slot].Texture = TextureLoader.Get("EmptyToolbar.png");
+            return;
+        }
+
+        ToolbarIcons[slot].Texture = CubeBlockLoader.GetTexture(Toolbar[slot]);
 	}
 
 	private void OnVisibilityChanged()
 	{
 		if (Visible)
 			for (int i = 0; i < 10; i++)
-				SetToolbar(i, Toolbar[i]);
+				UpdateToolbar(i);
 	}
 }

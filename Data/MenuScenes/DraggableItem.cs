@@ -32,7 +32,7 @@ public partial class DraggableItem : TextureRect
             }
             else
             {
-                OnRelease(this, GlobalPosition);
+                OnRelease(this, GetGlobalMousePosition());
                 BeingDragged = false;
                 GlobalPosition = basePosition;
             }
