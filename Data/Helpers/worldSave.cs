@@ -35,6 +35,11 @@ public class WorldSave
 		
 	}
 
+	public void SetName(string newName)
+	{
+		GD.PrintErr("TODO SetName in worldSave.cs");
+	}
+
 	public void Update(string data)
 	{
 		GD.Print("Writing save to " + Path + "world.scw");

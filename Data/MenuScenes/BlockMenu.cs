@@ -51,8 +51,8 @@ public partial class BlockMenu : CanvasLayer
             HUD = (GetParent().FindChild("GameScene") as GameScene).playerCharacter.HUD;
         }
 
-		// Return if esc pressed
-		if(Input.IsActionPressed("Pause"))
+		// Return if esc or tab pressed
+		if(Input.IsActionPressed("Pause") || Input.IsActionJustPressed("BlockInventory"))
 		{
 			Input.ActionRelease("Pause");
 			ReturnPress();

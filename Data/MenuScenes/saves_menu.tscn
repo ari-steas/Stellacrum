@@ -78,7 +78,7 @@ theme_override_font_sizes/font_size = 64
 text = "World Information"
 horizontal_alignment = 1
 
-[node name="NameLabel" type="Label" parent="SaveInfoContainer"]
+[node name="NameLabel" type="LineEdit" parent="SaveInfoContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "No Item Selected..."

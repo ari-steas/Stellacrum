@@ -15,3 +15,20 @@ C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\r
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.pdb
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.genruntimeconfig.cache
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\ref\Stellacrum.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\Stellacrum.deps.json
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\Stellacrum.runtimeconfig.json
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\Stellacrum.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\Stellacrum.pdb
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\GodotSharp.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\GodotSharpEditor.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.AssemblyReference.cache
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.AssemblyInfoInputs.cache
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.AssemblyInfo.cs
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.CoreCompileInputs.cache
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.CopyComplete
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\refint\Stellacrum.dll
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.pdb
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.genruntimeconfig.cache
+C:\Users\Northland CAPS PM\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\ref\Stellacrum.dll
