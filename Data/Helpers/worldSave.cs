@@ -13,7 +13,7 @@ public class WorldSave
 	public string Path = "";
 	public Texture2D Thumbnail;
 
-	public SaveObject playerObject = new(Vector3.Zero, Vector3.Zero);
+	public Godot.Collections.Dictionary<string, Variant> playerData;
 	public List<CubeGrid> grids = new();
 
 	public WorldSave(string name, string description, DateTime creationDate, DateTime modifiedDate, float size, string path, Texture2D thumbnail)
@@ -74,7 +74,7 @@ public class WorldSave
 
 	public void ResetData()
 	{
-		playerObject = null;
+		playerData = null;
 		grids.Clear();
 	}
 }

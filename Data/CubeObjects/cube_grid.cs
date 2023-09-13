@@ -96,7 +96,6 @@ public partial class CubeGrid : RigidBody3D
 			CubeBlocks.Add(position_GridLocal, block);
 
 			block.Position = (Vector3) position_GridLocal*2.5f;
-			block.GlobalRotation = rotation;
 
 			block.collisionId = CreateShapeOwner(this);
 			ShapeOwnerAddShape(block.collisionId, block.collision);
@@ -142,7 +141,10 @@ public partial class CubeGrid : RigidBody3D
 			catch {
 
 			}
-		}
+
+			// Do this last so that it has time to get added to the scenetree
+            block.GlobalRotation = rotation;
+        }
 	}
 
 	/// <summary>

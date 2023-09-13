@@ -93,11 +93,9 @@ public partial class GameScene : Node3D
 			if (isPlayerDataSet)
 			{
 				GD.Print("Delayed-set playerCharacterData");
-				playerCharacter.Position = bufferPlayerPosition;
-				playerCharacter.Rotation = bufferPlayerRotation;
-				playerCharacter.Velocity = bufferPlayerVelocity;
-
+				player_character.Load(ref playerCharacter, bufferPlayerData);
 				isPlayerDataSet = false;
+				bufferPlayerData = null;
 			}
 		}
 		else
@@ -239,20 +237,14 @@ public partial class GameScene : Node3D
 	}
 
 
-	Vector3 bufferPlayerVelocity = Vector3.Zero, bufferPlayerPosition = Vector3.Zero, bufferPlayerRotation = Vector3.Zero;
+    Godot.Collections.Dictionary<string, Variant> bufferPlayerData = new();
 	bool isPlayerDataSet = false;
-	public void SetPlayerData(Vector3 pos, Vector3 rot, Vector3 vel)
+	public void SetPlayerData(Godot.Collections.Dictionary<string, Variant> bufferPlayerData)
 	{
-		bufferPlayerPosition = pos;
-		bufferPlayerRotation = rot;
-		bufferPlayerVelocity = vel;
+		this.bufferPlayerData = bufferPlayerData;
 		isPlayerDataSet = true;
 
 		GD.Print("Pre-setting player data...");
-	}
-	public void SetPlayerData(SaveObject saveObject)
-	{
-		SetPlayerData(saveObject.Position, saveObject.Rotation, saveObject.LinearVelocity);
 	}
 
 	public void Close()

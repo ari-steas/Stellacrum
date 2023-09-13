@@ -100,7 +100,7 @@ public static class WorldLoader
 		foreach (var grid in CurrentSave.grids)
 			scene.SpawnPremadeGrid(grid);
 		
-		scene.SetPlayerData(CurrentSave.playerObject);
+		scene.SetPlayerData(CurrentSave.playerData);
 	}
 
 	public static void SaveWorld(WorldSave save, string jsonData)
@@ -180,11 +180,11 @@ public static class WorldLoader
 		var worldData = json.Data.AsGodotDictionary<string, Variant>();
 
 		if (worldData.ContainsKey("PlayerCharacter"))
-			save.playerObject = SaveObject.FromDictionary(worldData["PlayerCharacter"].AsGodotDictionary<string, Variant>());
+			save.playerData = worldData["PlayerCharacter"].AsGodotDictionary<string, Variant>();
 		else
 		{
 			GD.PrintErr("Missing PlayerCharacter from save!");
-			save.playerObject = new(Vector3.Zero, Vector3.Zero);
+			save.playerData = null;
 		}
 
 		if (worldData.ContainsKey("Grids"))

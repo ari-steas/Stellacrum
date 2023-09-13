@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Runtime.CompilerServices;
 
 public partial class player_character : CharacterBody3D
 {
@@ -520,14 +521,37 @@ public partial class player_character : CharacterBody3D
 		GD.Print("Saving data for player.");
 		return new()
 		{
-			//{
-				//"PlayerCharacter", new Godot.Collections.Dictionary<string, Variant>()
-				//{
-					{ "Position", JsonHelper.StoreVec(Position) },
-					{ "Rotation", JsonHelper.StoreVec(GlobalRotation) },
-					{ "LinearVelocity", JsonHelper.StoreVec(Velocity) },
-				//}
-			//},
+			{ "Position", JsonHelper.StoreVec(Position) },
+			{ "Rotation", JsonHelper.StoreVec(GlobalRotation) },
+			{ "LinearVelocity", JsonHelper.StoreVec(Velocity) },
+			{ "Toolbar", HUD.Toolbar },
 		};
+	}
+
+	public static void Load(ref player_character player, Godot.Collections.Dictionary<string, Variant> dict)
+	{
+		if (dict == null)
+		{
+            GD.PrintErr("Partially loaded player!");
+            return;
+		}
+
+        SaveObject saveObject = SaveObject.FromDictionary(dict);
+		player.Velocity = saveObject.LinearVelocity;
+		player.Rotation = saveObject.Rotation;
+		player.Position = saveObject.Position;
+
+		try
+		{
+            string[] toolbar = dict["Toolbar"].AsStringArray();
+            for (int i = 0; i < 10; i++)
+                player.HUD.SetToolbar(i, toolbar[i]);
+        }
+		catch
+		{
+            GD.PrintErr("Invalid toolbar data!");
+        }
+
+		GD.Print("Loaded player!");
 	}
 }
