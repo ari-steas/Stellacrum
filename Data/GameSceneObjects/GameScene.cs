@@ -28,7 +28,7 @@ public partial class GameScene : Node3D
 			ShiftOrigin();
 	}
 
-	int tick = 0;
+	long tick = 0;
 	public override void _PhysicsProcess(double delta)
 	{
 		tick++;
@@ -59,7 +59,7 @@ public partial class GameScene : Node3D
 			}
 		}
 
-		if (tick == 100)
+		if (tick % 100 == 0)
 		{
 			List<CubeGrid> emptyGrids = new();
 
@@ -74,11 +74,9 @@ public partial class GameScene : Node3D
 
 			foreach (var grid in emptyGrids)
 				grids.Remove(grid);
-
-			tick = 0;
 		}
-	}
-
+    }
+	
 	private void _ToggleActive(bool active)
 	{
 		Visible = active;
@@ -233,7 +231,10 @@ public partial class GameScene : Node3D
 	 	string str = Json.Stringify(data);
 		GD.Print($"Saved grid data for {grids.Count} grids.");
 
-		WorldLoader.SaveWorld(WorldLoader.CurrentSave, str);
+        WorldLoader.CurrentSave.Thumbnail = GetViewport().GetTexture();
+		GD.Print("Updated thumbnail");
+
+        WorldLoader.SaveWorld(WorldLoader.CurrentSave, str);
 	}
 
 

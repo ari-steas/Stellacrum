@@ -1,12 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-
+using System.Reflection.Metadata.Ecma335;
 
 public class WorldSave
 {
 	public string Name = "ERROR";
-	public string Description = "ERROR";
+	public string Description = "";
 	public DateTime CreationDate { get; private set; } = DateTime.MinValue;
 	public DateTime ModifiedDate { get; private set; } = DateTime.MinValue;
 	public float Size { get; private set; } = 0;
@@ -37,10 +37,62 @@ public class WorldSave
 
 	public void SetName(string newName)
 	{
-		GD.PrintErr("TODO SetName in worldSave.cs");
+		Name = newName;
+
+		string newPath = Path;
+		if (newPath.EndsWith("/"))
+			newPath = Path[..^1];
+		newPath = newPath[..newPath.LastIndexOf('/')] + "/" + newName + "/";
+        GD.PrintErr(newPath);
+
+        DirAccess.RenameAbsolute(Path, newPath);
+		Path = newPath;
+
+		UpdateInfo();
+
+		GD.Print("Set new worldname " + newName);
 	}
 
-	public void Update(string data)
+	public void SetDescription(string newDescription)
+	{
+        Description = newDescription;
+
+        UpdateInfo();
+
+        GD.Print("Set new worldDesc " + newDescription);
+    }
+
+	public void UpdateInfo(bool updateImage = false)
+	{
+		UpdateInfo(Json.Stringify(new Godot.Collections.Dictionary<string, Variant>()
+		{
+			{ "Name", Name },
+			{ "Description", Description },
+		}));
+
+		if (updateImage)
+			Thumbnail.GetImage().SavePng(Path + "thumb.png");
+	}
+
+	public void UpdateInfo(string data)
+	{
+        GD.Print("Writing saveInfo to " + Path + "info.json");
+        DirAccess.RemoveAbsolute(Path + "info.json");
+
+        FileAccess worldSaveInfo = FileAccess.Open(Path + "info.json", FileAccess.ModeFlags.Write);
+
+        if (worldSaveInfo == null)
+        {
+            GD.PrintErr(FileAccess.GetOpenError());
+            return;
+        }
+
+        worldSaveInfo.StoreString(data);
+
+        worldSaveInfo.Close();
+    }
+
+	public void UpdateData(string data)
 	{
 		GD.Print("Writing save to " + Path + "world.scw");
 		DirAccess.RemoveAbsolute(Path + "world.scw");

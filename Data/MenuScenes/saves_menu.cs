@@ -8,7 +8,7 @@ public partial class saves_menu : CanvasLayer
 	public delegate void SSwitchMenuEventHandler(int toShow);
 
 	ItemList SavesList;
-	SaveInfoContainer SaveContaner;
+	SaveInfoContainer SaveContainer;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -18,21 +18,27 @@ public partial class saves_menu : CanvasLayer
 		(FindChild("DeleteWorldButton") as Button).Pressed += DeletePress;
 		(FindChild("LoadWorldButton") as Button).Pressed += LoadPress;
 		SavesList = FindChild("SavesList") as ItemList;
-		SaveContaner = FindChild("SaveInfoContainer") as SaveInfoContainer;
+		SaveContainer = FindChild("SaveInfoContainer") as SaveInfoContainer;
 
-		SaveContaner._nameLabel.TextChanged += UpdateWorldName;
+		SaveContainer._nameLabel.FocusExited += UpdateWorldName;
+		SaveContainer._descriptionLabel.FocusExited += UpdateWorldDescription;
 	}
 
-    void UpdateWorldName(string newText)
+    void UpdateWorldName()
 	{
-		WorldLoader.CurrentSave.SetName(newText);
-		GD.Print(newText);
+        WorldLoader.CurrentSave.SetName(SaveContainer._nameLabel.Text);
+		SavesList.Update();
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
+    void UpdateWorldDescription()
+    {
+        WorldLoader.CurrentSave.SetDescription(SaveContainer._descriptionLabel.Text);
+    }
 
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
+	{
+		
 	}
 
 	private void OnVisibilityChanged()

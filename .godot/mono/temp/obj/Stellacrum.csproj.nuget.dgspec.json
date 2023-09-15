@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Northland CAPS PM\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj": {}
+    "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Northland CAPS PM\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj": {
+    "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Northland CAPS PM\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
+        "projectUniqueName": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
         "projectName": "Stellacrum",
-        "projectPath": "C:\\Users\\Northland CAPS PM\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
-        "packagesPath": "C:\\Users\\Northland CAPS PM\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Northland CAPS PM\\Documents\\GitHub\\Stellacrum\\.godot\\mono\\temp\\obj\\",
+        "projectPath": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
+        "packagesPath": "C:\\Users\\jnick\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\.godot\\mono\\temp\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Users\\jnick\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Northland CAPS PM\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jnick\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jnick\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

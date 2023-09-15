@@ -105,7 +105,8 @@ public static class WorldLoader
 
 	public static void SaveWorld(WorldSave save, string jsonData)
 	{
-		save.Update(jsonData);
+		save.UpdateData(jsonData);
+		save.UpdateInfo(true);
 	}
 
 
