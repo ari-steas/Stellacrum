@@ -45,7 +45,7 @@ public class CubeBlockLoader
 		return CubeBlocks.Keys.ToArray();
 	}
 
-	public static CubeBlock FromId(string id)
+	public static CubeBlock BaseFromId(string id)
 	{
 		if (CubeBlocks.ContainsKey(id))
 		{
@@ -136,7 +136,7 @@ public class CubeBlockLoader
 	public static CubeBlock LoadFromData(Godot.Collections.Dictionary<string, Variant> data)
 	{
 		GD.PrintErr("TODO CubeBlockLoader.cs LoadFromData for inherited types");
-		CubeBlock block = FromId(data["SubTypeId"].AsString()).Copy();
+		CubeBlock block = BaseFromId(data["SubTypeId"].AsString()).Copy();
 		block.Position = JsonHelper.LoadVec(data["Position"]);
 		block.Rotation = JsonHelper.LoadVec(data["Rotation"]);
 

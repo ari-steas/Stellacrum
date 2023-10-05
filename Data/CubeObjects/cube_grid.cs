@@ -73,9 +73,9 @@ public partial class CubeGrid : RigidBody3D
 	public bool MirrorEnabled = false;
 	public Vector3I MirrorPosition = Vector3I.Zero;
 
-	public void AddBlock(RayCast3D ray, Vector3 rotation, string blocKid)
+	public void AddBlock(RayCast3D ray, Vector3 rotation, string blockId)
 	{
-		AddBlock(ray.GetCollisionPoint() + ray.GetCollisionNormal(), rotation, blocKid);
+		AddBlock(PlaceProjectionGlobal(ray, CubeBlockLoader.BaseFromId(blockId).size), rotation, blockId);
 	}
 
 	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blocKid)
@@ -85,7 +85,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
 	{
-		AddBlock(position, rotation, CubeBlockLoader.FromId(blocKid).Copy());
+		AddBlock(position, rotation, CubeBlockLoader.BaseFromId(blocKid).Copy());
 	}
 
 	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
@@ -281,9 +281,9 @@ public partial class CubeGrid : RigidBody3D
 		return lTo;
 	}
 
-	public Vector3 PlaceProjectionGlobal(RayCast3D ray)
+	public Vector3 PlaceProjectionGlobal(RayCast3D ray, Vector3 blockSize)
 	{
-		return RoundGlobalCoord(ray.GetCollisionPoint() + ray.GetCollisionNormal());
+		return RoundGlobalCoord(ray.GetCollisionPoint() + ray.GetCollisionNormal() * blockSize/2f);
 	}
 
 	public Vector3I GlobalToGridCoordinates(Vector3 global)

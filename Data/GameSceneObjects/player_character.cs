@@ -92,10 +92,10 @@ public partial class player_character : CharacterBody3D
 					mirrorManager.SetActiveGrid(grid);
 				
 					// Clamp to 90 degree rotations
-					PlayerPlaceBox.SnapLocal();
+					PlayerPlaceBox.SnapRotationLocal();
 				}
 
-				lookPosition = grid.PlaceProjectionGlobal(interactCast);
+				lookPosition = grid.PlaceProjectionGlobal(interactCast, PlayerPlaceBox.CurrentSize);
 
 				mirrorManager.MoveActiveMirror(grid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()));
 
@@ -345,7 +345,7 @@ public partial class player_character : CharacterBody3D
 				if (Input.IsActionJustPressed("BlockRotateZ-"))
 					PlayerPlaceBox.GlobalRotate(Basis * Vector3.Forward, -nd);
 				
-				PlayerPlaceBox.SnapLocal();
+				PlayerPlaceBox.SnapRotationLocal();
 			}
 			else // Else rotate 90 degrees per second
 			{

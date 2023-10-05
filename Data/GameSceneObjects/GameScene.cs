@@ -106,7 +106,7 @@ public partial class GameScene : Node3D
 
 	private void SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation)
 	{
-		if (!IsShapeEmpty(position, CubeBlockLoader.FromId(blockId).collision))
+		if (!IsShapeEmpty(position, CubeBlockLoader.BaseFromId(blockId).collision))
 			return;
 
 		CubeGrid newGrid = new()

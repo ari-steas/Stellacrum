@@ -117,6 +117,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 target_position = Vector3(0, 0.5, -10)
 
 [node name="PlaceBox" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_ym5iq")
 
 [node name="ProjectMesh" type="MeshInstance3D" parent="PlaceBox"]

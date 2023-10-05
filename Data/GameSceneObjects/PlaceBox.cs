@@ -6,11 +6,15 @@ public partial class PlaceBox : Node3D
 	public string CurrentBlockId { get; private set; }= "";
 	public bool IsHoldingBlock { get; private set; } = false;
 
+	private MeshInstance3D ProjectMesh;
+
+	public Vector3 CurrentSize = Vector3.One;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		Visible = false;
+		ProjectMesh = GetChild<MeshInstance3D>(0);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -52,26 +56,31 @@ public partial class PlaceBox : Node3D
 
 		// Remove existing block
 		foreach (var child in GetChildren())
-			if (child.Name != "ProjectMesh")
+			if (child != ProjectMesh)
 				RemoveChild(child);
 
 		// Pull mesh from CubeBlockLoader
-		foreach (var mesh in CubeBlockLoader.FromId(subTypeId).meshes)
+		foreach (var mesh in CubeBlockLoader.BaseFromId(subTypeId).meshes)
 			AddChild(mesh.Duplicate());
 
 		// Make mesh semi-transparent
 		foreach (var node in GetChildren())
 		{
-			if (node is MeshInstance3D mesh && node.Name != "ProjectMesh")
+			if (node is MeshInstance3D mesh && node != ProjectMesh)
 			{
 				mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
 				mesh.Transparency = 0.5f;
 			}
 		}
-		GD.Print("Set held block to " + subTypeId);
+
+		// Change ProjectMesh size to match block
+		CurrentSize = CubeBlockLoader.BaseFromId(CurrentBlockId).size;
+        ProjectMesh.Scale = CurrentSize/2.5f;
+
+        GD.Print("Set held block to " + subTypeId);
 	}
 
-	public void SnapLocal()
+	public void SnapRotationLocal()
 	{
 		Rotation = Rotation.Snapped(Vector3.One*nd);
 
