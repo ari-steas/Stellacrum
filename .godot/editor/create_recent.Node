@@ -1,3 +1,4 @@
+MeshInstance3D
 LineEdit
 TextureRect
 GridContainer
@@ -10,7 +11,6 @@ Label
 HBoxContainer
 VBoxContainer
 GPUParticles3D
-MeshInstance3D
 GridMap
 RichTextLabel
 ColorRect

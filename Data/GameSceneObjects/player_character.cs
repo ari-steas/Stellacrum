@@ -36,7 +36,7 @@ public partial class player_character : CharacterBody3D
 	public override void _Ready()
 	{
 		scene = GetParent<GameScene>();
-
+		
 		light = GetNode<SpotLight3D>("SpotLight3D");
 		camera = GetNode<Camera3D>("PlayerCamera");
 		interactCast = GetNode<RayCast3D>("InteractCast");

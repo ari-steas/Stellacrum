@@ -35,7 +35,7 @@
 		"Mass":375
 	},
 
-	"ArmorBlockSlope2x1Base":{
+	"ArmorBlock2x1SlopeBase":{
 		"Model":"ArmorBlock2x1SlopeBase",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeBase.png",
@@ -44,7 +44,7 @@
 		"Mass":380
 	},
 
-	"ArmorBlockSlope2x1Tip":{
+	"ArmorBlock2x1SlopeTip":{
 		"Model":"ArmorBlock2x1SlopeTip",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeTip.png",
@@ -53,8 +53,8 @@
 		"Mass":120
 	},
 
-	"ArmorBlockSlope2x1BaseCorner":{
-		"Model":"ArmorBlock2x1SlopeBaseCorner",
+	"ArmorBlock2x1BaseCorner":{
+		"Model":"ArmorBlock2x1BaseCorner",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeBaseCorner.png",
 		"TypeId":"CubeBlock",
@@ -62,16 +62,16 @@
 		"Mass":190
 	},
 
-	"ArmorBlockSlope2x1TipCorner":{
-		"Model":"ArmorBlock2x1SlopeTipCorner",
+	"ArmorBlock2x1TipCorner":{
+		"Model":"ArmorBlock2x1TipCorner",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeTipCorner.png",
 		"TypeId":"CubeBlock",
 
 		"Mass":60
 	},
-	"ArmorBlockSlope2x1BaseCornerInv":{
-		"Model":"ArmorBlock2x1SlopeBaseCornerInv",
+	"ArmorBlock2x1BaseCornerInv":{
+		"Model":"ArmorBlock2x1BaseCornerInv",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeBaseCornerInv.png",
 		"TypeId":"CubeBlock",
@@ -79,8 +79,8 @@
 		"Mass":190
 	},
 
-	"ArmorBlockSlope2x1TipCornerInv":{
-		"Model":"ArmorBlock2x1SlopeTipCornerInv",
+	"ArmorBlock2x1TipCornerInv":{
+		"Model":"ArmorBlock2x1TipCornerInv",
 		"BlockSize":[1, 1, 1],
 		"Icon":"ArmorBlock2x1SlopeTipCornerInv.png",
 		"TypeId":"CubeBlock",

@@ -27,3 +27,5 @@ res://Data/MenuScenes/OptionsMenu.cs
 res://Data/MenuScenes/PauseMenu.cs
 res://Data/MenuScenes/SaveInfoContainer.cs
 res://Data/MenuScenes/saves_menu.cs
+res://Assets/CubeBlocks/ThrusterBlocks.json
+res://Assets/CubeBlocks/ArmorBlocks.json

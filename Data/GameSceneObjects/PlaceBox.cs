@@ -52,7 +52,8 @@ public partial class PlaceBox : Node3D
 
 		// Remove existing block
 		foreach (var child in GetChildren())
-			RemoveChild(child);
+			if (child.Name != "ProjectMesh")
+				RemoveChild(child);
 
 		// Pull mesh from CubeBlockLoader
 		foreach (var mesh in CubeBlockLoader.FromId(subTypeId).meshes)
@@ -61,7 +62,7 @@ public partial class PlaceBox : Node3D
 		// Make mesh semi-transparent
 		foreach (var node in GetChildren())
 		{
-			if (node is MeshInstance3D mesh)
+			if (node is MeshInstance3D mesh && node.Name != "ProjectMesh")
 			{
 				mesh.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
 				mesh.Transparency = 0.5f;

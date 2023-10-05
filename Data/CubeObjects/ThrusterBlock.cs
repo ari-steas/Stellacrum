@@ -133,7 +133,7 @@ public partial class ThrusterBlock : CubeBlock
 		// ThrustNode shows where particles should be emitted
 		foreach (var node in block.meshes)
 		{
-			if (node.Name.ToString().Equals("ThrustNode"))
+			if (node.Name.ToString().StartsWith("ThrustNode"))
 			{
 				block.thrustNode = node;
 				break;
