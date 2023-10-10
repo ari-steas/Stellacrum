@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://b8f0d3lrl21m6"]
 
 [ext_resource type="Script" path="res://Data/MenuScenes/menus.cs" id="1_3x2mn"]
-[ext_resource type="PackedScene" uid="uid://dmxjww23od5xe" path="res://Data/MenuScenes/saves_menu.tscn" id="3_tmnqp"]
-[ext_resource type="PackedScene" uid="uid://dt0byfcg83f6p" path="res://Data/MenuScenes/main_menu.tscn" id="3_tsltm"]
+[ext_resource type="PackedScene" uid="uid://dmxjww23od5xe" path="res://Data/MenuScenes/SaveMenu/saves_menu.tscn" id="3_tmnqp"]
+[ext_resource type="PackedScene" uid="uid://dt0byfcg83f6p" path="res://Data/MenuScenes/MainMenu/main_menu.tscn" id="3_tsltm"]
 [ext_resource type="PackedScene" uid="uid://bxf3scuytmh4d" path="res://Data/GameSceneObjects/GameScene.tscn" id="4_6ikny"]
-[ext_resource type="PackedScene" uid="uid://sx1lylolva0c" path="res://Data/MenuScenes/PauseMenu.tscn" id="4_njyww"]
-[ext_resource type="PackedScene" uid="uid://bj5564fx1crm0" path="res://Data/MenuScenes/OptionsMenu.tscn" id="5_ub2je"]
-[ext_resource type="PackedScene" uid="uid://wc0tvmgikrhm" path="res://Data/MenuScenes/block_menu.tscn" id="6_xenlt"]
+[ext_resource type="PackedScene" uid="uid://sx1lylolva0c" path="res://Data/MenuScenes/PauseMenu/PauseMenu.tscn" id="4_njyww"]
+[ext_resource type="PackedScene" uid="uid://bj5564fx1crm0" path="res://Data/MenuScenes/OptionsMenu/OptionsMenu.tscn" id="5_ub2je"]
+[ext_resource type="PackedScene" uid="uid://wc0tvmgikrhm" path="res://Data/MenuScenes/BlockMenu/block_menu.tscn" id="6_xenlt"]
 
 [node name="BaseScene" type="Node2D"]
 script = ExtResource("1_3x2mn")

@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://sx1lylolva0c"]
 
-[ext_resource type="Script" path="res://Data/MenuScenes/PauseMenu.cs" id="1_h6h80"]
+[ext_resource type="Script" path="res://Data/MenuScenes/PauseMenu/PauseMenu.cs" id="1_ejlcw"]
 
 [node name="PauseMenu" type="CanvasLayer"]
-script = ExtResource("1_h6h80")
+script = ExtResource("1_ejlcw")
 
 [node name="InfoOutputLabel" type="Label" parent="."]
 offset_right = 40.0

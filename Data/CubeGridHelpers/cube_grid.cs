@@ -17,6 +17,7 @@ public partial class CubeGrid : RigidBody3D
 	bool underControl = false;
 
 	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
+	readonly List<Vector3I> OccupiedBlocks = new ();
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
 
 	// Called when the node enters the scene tree for the first time.
@@ -89,94 +90,110 @@ public partial class CubeGrid : RigidBody3D
 	}
 
 	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
-	{
-		if (!CubeBlocks.ContainsKey(position_GridLocal))
-		{
-			AddChild(block);
-			CubeBlocks.Add(position_GridLocal, block);
+    {
+        // Check for intersection in existing blocks
+        if (CubeBlocks.ContainsKey(position_GridLocal))
+            return;
 
-			block.Position = (Vector3) position_GridLocal*2.5f;
+		// Expensive check for intersection
+		Vector3I[] blockPositions = block.OccupiedSlots(position_GridLocal);
+        foreach (Vector3I blockPos in blockPositions)
+			if (OccupiedBlocks.Contains(blockPos))
+				return;
 
-			block.collisionId = CreateShapeOwner(this);
-			ShapeOwnerAddShape(block.collisionId, block.collision);
-			ShapeOwnerSetTransform(block.collisionId, block.Transform);
-			
-			Mass += block.Mass;
+        AddChild(block);
+        CubeBlocks.Add(position_GridLocal, block);
 
-			RecalcSize();
-			RecalcMass();
+		// Add to occupied slots
+		OccupiedBlocks.AddRange(blockPositions);
 
-			if (block is CockpitBlock c)
-				Cockpits.Add(c);
-			if (block is ThrusterBlock t)
-				ThrusterBlocks.Add(t);
-			
-			try
-			{
-				// Place mirrored blocks
-				if (MirrorEnabled)
-				{
-					Vector3I diff = MirrorPosition - position_GridLocal;
+        block.Position = (Vector3)position_GridLocal * 2.5f;
 
-					// Flip along Y axis
-					block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-					if (GridMirrors[1])
-						AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
-					block.GlobalRotation = rotation;
+        block.collisionId = CreateShapeOwner(this);
+        ShapeOwnerAddShape(block.collisionId, block.collision);
+        ShapeOwnerSetTransform(block.collisionId, block.Transform);
 
-					// Flip along X axis
-					block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
-					block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
-					if (GridMirrors[0])
-						AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
-					block.GlobalRotation = rotation;
+        Mass += block.Mass;
 
-					// Flip along Z axis
-					block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-					if (GridMirrors[2])
-						AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block.Copy());
-					block.GlobalRotation = rotation;
-				}
-			}
-			catch {
+        RecalcSize();
+        RecalcMass();
 
-			}
+        if (block is CockpitBlock c)
+            Cockpits.Add(c);
+        if (block is ThrusterBlock t)
+            ThrusterBlocks.Add(t);
 
-			// Do this last so that it has time to get added to the scenetree
-            block.GlobalRotation = rotation;
+        try
+        {
+            // Place mirrored blocks
+            if (MirrorEnabled)
+            {
+                Vector3I diff = MirrorPosition - position_GridLocal;
+
+                // Flip along Y axis
+                block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+                if (GridMirrors[1])
+                    AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+                block.GlobalRotation = rotation;
+
+                // Flip along X axis
+                block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
+                block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
+                if (GridMirrors[0])
+                    AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+                block.GlobalRotation = rotation;
+
+                // Flip along Z axis
+                block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+                if (GridMirrors[2])
+                    AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block.Copy());
+                block.GlobalRotation = rotation;
+            }
         }
-	}
+        catch
+        {
 
-	/// <summary>
-	/// Adds CubeBlock to grid. This method is to be used with fully constructed blocks ONLY, such as those loaded from save files.
-	/// </summary>
-	/// <param name="block"></param>
-	public void AddFullBlock(CubeBlock block)
-	{
-		Vector3I position_GridLocal = LocalToGridCoordinates(block.Position);
+        }
 
-		if (!CubeBlocks.ContainsKey(position_GridLocal))
-		{
-			AddChild(block);
-			CubeBlocks.Add(position_GridLocal, block);
+        // Do this last so that it has time to get added to the scenetree
+        block.GlobalRotation = rotation;
+    }
 
-			block.collisionId = CreateShapeOwner(this);
-			ShapeOwnerAddShape(block.collisionId, block.collision);
-			ShapeOwnerSetTransform(block.collisionId, block.Transform);
-			
-			Mass += block.Mass;
+    /// <summary>
+    /// Adds CubeBlock to grid. This method is to be used with fully constructed blocks ONLY, such as those loaded from save files.
+    /// </summary>
+    /// <param name="block"></param>
+    public void AddFullBlock(CubeBlock block)
+    {
+        Vector3I position_GridLocal = LocalToGridCoordinates(block.Position);
 
-			RecalcSize();
-			RecalcMass();
+		// Override existing block if exists
+        if (CubeBlocks.ContainsKey(position_GridLocal))
+            CubeBlocks.Remove(position_GridLocal);
 
-			if (block is CockpitBlock c)
-				Cockpits.Add(c);
-			if (block is ThrusterBlock t)
-				ThrusterBlocks.Add(t);
-		}
-	}
+        AddChild(block);
+        CubeBlocks.Add(position_GridLocal, block);
 
-	public void RemoveBlock(RayCast3D ray)
+        // Add to occupied slots
+        OccupiedBlocks.AddRange(block.OccupiedSlots(position_GridLocal));
+
+        // Add to collision hull
+        block.collisionId = CreateShapeOwner(this);
+        ShapeOwnerAddShape(block.collisionId, block.collision);
+        ShapeOwnerSetTransform(block.collisionId, block.Transform);
+
+        Mass += block.Mass;
+
+        RecalcSize();
+        RecalcMass();
+
+        if (block is CockpitBlock c)
+            Cockpits.Add(c);
+        if (block is ThrusterBlock t)
+            ThrusterBlocks.Add(t);
+    }
+
+    public void RemoveBlock(RayCast3D ray)
 	{
 		RemoveBlock(ray.GetCollisionPoint() - ray.GetCollisionNormal());
 	}
@@ -186,37 +203,66 @@ public partial class CubeGrid : RigidBody3D
 		RemoveBlock(GlobalToGridCoordinates(globalPosition));
 	}
 
-	public void RemoveBlock(Vector3I position)
+	public void RemoveBlock(Vector3I targetPosition)
 	{
-		if (CubeBlocks.ContainsKey(position))
+		// Sanity check
+		CubeBlock block = BlockAt(targetPosition);
+		if (block == null)
+			return;
+
+		Vector3I blockPosition = LocalToGridCoordinates(block.Position);
+
+        // Remove from occupied blocks.
+        foreach (Vector3I pos in block.OccupiedSlots(blockPosition))
+			if (!OccupiedBlocks.Remove(pos))
+				throw new Exception($"Mismatch in CubeGrid [{Name}]'s occupied slot {targetPosition}!");
+
+		// Remove from collision
+		RemoveShapeOwner(block.collisionId);
+
+		RemoveChild(block);
+		Mass -= block.Mass;
+        if (!CubeBlocks.Remove(blockPosition))
+            throw new Exception($"Mismatch in CubeGrid [{Name}]'s block {blockPosition}!");
+
+		RecalcSize();
+		RecalcMass();
+
+		if (block is CockpitBlock c)
+			Cockpits.Remove(c);
+
+		// Remove mirrored blocks. Is recursive, but hopefully the isNull check stops it.
+		if (MirrorEnabled)
 		{
-			CubeBlock block = CubeBlocks[position];
-			RemoveShapeOwner(block.collisionId);
-			RemoveChild(block);
-			Mass -= block.Mass;
-			CubeBlocks.Remove(position);
-
-			RecalcSize();
-			RecalcMass();
-
-			if (block is CockpitBlock c)
-			{
-				Cockpits.Remove(c);
-			}
-
-			// Place mirrored blocks
-			if (MirrorEnabled)
-			{
-				Vector3I diff = MirrorPosition - position;
-				if (GridMirrors[0])
-					RemoveBlock(new Vector3I(diff.X, position.Y, position.Z));
-				if (GridMirrors[1])
-					RemoveBlock(new Vector3I(position.X, diff.Y, position.Z));
-				if (GridMirrors[2])
-					RemoveBlock(new Vector3I(position.X, position.Y, diff.Z));
-			}
+			Vector3I diff = MirrorPosition - targetPosition;
+			if (GridMirrors[0])
+				RemoveBlock(new Vector3I(diff.X, targetPosition.Y, targetPosition.Z));
+			if (GridMirrors[1])
+				RemoveBlock(new Vector3I(targetPosition.X, diff.Y, targetPosition.Z));
+			if (GridMirrors[2])
+				RemoveBlock(new Vector3I(targetPosition.X, targetPosition.Y, diff.Z));
 		}
 	}
+
+	public CubeBlock? BlockAt(Vector3I position)
+	{
+		// Cheap check first
+		if (CubeBlocks.ContainsKey(position))
+            return CubeBlocks[position];
+
+		foreach (var block in CubeBlocks)
+			if (block.Value.OccupiedSlots(block.Key).Contains(position))
+                return block.Value;
+        return null;
+	}
+
+	public bool IsBlockAt(Vector3I position)
+	{
+		if (CubeBlocks.ContainsKey(position))
+			return true;
+
+		return OccupiedBlocks.Contains(position);
+    }
 
 	private void RecalcSize()
 	{
@@ -304,7 +350,7 @@ public partial class CubeGrid : RigidBody3D
 		return ((Vector3) gridCoords) * 2.5f;
 	}
 
-	public Vector3 GridToGlobalCoordinates(Vector3I gridCoords)
+	public Vector3 GridToGlobalPosition(Vector3I gridCoords)
 	{
 		return ToGlobal(GridToLocalCoordinates(gridCoords));
 	}

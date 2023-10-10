@@ -1,14 +1,14 @@
 [gd_scene load_steps=6 format=3 uid="uid://dmxjww23od5xe"]
 
-[ext_resource type="Texture2D" uid="uid://cdguqt6lrqntg" path="res://Assets/Images/GUI/MenuBackground.png" id="1_38du2"]
-[ext_resource type="Script" path="res://Data/MenuScenes/saves_menu.cs" id="1_oko0n"]
-[ext_resource type="Script" path="res://Data/MenuScenes/ItemList.cs" id="3_tjxin"]
-[ext_resource type="Script" path="res://Data/MenuScenes/SaveInfoContainer.cs" id="4_nu6ry"]
+[ext_resource type="Script" path="res://Data/MenuScenes/SaveMenu/saves_menu.cs" id="1_a6sve"]
+[ext_resource type="Texture2D" uid="uid://cdguqt6lrqntg" path="res://Assets/Images/GUI/MenuBackground.png" id="2_hngnh"]
+[ext_resource type="Script" path="res://Data/MenuScenes/SaveMenu/ItemList.cs" id="3_vp8gk"]
+[ext_resource type="Script" path="res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs" id="4_vkkwe"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6u38m"]
 
 [node name="SavesMenu" type="CanvasLayer"]
-script = ExtResource("1_oko0n")
+script = ExtResource("1_a6sve")
 
 [node name="MenuBackground" type="TextureRect" parent="."]
 z_index = -1
@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_38du2")
+texture = ExtResource("2_hngnh")
 expand_mode = 3
 stretch_mode = 1
 
@@ -54,7 +54,7 @@ size_flags_vertical = 3
 theme_override_font_sizes/font_size = 28
 theme_override_styles/panel = SubResource("StyleBoxEmpty_6u38m")
 auto_height = true
-script = ExtResource("3_tjxin")
+script = ExtResource("3_vp8gk")
 
 [node name="SaveInfoContainer" type="VBoxContainer" parent="."]
 anchors_preset = 11
@@ -70,7 +70,7 @@ grow_vertical = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 10
 alignment = 1
-script = ExtResource("4_nu6ry")
+script = ExtResource("4_vkkwe")
 
 [node name="WorldInformation" type="Label" parent="SaveInfoContainer"]
 layout_mode = 2

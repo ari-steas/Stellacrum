@@ -112,11 +112,35 @@ public partial class CubeBlock : StaticBody3D
 		return b;
 	}
 
-	public virtual Aabb Size(Vector3I position)
+	public Aabb Size(Vector3I position)
 	{
-		Aabb size = new(position, Vector3I.One);
+		// Offset position to bottom-left corner
+		position -= (Vector3I) (this.size / 5f);
+        Aabb size = new(position, this.size/2.5f);
 		return size;
 	}
+
+	public BoxShape3D BoxShape3D()
+	{
+		return new BoxShape3D()
+		{ 
+			Size = size,
+		};
+	}
+
+	public Vector3I[] OccupiedSlots(Vector3I basePosition)
+	{
+        // Offset position to bottom-left corner
+        basePosition -= (Vector3I)(this.size / 5f);
+
+        List<Vector3I> slots = new();
+		for (int z = basePosition.Z; z < size.Z / 2.5f + basePosition.Z; z++)
+            for (int y = basePosition.Y; y < size.Y / 2.5f + basePosition.Y; y++)
+                for (int x = basePosition.X; x < size.X / 2.5f + basePosition.X; x++)
+					slots.Add(new Vector3I(x, y, z));
+
+		return slots.ToArray();
+    }
 
 	public virtual Godot.Collections.Dictionary<string, Variant> Save()
 	{

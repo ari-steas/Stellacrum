@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://wc0tvmgikrhm"]
 
-[ext_resource type="Script" path="res://Data/MenuScenes/BlockMenu.cs" id="1_iwf0j"]
+[ext_resource type="Script" path="res://Data/MenuScenes/BlockMenu/BlockMenu.cs" id="1_x7rbl"]
 
 [node name="BlockMenu" type="CanvasLayer"]
-script = ExtResource("1_iwf0j")
+script = ExtResource("1_x7rbl")
 
 [node name="ReturnButton" type="Button" parent="."]
 anchors_preset = 2
