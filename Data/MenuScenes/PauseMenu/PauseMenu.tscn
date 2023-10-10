@@ -55,9 +55,15 @@ text = "IDK how to design UI, okay. just click save and then click quit.
 
 WASD + C/Space for translational control
 Mouse for rotational control
+Z for dampeners
+L for headlamp
+V for (very bad) 3rd-person
 F to getin/out of a grid
 Tilda to stop all grids
 Insert/Home/PgUp/Del/End/PgDown for block rotation
 Esc for pause (duh)
 LMB to place
-RMB to remove"
+RMB to remove
+N for mirror toggle
+M for mirror mode switch
+G for block menu"
