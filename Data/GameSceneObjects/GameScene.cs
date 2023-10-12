@@ -1,8 +1,6 @@
 using Godot;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 
 public partial class GameScene : Node3D
@@ -19,7 +17,12 @@ public partial class GameScene : Node3D
 	{
 		Visible = false;
 		playerCharacter = GetNode<player_character>("PlayerCharacter");
-	}
+
+        //GDScript script = GD.Load<GDScript>("user://Mods/test.gd");
+		//Node n = new();
+		//n.SetScript(script);
+		//AddChild(n);
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
