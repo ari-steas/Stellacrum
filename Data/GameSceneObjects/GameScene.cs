@@ -128,7 +128,7 @@ public partial class GameScene : Node3D
 
 	public void SpawnPremadeGrid(CubeGrid grid)
 	{
-		CallDeferred("add_child", grid);
+		CallDeferred(Node.MethodName.AddChild, grid);
 		grids.Add(grid);
 
 		GD.Print("Spawned existing grid " + grid.Name + " @ " + grid.Position);
@@ -214,8 +214,6 @@ public partial class GameScene : Node3D
 	{
 		GlobalPosition -= playerCharacter.GlobalPosition;
 	}
-
-
 
 	public void Save()
 	{

@@ -20,6 +20,9 @@ public partial class menus : Node2D
 		TextureLoader.StartLoad("res://Assets/Images/");
 
 		OptionsHelper.AddOption("fullscreen", new("Fullscreen", false, _Fullscreen));
+		OptionsHelper.AddOption("fov", new("Field of View", 90, _FovSet, new(30, 120)));
+		OptionsHelper.AddOption("vsync", new("Vertical Sync", false, _VSyncSet));
+		OptionsHelper.AddOption("fps", new("FPS Limit", 250, _FpsSet, new(0, 1000)));
 
 		Json json = new();
 		json.Parse(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText());
@@ -34,6 +37,45 @@ public partial class menus : Node2D
 			DisplayServer.WindowSetMode(fullscreen ? DisplayServer.WindowMode.ExclusiveFullscreen : DisplayServer.WindowMode.Windowed);
 		}
 	}
+
+	private void _FovSet(object value)
+	{
+        if (value is int fov)
+        {
+			try
+			{
+                Camera3D camera = GetViewport().GetCamera3D();
+                if (camera == null)
+                    return;
+
+                camera.Fov = fov;
+                GD.Print("Set camera FOV to " + fov);
+            }
+            catch
+			{
+
+			}
+        }
+    }
+
+	private void _FpsSet(object value)
+	{
+		GD.PrintErr("FPS set " + value);
+		if (value is int fps)
+		{
+			Engine.MaxFps = fps;
+			GD.Print("Set MaxFps to " + fps);
+		}
+	}
+
+	private void _VSyncSet(object value)
+	{
+        if (value is bool vsync)
+        {
+			DisplayServer.WindowSetVsyncMode(vsync ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
+			GD.Print("Set VSync to " + vsync);
+        }
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)

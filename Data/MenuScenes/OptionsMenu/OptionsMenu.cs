@@ -95,11 +95,11 @@ public partial class OptionsMenu : CanvasLayer
 					control = new CheckButton() { ButtonPressed = v };
 					break;
 				case float v:
-					control = new HSlider() { MinValue = 0f, MaxValue = 1.0f, Step = 0.01f, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Step = 0.01f, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
 					((HSlider) control).Value = v;
 					break;
 				case int v:
-					control = new HSlider() { Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
 					break;
 			}
 

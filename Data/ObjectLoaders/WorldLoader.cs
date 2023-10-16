@@ -104,7 +104,10 @@ public class WorldLoader
     {
         if (sceneObj is GameScene scene)
         {
-			// Load models
+            // Pause scene to prevent Problems:tm:
+            scene.CallDeferred(Node.MethodName.SetProcessMode, 4);
+
+            // Load models
             Thread.Sleep(2000);
             stage = LoadingStage.ModelLoad;
             ModelLoader.StartLoad("res://Assets/Models");
@@ -143,6 +146,7 @@ public class WorldLoader
 			// Notify that loading is done
             Thread.Sleep(2000);
             stage = LoadingStage.Done;
+			scene.CallDeferred(Node.MethodName.SetProcessMode, 0);
         }
     }
 
