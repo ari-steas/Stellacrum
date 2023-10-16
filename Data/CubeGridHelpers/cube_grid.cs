@@ -87,7 +87,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
 	{
-		AddBlock(position, rotation, CubeBlockLoader.BaseFromId(blocKid).Copy());
+		AddBlock(position, rotation, CubeBlockLoader.BaseFromId(blocKid));
 	}
 
 	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
@@ -134,20 +134,20 @@ public partial class CubeGrid : RigidBody3D
                 // Flip along Y axis
                 block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
                 if (GridMirrors[1])
-                    AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+                    AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block);
                 block.GlobalRotation = rotation;
 
                 // Flip along X axis
                 block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
                 block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
                 if (GridMirrors[0])
-                    AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block.Copy());
+                    AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block);
                 block.GlobalRotation = rotation;
 
                 // Flip along Z axis
                 block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
                 if (GridMirrors[2])
-                    AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block.Copy());
+                    AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block);
                 block.GlobalRotation = rotation;
             }
         }

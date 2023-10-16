@@ -117,41 +117,6 @@ public partial class CubeBlock : StaticBody3D
 		Name = "CubeBlock." + subTypeId + "." + GetIndex();
 	}
 
-	public CubeBlock(Vector3I gridPosition)
-	{
-		BoxShape3D b = new ()
-		{
-			Size = new Vector3(2.5f, 2.5f, 2.5f)
-		};
-		collision = b;
-
-		BoxMesh bm = new ()
-		{
-			Size = new Vector3(2.5f, 2.5f, 2.5f)
-		};
-
-		meshes.Add(new MeshInstance3D() {Mesh = bm});
-		foreach (var mesh in meshes)
-			AddChild(mesh);
-
-		Position = (Vector3) gridPosition * 2.5f;
-
-		Name = "CubeBlock." + subTypeId + "." + GetIndex();
-	}
-
-	public virtual CubeBlock Copy()
-	{
-		CubeBlock b = (CubeBlock) Duplicate();
-		b.Position = Vector3.Zero;
-		b.collision = collision;
-		b.subTypeId = subTypeId;
-		b.size = size;
-		b.Mass = Mass;
-
-		b.Name = "CubeBlock." + subTypeId + "." + b.GetInstanceId();
-		return b;
-	}
-
 	public Aabb Size(Vector3I position)
 	{
 		// Offset position to bottom-left corner
