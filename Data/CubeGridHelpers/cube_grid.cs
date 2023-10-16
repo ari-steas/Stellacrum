@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.CubeGridHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -168,8 +169,7 @@ public partial class CubeGrid : RigidBody3D
         Vector3I position_GridLocal = LocalToGridCoordinates(block.Position);
 
 		// Override existing block if exists
-        if (CubeBlocks.ContainsKey(position_GridLocal))
-            CubeBlocks.Remove(position_GridLocal);
+		FullRemoveBlock(position_GridLocal);
 
         AddChild(block);
         CubeBlocks.Add(position_GridLocal, block);
@@ -212,20 +212,9 @@ public partial class CubeGrid : RigidBody3D
 
 		Vector3I blockPosition = LocalToGridCoordinates(block.Position);
 
-        // Remove from occupied blocks.
-        foreach (Vector3I pos in block.OccupiedSlots(blockPosition))
-			if (!OccupiedBlocks.Remove(pos))
-				throw new Exception($"Mismatch in CubeGrid [{Name}]'s occupied slot {targetPosition}!");
+        FullRemoveBlock(blockPosition);
 
-		// Remove from collision
-		RemoveShapeOwner(block.collisionId);
-
-		RemoveChild(block);
-		Mass -= block.Mass;
-        if (!CubeBlocks.Remove(blockPosition))
-            throw new Exception($"Mismatch in CubeGrid [{Name}]'s block {blockPosition}!");
-
-		RecalcSize();
+        RecalcSize();
 		RecalcMass();
 
 		if (block is CockpitBlock c)
@@ -243,6 +232,31 @@ public partial class CubeGrid : RigidBody3D
 				RemoveBlock(new Vector3I(targetPosition.X, targetPosition.Y, diff.Z));
 		}
 	}
+
+	/// <summary>
+	/// Safe-removes block and closes it.
+	/// </summary>
+	/// <param name="position"></param>
+	private void FullRemoveBlock(Vector3I position)
+	{
+		if (CubeBlocks.ContainsKey(position))
+		{
+			CubeBlock blockToRemove = CubeBlocks[position];
+
+			foreach (Vector3I pos in blockToRemove.OccupiedSlots(position))
+				OccupiedBlocks.Remove(pos);
+
+            // Remove from collision
+            RemoveShapeOwner(blockToRemove.collisionId);
+
+            RemoveChild(blockToRemove);
+            Mass -= blockToRemove.Mass;
+
+            blockToRemove.Close();
+
+            CubeBlocks.Remove(position);
+        }
+    }
 
 	public CubeBlock? BlockAt(Vector3I position)
 	{

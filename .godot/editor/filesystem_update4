@@ -1,4 +1,3 @@
-res://Data/MenuScenes/PauseMenu/PauseMenu.tscn
 res://Data/GameSceneObjects/GameScene.tscn
 res://Data/GameSceneObjects/player_character.tscn
 res://addons/debug_drawing/control/DebugDock.cs
@@ -6,8 +5,11 @@ res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
 res://addons/debug_drawing/demo/DemoDrawTarget.cs
 res://addons/debug_drawing/demo/DrawDemo.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridMultiBlockStructure.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridNodeStructure.cs
 res://Data/CubeObjects/CockpitBlock.cs
 res://Data/CubeObjects/CubeBlock.cs
+res://Data/CubeObjects/CubeNodeBlock.cs
 res://Data/CubeObjects/ThrusterBlock.cs
 res://Data/GameSceneObjects/GameScene.cs
 res://Data/GameSceneObjects/hud_scene.cs

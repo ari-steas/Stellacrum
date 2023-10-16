@@ -1,8 +1,9 @@
 using Godot;
+using Stellacrum.Data.CubeObjects;
 using System;
 using System.Collections.Generic;
 
-public partial class ThrusterBlock : CubeBlock
+public partial class ThrusterBlock : CubeNodeBlock
 {
 	CubeGrid parent;
 	public float ThrustPercent { get; private set; } = 0;
@@ -12,7 +13,9 @@ public partial class ThrusterBlock : CubeBlock
 	private Node3D thrustNode;
 	private GpuParticles3D particles;
 
-	public void SetThrustPercent(float pct)
+    public ThrusterBlock() { }
+
+    public void SetThrustPercent(float pct)
 	{
 		ThrustPercent = Mathf.Clamp(pct, 0, 1);
 	}
@@ -117,64 +120,88 @@ public partial class ThrusterBlock : CubeBlock
 
 	#region boilerplate
 
-	public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+	public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
 	{
-		ThrusterBlock block = FromCubeBlock(base.Init(subTypeId, blockData));
-		
-		try
-		{
-			block.MaximumThrust = blockData["ThrusterStrength"].As<float>();
-		}
-		catch
-		{
-			GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
-		}
+        try
+        {
+            MaximumThrust = blockData["ThrusterStrength"].As<float>();
+        }
+        catch
+        {
+            GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
+        }
 
-		// ThrustNode shows where particles should be emitted
-		foreach (var node in block.meshes)
-		{
-			if (node.Name.ToString().StartsWith("ThrustNode"))
-			{
-				block.thrustNode = node;
-				break;
-			}
-		}
-		if (block.thrustNode == null)
-			throw new($"{subTypeId} missing ThrustNode!");
+        // ThrustNode shows where particles should be emitted
+        foreach (var node in meshes)
+        {
+            if (node.Name.ToString().StartsWith("ThrustNode"))
+            {
+                thrustNode = node;
+                break;
+            }
+        }
+        if (thrustNode == null)
+            throw new($"{subTypeId} missing ThrustNode!");
+    }
 
-		return block;
-	}
+    //public override ThrusterBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+	//{
+	//	ThrusterBlock block = FromCubeBlock(base.Init(subTypeId, blockData));
+	//	
+	//	try
+	//	{
+	//		block.MaximumThrust = blockData["ThrusterStrength"].As<float>();
+	//	}
+	//	catch
+	//	{
+	//		GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
+	//	}
+	//
+	//	// ThrustNode shows where particles should be emitted
+	//	foreach (var node in block.meshes)
+	//	{
+	//		if (node.Name.ToString().StartsWith("ThrustNode"))
+	//		{
+	//			block.thrustNode = node;
+	//			break;
+	//		}
+	//	}
+	//	if (block.thrustNode == null)
+	//		throw new($"{subTypeId} missing ThrustNode!");
+	//
+	//	return block;
+	//}
 
-	public ThrusterBlock FromCubeBlock(CubeBlock c)
-	{
-		ThrusterBlock block = new()
-		{
-			collision = c.collision,
-			meshes = c.meshes,
-			subTypeId = c.subTypeId,
-			size = c.size,
-			Name = c.Name
-		};
-
-		foreach (var child in c.GetChildren())
-		{
-			c.RemoveChild(child);
-			block.AddChild(child);
-		}
-
-		return block;
-	}
+	//public static ThrusterBlock FromCubeBlock(CubeBlock c)
+	//{
+	//	ThrusterBlock block = new()
+	//	{
+	//		collision = c.collision,
+	//		meshes = c.meshes,
+	//		subTypeId = c.subTypeId,
+	//		size = c.size,
+	//		Name = c.Name
+	//	};
+	//	
+	//	foreach (var child in c.GetChildren())
+	//	{
+	//		c.RemoveChild(child);
+	//		block.AddChild(child);
+	//	}
+	//
+	//	return block;
+	//}
 
 	public override ThrusterBlock Copy()
 	{
-		ThrusterBlock block = FromCubeBlock(base.Copy());
+        //ThrusterBlock block = FromCubeBlock(base.Copy());
+        //
+        //block.ThrustPercent = ThrustPercent;
+        //block.MaximumThrust = MaximumThrust;
+        //block.thrustNode = thrustNode;
 
-		block.ThrustPercent = ThrustPercent;
-		block.MaximumThrust = MaximumThrust;
-		block.thrustNode = thrustNode;
-
-		return block;
-	}
+        return (ThrusterBlock) Duplicate();
+    }
 
 	public override void _ExitTree()
 	{

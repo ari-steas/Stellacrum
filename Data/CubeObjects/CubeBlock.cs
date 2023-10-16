@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.CubeGridHelpers;
 using System;
 using System.Collections.Generic;
 
@@ -11,45 +12,97 @@ public partial class CubeBlock : StaticBody3D
 	public Vector3 size = Vector3.One*2.5f;
 	public int Mass = 100;
 
-	public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+    public CubeBlock() { }
+    public List<GridMultiBlockStructure> Structures { get; private set; } = new List<GridMultiBlockStructure>();
+
+    public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 	{
-		List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
-		Vector3 size = Vector3.One*2.5f;
-		int mass = 100;
+        List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
+        Vector3 size = Vector3.One * 2.5f;
+        int mass = 100;
 
-		// Load model from ModelLoader
-		if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string) blockData["Model"]))
-			model = ModelLoader.Models[(string) blockData["Model"]];
-		else
-			GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
+        // Load model from ModelLoader
+        if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string)blockData["Model"]))
+            model = ModelLoader.Models[(string)blockData["Model"]];
+        else
+            GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
 
-		// Calc BlockSize
-		try
-		{
-			int[] bSize = blockData["BlockSize"].AsInt32Array();
-			size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
-		}
-		catch {
-			GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
+        // Calc BlockSize
+        try
+        {
+            int[] bSize = blockData["BlockSize"].AsInt32Array();
+            size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
+        }
+        catch
+        {
+            GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
 		}
 
 		try
 		{
 			mass = blockData["Mass"].AsInt32();
 		}
-		catch {
+		catch
+		{
 			GD.PrintErr($"Missing [Mass] in {subTypeId}! Setting to default...");
 		}
 
-		return new (subTypeId, model, size)
-		{
-			Mass = mass
-		};
-	}
+        this.meshes = model;
+        this.size = size;
+        this.subTypeId = subTypeId;
+
+        collision = new BoxShape3D()
+        {
+            Size = size
+        };
+
+        Mass = mass;
+
+        foreach (Node3D mesh in model)
+            AddChild(mesh.Duplicate());
+
+        Name = "CubeBlock." + subTypeId + "." + GetIndex();
+    }
+
+    //public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+	//{
+	//	List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
+	//	Vector3 size = Vector3.One*2.5f;
+	//	int mass = 100;
+	//
+	//	// Load model from ModelLoader
+	//	if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string) blockData["Model"]))
+	//		model = ModelLoader.Models[(string) blockData["Model"]];
+	//	else
+	//		GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
+	//
+	//	// Calc BlockSize
+	//	try
+	//	{
+	//		int[] bSize = blockData["BlockSize"].AsInt32Array();
+	//		size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
+	//	}
+	//	catch {
+	//		GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
+	//	}
+	//
+	//	try
+	//	{
+	//		mass = blockData["Mass"].AsInt32();
+	//	}
+	//	catch {
+	//		GD.PrintErr($"Missing [Mass] in {subTypeId}! Setting to default...");
+	//	}
+	//
+	//	return new (subTypeId, model, size)
+	//	{
+	//		Mass = mass
+	//	};
+	//}
 	
-	private CubeBlock(string subTypeId, List<Node3D> meshes, Vector3 size)
+	private CubeBlock(string subTypeId, List<Node3D> model, Vector3 size)
 	{
-		this.meshes = meshes;
+		this.meshes = model;
 		this.size = size;
 		this.subTypeId = subTypeId;
 
@@ -58,7 +111,7 @@ public partial class CubeBlock : StaticBody3D
 			Size = size
 		};
 
-		foreach (Node3D mesh in meshes)
+		foreach (Node3D mesh in model)
 			AddChild(mesh.Duplicate());
 
 		Name = "CubeBlock." + subTypeId + "." + GetIndex();
@@ -84,19 +137,6 @@ public partial class CubeBlock : StaticBody3D
 		Position = (Vector3) gridPosition * 2.5f;
 
 		Name = "CubeBlock." + subTypeId + "." + GetIndex();
-	}
-
-	public CubeBlock() {}
-
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		
 	}
 
 	public virtual CubeBlock Copy()
@@ -141,6 +181,12 @@ public partial class CubeBlock : StaticBody3D
 
 		return slots.ToArray();
     }
+
+	public virtual void Close()
+	{
+		foreach (var structure in Structures)
+			structure.RemoveStructureBlock(this);
+	}
 
 	public virtual Godot.Collections.Dictionary<string, Variant> Save()
 	{

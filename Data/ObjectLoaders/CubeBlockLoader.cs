@@ -113,12 +113,15 @@ public class CubeBlockLoader
 
 			CubeBlockTextures.Add(subTypeId, texture);
 
-			dynamic cube = Activator.CreateInstance(type);
+			//ConstructorInfo ctor = type.GetConstructor(new[] { typeof(string), typeof(Godot.Collections.Dictionary<string, Variant>)});
+			//CubeBlock cube = (CubeBlock) ctor.Invoke(new object[] { subTypeId, blockData });
+			dynamic cube = Activator.CreateInstance(type, args:new object[] { subTypeId, blockData } );
 			
-			if (cube is CubeBlock) {
+			if (cube is CubeBlock)
+			{
 				try
 				{
-					CubeBlocks.Add(subTypeId, cube.Init(subTypeId, blockData));
+					CubeBlocks.Add(subTypeId, cube);
 					GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
 				}
 				catch (Exception e)
