@@ -1,17 +1,20 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-
+using FileAccess = Godot.FileAccess;
 
 public class CubeBlockLoader
 {
 
-	private static readonly Dictionary<string, CubeBlock> CubeBlocks = new();
+    //private static readonly Dictionary<string, CubeBlock> CubeBlocks = new();
 	private static readonly Dictionary<string, Texture2D> CubeBlockTextures = new();
+    private static Dictionary<string, Type> typeIds = new();
+    private static Dictionary<string, Godot.Collections.Dictionary<string, Variant>> blockDefinitions = new();
 
-	public static void StartLoad(string path)
+    public static void StartLoad(string path)
 	{
 		GD.Print("\n\nStart CubeBlock load from " + path);
 
@@ -32,36 +35,38 @@ public class CubeBlockLoader
 			}
 		}
 		
-		GD.Print($"Loaded {CubeBlocks.Count} CubeBlocks.\n\n");
+		GD.Print($"Loaded {typeIds.Count} CubeBlocks.\n\n");
 	}
 
 	public static void Clear()
 	{
-		CubeBlocks.Clear();
-	}
+		CubeBlockTextures.Clear();
+        typeIds.Clear();
+        blockDefinitions.Clear();
+    }
 
 	public static string[] GetAllIds()
 	{
-		return CubeBlocks.Keys.ToArray();
+		return typeIds.Keys.ToArray();
 	}
 
 	public static CubeBlock BaseFromId(string id)
 	{
-		if (CubeBlocks.ContainsKey(id))
+		if (typeIds.ContainsKey(id))
 		{
-			return CubeBlocks[id];
+			return DefinitionLoader(id);
 		}
 		else
 		{
 			GD.PrintErr("Missing CubeBlock " + id);
-			return CubeBlocks["ArmorBlock"];
+			return DefinitionLoader("ArmorBlock");
 		}
 	}
 
 	// Don't want to copy the texture for every single cubeblock
 	public static Texture2D GetTexture(string subTypeId)
 	{
-		if (CubeBlocks.ContainsKey(subTypeId))
+		if (typeIds.ContainsKey(subTypeId))
 			return CubeBlockTextures[subTypeId];
 		else
 		{
@@ -82,7 +87,7 @@ public class CubeBlockLoader
 
 		foreach (var subTypeId in allData.Keys)
 		{
-			if (CubeBlocks.ContainsKey(subTypeId))
+			if (typeIds.ContainsKey(subTypeId))
 				continue;
 				
 			Texture2D texture = TextureLoader.Get("missing.png");
@@ -109,25 +114,14 @@ public class CubeBlockLoader
 			{
 				GD.PrintErr($"Missing [Type] in {path}! Setting to default...");
 			}
-
-
-			CubeBlockTextures.Add(subTypeId, texture);
-
-			//ConstructorInfo ctor = type.GetConstructor(new[] { typeof(string), typeof(Godot.Collections.Dictionary<string, Variant>)});
-			//CubeBlock cube = (CubeBlock) ctor.Invoke(new object[] { subTypeId, blockData });
-			dynamic cube = Activator.CreateInstance(type, args:new object[] { subTypeId, blockData } );
 			
-			if (cube is CubeBlock)
+			if (type == typeof(CubeBlock) || type.IsSubclassOf(typeof(CubeBlock)))
 			{
-				try
-				{
-					CubeBlocks.Add(subTypeId, cube);
-					GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
-				}
-				catch (Exception e)
-				{
-					GD.PrintErr($"Block {subTypeId} failed to init!\n" + e.Message);
-				}
+				CubeBlockTextures.Add(subTypeId, texture);
+				typeIds.Add(subTypeId, type);
+				blockDefinitions.Add(subTypeId, blockData);
+
+				GD.Print("Loaded block \"" + subTypeId + "\", typeof " + type.FullName + ".");
 			}
 			else
 			{
@@ -139,10 +133,30 @@ public class CubeBlockLoader
 	public static CubeBlock LoadFromData(Godot.Collections.Dictionary<string, Variant> data)
 	{
 		GD.PrintErr("TODO CubeBlockLoader.cs LoadFromData for inherited types");
-		CubeBlock block = BaseFromId(data["SubTypeId"].AsString()).Copy();
+		CubeBlock block = BaseFromId(data["SubTypeId"].AsString());
 		block.Position = JsonHelper.LoadVec(data["Position"]);
 		block.Rotation = JsonHelper.LoadVec(data["Rotation"]);
 
 		return block;
 	}
+
+	/// <summary>
+	/// Creates new CubeBlock from stored definition.
+	/// </summary>
+	/// <param name="subTypeId"></param>
+	/// <returns></returns>
+	/// <exception cref="MissingMemberException"></exception>
+	private static CubeBlock DefinitionLoader(string subTypeId)
+	{
+		if (!typeIds.ContainsKey(subTypeId))
+			throw new MissingMemberException();
+
+        Type type = typeIds[subTypeId];
+
+        var blockData = blockDefinitions[subTypeId];
+
+        dynamic cube = Activator.CreateInstance(type, args: new object[] { subTypeId, blockData});
+
+		return cube;
+    }
 }
