@@ -108,17 +108,14 @@ public class WorldLoader
             scene.CallDeferred(Node.MethodName.SetProcessMode, 4);
 
             // Load models
-            Thread.Sleep(2000);
             stage = LoadingStage.ModelLoad;
             ModelLoader.StartLoad("res://Assets/Models");
 
 			// Load blocks
-            Thread.Sleep(2000);
             stage = LoadingStage.BlockLoad;
             CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
 
 			// Load save data
-            Thread.Sleep(2000);
             stage = LoadingStage.DataLoad;
             if (!Worlds.Contains(CurrentSave))
             {
@@ -136,7 +133,6 @@ public class WorldLoader
             }
 
 			// Spawn grids and players
-            Thread.Sleep(2000);
             stage = LoadingStage.ObjectSpawn;
             foreach (var grid in CurrentSave.grids)
                 scene.SpawnPremadeGrid(grid);
@@ -144,7 +140,6 @@ public class WorldLoader
             scene.SetPlayerData(CurrentSave.playerData);
 
 			// Notify that loading is done
-            Thread.Sleep(2000);
             stage = LoadingStage.Done;
 			scene.CallDeferred(Node.MethodName.SetProcessMode, 0);
         }

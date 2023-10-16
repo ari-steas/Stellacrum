@@ -374,8 +374,8 @@ public partial class player_character : CharacterBody3D
 	{
 		if (inputEvent is InputEventMouseMotion motion)
 		{
-			lastX = motion.Relative.X * (float) (OptionsHelper.GetOption("mousesensitivityx") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinvertx") ? 1 : -1);
-			lastY = motion.Relative.Y * (float) (OptionsHelper.GetOption("mousesensitivityy") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinverty") ? 1 : -1);
+			lastX = motion.Relative.X * (float) (OptionsHelper.GetOption("mousesensitivityx") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinvertx") ? 1 : -1) / (float) GetProcessDeltaTime() / 250;
+			lastY = motion.Relative.Y * (float) (OptionsHelper.GetOption("mousesensitivityy") ?? 1) * ((bool) OptionsHelper.GetOption("mouseinverty") ? 1 : -1) / (float) GetProcessDeltaTime() / 250;
 			return;
 		}
 	}
