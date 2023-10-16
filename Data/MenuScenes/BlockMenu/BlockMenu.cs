@@ -55,7 +55,8 @@ public partial class BlockMenu : CanvasLayer
 		if(Input.IsActionPressed("Pause") || Input.IsActionJustPressed("BlockInventory"))
 		{
 			Input.ActionRelease("Pause");
-			ReturnPress();
+            Input.ActionRelease("BlockInventory");
+            ReturnPress();
 		}
 
 		// Unset block if right-clicked

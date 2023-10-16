@@ -9,11 +9,14 @@ public partial class saves_menu : CanvasLayer
 
 	ItemList SavesList;
 	SaveInfoContainer SaveContainer;
+	menus menus;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		Visible = false;
+
+		menus = GetParent<menus>();
 
 		(FindChild("DeleteWorldButton") as Button).Pressed += DeletePress;
 		(FindChild("LoadWorldButton") as Button).Pressed += LoadPress;
@@ -50,16 +53,16 @@ public partial class saves_menu : CanvasLayer
 
 	private void _GoToMenu(int menu)
 	{
-		EmitSignal(SignalName.SSwitchMenu, menu);
+		menus._SwitchMenu(menu);
 	}
 
 	private void _StartGame()
 	{
-		WorldLoader.LoadWorld(GetParent().FindChild("GameScene") as GameScene);
-		EmitSignal(SignalName.SSwitchMenu, 0);
-	}
+        menus._SwitchMenu(6);
+        WorldLoader.LoadWorld(menus.FindChild("GameScene") as GameScene);
+    }
 
-	private void DeletePress()
+    private void DeletePress()
 	{
 		WorldLoader.Delete(WorldLoader.CurrentSave);
 		SavesList.Update();

@@ -2,12 +2,15 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using static System.Formats.Asn1.AsnWriter;
 
 
-public static class WorldLoader
+public class WorldLoader
 {
 	public static List<WorldSave> Worlds { get; private set; } = FindWorlds();
 	public static WorldSave CurrentSave { get; private set; }
+
+	public static LoadingStage stage = LoadingStage.Done;
 
 	private static List<WorldSave> FindWorlds()
 	{
@@ -71,57 +74,86 @@ public static class WorldLoader
 	}
 
 	public static string ErrorMessage { get; private set; } = "";
+
+	/// <summary>
+	/// Starts world loading for GameScene scene.
+	/// </summary>
+	/// <param name="scene"></param>
 	public static void LoadWorld(GameScene scene)
 	{
-		ModelLoader.StartLoad("res://Assets/Models");
-		//Thread textureThread = TextureLoader.StartLoad("res://Assets/Images/Blocks");
+		if (stage != LoadingStage.Done)
+			return;
 
-		//modelThread.Join();
-		//textureThread.Join();
+		stage = LoadingStage.Started;
+		Thread thread = new Thread(RunLoad);
+		thread.Start(scene);
+    }
 
-		CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
-
-		if (!Worlds.Contains(CurrentSave))
-		{
-			WorldSave.Create(CurrentSave);
-			Worlds.Add(CurrentSave);
-		}
-
-		try
-		{
-			LoadSaveData(CurrentSave);
-		}
-		catch
-		{
-			ErrorMessage = "Unable to read save file!";
-		}
-		
-
-		foreach (var grid in CurrentSave.grids)
-			scene.SpawnPremadeGrid(grid);
-		
-		scene.SetPlayerData(CurrentSave.playerData);
-	}
-
+	/// <summary>
+	/// Saves world data to WorldSave save.
+	/// </summary>
+	/// <param name="save"></param>
+	/// <param name="jsonData"></param>
 	public static void SaveWorld(WorldSave save, string jsonData)
 	{
 		save.UpdateData(jsonData);
 		save.UpdateInfo(true);
 	}
 
+    private static void RunLoad(object sceneObj)
+    {
+        if (sceneObj is GameScene scene)
+        {
+			// Load models
+            Thread.Sleep(2000);
+            stage = LoadingStage.ModelLoad;
+            ModelLoader.StartLoad("res://Assets/Models");
 
+			// Load blocks
+            Thread.Sleep(2000);
+            stage = LoadingStage.BlockLoad;
+            CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
 
+			// Load save data
+            Thread.Sleep(2000);
+            stage = LoadingStage.DataLoad;
+            if (!Worlds.Contains(CurrentSave))
+            {
+                WorldSave.Create(CurrentSave);
+                Worlds.Add(CurrentSave);
+            }
 
+            try
+            {
+                LoadSaveData(CurrentSave);
+            }
+            catch
+            {
+                ErrorMessage = "Unable to read save file!";
+            }
 
+			// Spawn grids and players
+            Thread.Sleep(2000);
+            stage = LoadingStage.ObjectSpawn;
+            foreach (var grid in CurrentSave.grids)
+                scene.SpawnPremadeGrid(grid);
 
-	/// <summary>
-	/// Reads info.json of world located at <paramref name="path">.
-	/// </summary>
-	/// <param name="path"></param>
-	/// <returns></returns>
-	/// <exception cref="UriFormatException"></exception>
-	/// <exception cref="Exception"></exception>
-	private static WorldSave GetSaveInfo(string path)
+            scene.SetPlayerData(CurrentSave.playerData);
+
+			// Notify that loading is done
+            Thread.Sleep(2000);
+            stage = LoadingStage.Done;
+        }
+    }
+
+    /// <summary>
+    /// Reads info.json of world located at <paramref name="path">.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    /// <exception cref="UriFormatException"></exception>
+    /// <exception cref="Exception"></exception>
+    private static WorldSave GetSaveInfo(string path)
 	{
 		path = "user://Saves/" + path;
 
@@ -267,4 +299,14 @@ public static class WorldLoader
 
 		return name + (iterations > 0 ? $" ({iterations})" : "");
 	}
+}
+
+public enum LoadingStage
+{
+	Started,
+	ModelLoad,
+	BlockLoad,
+	DataLoad,
+	ObjectSpawn,
+    Done,
 }

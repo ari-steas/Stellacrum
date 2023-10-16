@@ -128,7 +128,7 @@ public partial class GameScene : Node3D
 
 	public void SpawnPremadeGrid(CubeGrid grid)
 	{
-		AddChild(grid);
+		CallDeferred("add_child", grid);
 		grids.Add(grid);
 
 		GD.Print("Spawned existing grid " + grid.Name + " @ " + grid.Position);

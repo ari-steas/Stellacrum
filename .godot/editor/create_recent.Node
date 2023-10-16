@@ -1,13 +1,13 @@
+Label
+CanvasLayer
 MeshInstance3D
 LineEdit
 TextureRect
 GridContainer
 Button
-CanvasLayer
 ScrollContainer
 HSlider
 CheckButton
-Label
 HBoxContainer
 VBoxContainer
 GPUParticles3D

@@ -1,5 +1,8 @@
+res://Data/MenuScenes/menus.tscn
 res://Data/GameSceneObjects/GameScene.tscn
 res://Data/GameSceneObjects/player_character.tscn
+res://Data/MenuScenes/LoadingScene/LoadingScene.tscn
+res://Data/MenuScenes/SaveMenu/saves_menu.tscn
 res://addons/debug_drawing/control/DebugDock.cs
 res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
@@ -17,6 +20,7 @@ res://Data/GameSceneObjects/PlaceBox.cs
 res://Data/GameSceneObjects/player_character.cs
 res://Data/MenuScenes/BlockMenu/BlockMenu.cs
 res://Data/MenuScenes/BlockMenu/DraggableItem.cs
+res://Data/MenuScenes/LoadingScene/LoadingScene.cs
 res://Data/MenuScenes/MainMenu/main_menu.cs
 res://Data/MenuScenes/MainMenu/MenuButtonPivot.cs
 res://Data/MenuScenes/menus.cs
