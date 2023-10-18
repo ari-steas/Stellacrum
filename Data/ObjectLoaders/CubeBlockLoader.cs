@@ -13,12 +13,18 @@ public class CubeBlockLoader
 	private static readonly Dictionary<string, Texture2D> CubeBlockTextures = new();
     private static Dictionary<string, Type> typeIds = new();
     private static Dictionary<string, Godot.Collections.Dictionary<string, Variant>> blockDefinitions = new();
+	private static readonly Dictionary<string, CubeBlock> baseBlocks = new();
 
     public static void StartLoad(string path)
 	{
 		GD.Print("\n\nStart CubeBlock load from " + path);
 
-		if (path[^1] != '/')
+        blockDefinitions.Clear();
+        baseBlocks.Clear();
+        typeIds.Clear();
+        CubeBlockTextures.Clear();
+
+        if (path[^1] != '/')
 			path += '/';
 
 		List<string> allDataFiles = FileHelper.FindFilesWithExtension(path, ".json", true);
@@ -59,9 +65,27 @@ public class CubeBlockLoader
 		else
 		{
 			GD.PrintErr("Missing CubeBlock " + id);
-			return DefinitionLoader("ArmorBlock");
+			return baseBlocks["ArmorBlock"];
 		}
 	}
+
+	/// <summary>
+	/// Returns a 'base' static CubeBlock. Primarily used in PlaceBox.cs
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	public static CubeBlock ExistingBaseFromId(string id)
+	{
+        if (typeIds.ContainsKey(id))
+        {
+            return baseBlocks[id];
+        }
+        else
+        {
+            GD.PrintErr("Missing CubeBlock " + id);
+            return DefinitionLoader("ArmorBlock");
+        }
+    }
 
 	// Don't want to copy the texture for every single cubeblock
 	public static Texture2D GetTexture(string subTypeId)
@@ -127,6 +151,8 @@ public class CubeBlockLoader
 			{
 				GD.PrintErr($"Type {type.Name} does not inherit CubeBlock!");
 			}
+
+			baseBlocks.Add(subTypeId, DefinitionLoader(subTypeId));
 		}
 	}
 

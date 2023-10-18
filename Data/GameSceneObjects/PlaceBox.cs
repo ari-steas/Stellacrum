@@ -60,7 +60,7 @@ public partial class PlaceBox : Node3D
 				RemoveChild(child);
 
 		// Pull mesh from CubeBlockLoader
-		foreach (var mesh in CubeBlockLoader.BaseFromId(subTypeId).meshes)
+		foreach (var mesh in CubeBlockLoader.ExistingBaseFromId(subTypeId).meshes)
 			AddChild(mesh.Duplicate());
 
 		// Make mesh semi-transparent
@@ -74,7 +74,7 @@ public partial class PlaceBox : Node3D
 		}
 
 		// Change ProjectMesh size to match block
-		CurrentSize = CubeBlockLoader.BaseFromId(CurrentBlockId).size;
+		CurrentSize = CubeBlockLoader.ExistingBaseFromId(CurrentBlockId).size;
         ProjectMesh.Scale = CurrentSize/2.5f;
 
         GD.Print("Set held block to " + subTypeId);

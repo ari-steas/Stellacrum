@@ -77,7 +77,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlock(RayCast3D ray, Vector3 rotation, string blockId)
 	{
-		AddBlock(PlaceProjectionGlobal(ray, CubeBlockLoader.BaseFromId(blockId).size), rotation, blockId);
+		AddBlock(PlaceProjectionGlobal(ray, CubeBlockLoader.ExistingBaseFromId(blockId).size), rotation, blockId);
 	}
 
 	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blocKid)
