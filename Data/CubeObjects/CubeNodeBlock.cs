@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Godot.XmlParser;
 
 namespace Stellacrum.Data.CubeObjects
 {
@@ -13,16 +14,15 @@ namespace Stellacrum.Data.CubeObjects
     {
         private readonly Dictionary<string, List<Node3D>> connectorNodes = new();
         private Dictionary<string, List<CubeBlock>> connectedBlocks = new();
-        private Dictionary<string, GridTreeStructure> memberStructures = new();
 
         public CubeNodeBlock() { }
         public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
         {
             foreach (Node3D child in GetChildren())
             {
-                if (child.Name.ToString().StartsWith("CNode"))
+                if (child.Name.ToString().StartsWith("CNode_"))
                 {
-                    string type = child.Name.ToString().Substring(5);
+                    string type = child.Name.ToString().Substring(6);
                     if (connectorNodes.ContainsKey(type))
                         connectorNodes[type].Add(child);
                     else
@@ -43,12 +43,23 @@ namespace Stellacrum.Data.CubeObjects
             return new();
         }
 
+        public GridTreeStructure GetMemberStructure(string type)
+        {
+            if (MemberStructures.ContainsKey(type) && MemberStructures[type] is GridTreeStructure treeStructure)
+                return treeStructure;
+
+            return null;
+        }
+
         public Dictionary<string, List<Node3D>> GetNodes()
         {
             return connectorNodes;
         }
 
-        private void GetAllConnectedBlocks()
+        /// <summary>
+        /// Scans for connected blocks.
+        /// </summary>
+        private void CheckAllConnectedBlocks()
         {
             CubeGrid grid = GetParent() as CubeGrid;
             Vector3 halfSize = size / 2;
@@ -56,7 +67,7 @@ namespace Stellacrum.Data.CubeObjects
             {
                 foreach (var node in typePair.Value)
                 {
-                    Vector3 checkPos = Vector3.Zero;
+                    Vector3 checkPos = node.Position;
                     
                     // Offset the check position towards the block in front of the node
                     if (node.Position.X == halfSize.X)
@@ -73,13 +84,18 @@ namespace Stellacrum.Data.CubeObjects
                         checkPos.Z += 1.25f;
                     else if (node.Position.Z == -halfSize.Z)
                         checkPos.Z -= 1.25f;
+                    else
+                    {
+                        GD.PrintErr($"Node {node.Name} not aligned with block!");
+                    }
 
                     // Rotate to account for block rotation
                     checkPos *= Basis;
 
                     checkPos += Position;
                     CubeBlock adajent = grid.BlockAt(grid.LocalToGridCoordinates(checkPos));
-                    if (adajent == null) continue;
+                    GD.Print("\n\n");
+                    if (adajent == null || adajent == this) continue;
 
                     if (adajent is CubeNodeBlock adajentNode)
                     {
@@ -92,20 +108,28 @@ namespace Stellacrum.Data.CubeObjects
                         foreach (var aNode in adajentNode.connectorNodes[typePair.Key])
                         {
                             // Check if node positions line up
-                            if (!aNode.GlobalPosition.Equals(node.Position))
+                            if (!AccurateToOne(aNode.GlobalPosition, node.GlobalPosition))
                                 continue;
 
-                            // TODO check for existing structures. if one exists, join. if already in one, merge.
+                            // Check for existing structures. if one exists, join. if already in one, merge.
 
+                            // TODO check if this already has structure, if true merge
+
+                            GridTreeStructure adajentStructure = aNode.GetParent<CubeNodeBlock>().GetMemberStructure(typePair.Key);
+                            if (adajentStructure == null)
+                                continue;
+                            adajentStructure.AddStructureBlock(this);
+                            GD.Print("Joined structure!");
                         }
                     }
                 }
 
-                // TODO correct structure types... register with static gridnodestructure?
-                if (!memberStructures.ContainsKey(typePair.Key))
+                // Create new structure if none could be found
+                if (!MemberStructures.ContainsKey(typePair.Key))
                 {
-                    memberStructures.Add(typePair.Key, (GridTreeStructure) GridMultiBlockStructure.New(typePair.Key, new List<CubeBlock> { this }));
-                    memberStructures[typePair.Key]?.Init();
+                    GD.Print("Searching for structure of type " + typePair.Key);
+                    GridTreeStructure structure = (GridTreeStructure) GridMultiBlockStructure.New(typePair.Key, new List<CubeBlock> { this });
+                    structure?.Init();
                 }
             }
         }
@@ -113,7 +137,13 @@ namespace Stellacrum.Data.CubeObjects
         public override void OnPlace()
         {
             base.OnPlace();
-            GetAllConnectedBlocks();
+            CheckAllConnectedBlocks();
+        }
+
+        private bool AccurateToOne(Vector3 a, Vector3 b)
+        {
+            Vector3 c = Vector3.One * 0.1f;
+            return a.Snapped(c).IsEqualApprox(b.Snapped(c));
         }
     }
 }

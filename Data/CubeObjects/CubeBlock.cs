@@ -1,5 +1,6 @@
 using Godot;
 using Stellacrum.Data.CubeGridHelpers;
+using Stellacrum.Data.CubeGridHelpers.MultiBlockStructures;
 using System;
 using System.Collections.Generic;
 
@@ -9,11 +10,11 @@ public partial class CubeBlock : StaticBody3D
 	public uint collisionId = 0;
 	public List<Node3D> meshes;
 	public string subTypeId = "";
-	public Vector3 size = Vector3.One*2.5f;
+	public Vector3 size = Vector3.One * 2.5f;
 	public int Mass = 100;
 
-    public CubeBlock() { }
-    public List<GridMultiBlockStructure> Structures { get; private set; } = new List<GridMultiBlockStructure>();
+	public CubeBlock() { }
+	public Dictionary<string, GridMultiBlockStructure> MemberStructures { get; private set; } = new();
 
     public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 	{
@@ -96,8 +97,8 @@ public partial class CubeBlock : StaticBody3D
 
 	public virtual void Close()
 	{
-		foreach (var structure in Structures)
-			structure.RemoveStructureBlock(this);
+		foreach (var structure in MemberStructures.Values)
+			structure.CallDeferred("RemoveStructureBlock", this);
 	}
 
 	public virtual Godot.Collections.Dictionary<string, Variant> Save()

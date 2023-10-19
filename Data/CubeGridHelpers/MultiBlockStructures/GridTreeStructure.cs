@@ -12,6 +12,9 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
     /// </summary>
     public partial class GridTreeStructure : GridMultiBlockStructure
     {
+        public new const string StructureName = "Tree";
+        public override string GetStructureName() => StructureName;
+
         public GridTreeStructure(List<CubeBlock> StructureBlocks) : base(StructureBlocks)
         {
         }
@@ -46,7 +49,6 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         public override void Init()
         {
             base.Init();
-            AddStructureType("tree", GetType());
         }
     }
 }

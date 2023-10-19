@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.CubeGridHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,8 @@ public class CubeBlockLoader
         baseBlocks.Clear();
         typeIds.Clear();
         CubeBlockTextures.Clear();
+
+		GridMultiBlockStructure.FindStructureTypes();
 
         if (path[^1] != '/')
 			path += '/';

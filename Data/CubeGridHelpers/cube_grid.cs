@@ -109,6 +109,9 @@ public partial class CubeGrid : RigidBody3D
 		OccupiedBlocks.AddRange(blockPositions);
 
         block.Position = (Vector3)position_GridLocal * 2.5f;
+		// If this is called when there are zero blocks (i.e. this is first block on grid), Global values throw an error (as they don't exist yet)
+		if (CubeBlocks.Count > 1)
+			block.GlobalRotation = rotation;
 
         block.collisionId = CreateShapeOwner(this);
         ShapeOwnerAddShape(block.collisionId, block.collision);
@@ -156,9 +159,7 @@ public partial class CubeGrid : RigidBody3D
 
         }
 
-        // Do this last so that it has time to get added to the scenetree
-        block.GlobalRotation = rotation;
-		block.OnPlace();
+		block.CallDeferred("OnPlace");
     }
 
     /// <summary>

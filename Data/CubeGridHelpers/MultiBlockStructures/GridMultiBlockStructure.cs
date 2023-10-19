@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Godot;
 using Stellacrum.Data.CubeGridHelpers.MultiBlockStructures;
 
 namespace Stellacrum.Data.CubeGridHelpers
 {
     /// <summary>
-    /// Base class for a multi-block structure.
+    /// Base class for a multi-block structure. Requires a set static StructureName.
     /// </summary>
     public abstract partial class GridMultiBlockStructure : Node
     {
         private static protected Dictionary<string, Type> StructureTypeMap = new();
+
+        public const string StructureName = "MultiBlock";
+        public virtual string GetStructureName() => StructureName;
 
         /// <summary>
         /// Add reference for new structure type
@@ -28,6 +33,12 @@ namespace Stellacrum.Data.CubeGridHelpers
             return StructureTypeMap[name];
         }
 
+        /// <summary>
+        /// Create new GridMultiBlockStructure of type [type] with contents [blocks].
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
         public static GridMultiBlockStructure New(string type, List<CubeBlock> blocks)
         {
             if (!StructureTypeMap.ContainsKey(type))
@@ -40,10 +51,31 @@ namespace Stellacrum.Data.CubeGridHelpers
             return structure;
         }
 
+        /// <summary>
+        /// Create new GridMultiBlockStructure of type [type].
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
         public static GridMultiBlockStructure New(string type)
         {
             return New(type, new());
         }
+
+        /// <summary>
+        /// Register all structure classes for later use.
+        /// </summary>
+        public static void FindStructureTypes()
+        {
+            List<Type> allTypes = ReflectiveEnumerator.GetEnumerableOfType<GridMultiBlockStructure>();
+            foreach (var type in allTypes)
+                if (type.GetFields()[0].GetValue(null) is string structureName)
+                    StructureTypeMap.Add(structureName, type);
+        }
+
+
+
+
 
 
         protected List<CubeBlock> StructureBlocks = new();
@@ -52,8 +84,6 @@ namespace Stellacrum.Data.CubeGridHelpers
         {
             foreach (var block in StructureBlocks)
                 AddStructureBlock(block);
-
-            
         }
 
         public List<CubeBlock> GetStructureBlocks() { return this.StructureBlocks; }
@@ -84,7 +114,7 @@ namespace Stellacrum.Data.CubeGridHelpers
             if (block != null && !this.StructureBlocks.Contains(block))
             {
                 this.StructureBlocks.Add(block);
-                block.Structures.Add(this);
+                block.MemberStructures.Add(GetStructureName(), this);
             }
         }
 
@@ -94,7 +124,9 @@ namespace Stellacrum.Data.CubeGridHelpers
             {
                 this.StructureBlocks.Remove(block);
                 if (block != null)
-                    block.Structures.Remove(this);
+                {
+                    block.MemberStructures.Remove(StructureName);
+                }
             }
 
             if (this.StructureBlocks.Count == 0)

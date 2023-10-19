@@ -9,7 +9,8 @@ res://addons/debug_drawing/DebugDrawingPlugin.cs
 res://addons/debug_drawing/demo/DemoDrawTarget.cs
 res://addons/debug_drawing/demo/DrawDemo.cs
 res://Data/CubeGridHelpers/MultiBlockStructures/GridMultiBlockStructure.cs
-res://Data/CubeGridHelpers/MultiBlockStructures/GridNodeStructure.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridPowerStructure.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridTreeStructure.cs
 res://Data/CubeObjects/CockpitBlock.cs
 res://Data/CubeObjects/CubeBlock.cs
 res://Data/CubeObjects/CubeNodeBlock.cs
@@ -29,5 +30,3 @@ res://Data/MenuScenes/PauseMenu/PauseMenu.cs
 res://Data/MenuScenes/SaveMenu/ItemList.cs
 res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
-res://Data/CubeGridHelpers/MultiBlockStructures/GridPowerStructure.cs
-res://Data/CubeGridHelpers/MultiBlockStructures/GridTreeStructure.cs
