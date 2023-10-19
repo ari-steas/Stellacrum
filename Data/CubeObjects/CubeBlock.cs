@@ -64,60 +64,7 @@ public partial class CubeBlock : StaticBody3D
         Name = "CubeBlock." + subTypeId + "." + GetIndex();
     }
 
-    //public virtual CubeBlock Init(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
-	//{
-	//	List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
-	//	Vector3 size = Vector3.One*2.5f;
-	//	int mass = 100;
-	//
-	//	// Load model from ModelLoader
-	//	if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string) blockData["Model"]))
-	//		model = ModelLoader.Models[(string) blockData["Model"]];
-	//	else
-	//		GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
-	//
-	//	// Calc BlockSize
-	//	try
-	//	{
-	//		int[] bSize = blockData["BlockSize"].AsInt32Array();
-	//		size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
-	//	}
-	//	catch {
-	//		GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
-	//	}
-	//
-	//	try
-	//	{
-	//		mass = blockData["Mass"].AsInt32();
-	//	}
-	//	catch {
-	//		GD.PrintErr($"Missing [Mass] in {subTypeId}! Setting to default...");
-	//	}
-	//
-	//	return new (subTypeId, model, size)
-	//	{
-	//		Mass = mass
-	//	};
-	//}
-	
-	private CubeBlock(string subTypeId, List<Node3D> model, Vector3 size)
-	{
-		this.meshes = model;
-		this.size = size;
-		this.subTypeId = subTypeId;
-
-		collision = new BoxShape3D()
-		{
-			Size = size
-		};
-
-		foreach (Node3D mesh in model)
-			AddChild(mesh.Duplicate());
-
-		Name = "CubeBlock." + subTypeId + "." + GetIndex();
-	}
-
-	public Aabb Size(Vector3I position)
+    public Aabb Size(Vector3I position)
 	{
 		// Offset position to bottom-left corner
 		position -= (Vector3I) (this.size / 5f);
@@ -163,5 +110,10 @@ public partial class CubeBlock : StaticBody3D
 		};
 
 		return data;
+	}
+
+	public virtual void OnPlace()
+	{
+
 	}
 }

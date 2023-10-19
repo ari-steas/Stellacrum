@@ -29,3 +29,5 @@ res://Data/MenuScenes/PauseMenu/PauseMenu.cs
 res://Data/MenuScenes/SaveMenu/ItemList.cs
 res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridPowerStructure.cs
+res://Data/CubeGridHelpers/MultiBlockStructures/GridTreeStructure.cs

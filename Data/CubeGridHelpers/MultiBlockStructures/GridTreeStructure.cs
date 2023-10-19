@@ -10,10 +10,16 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
     /// <summary>
     /// Base class for a 'branching' multiblock structure; i.e. inventory or power.
     /// </summary>
-    public partial class GridNodeStructure : GridMultiBlockStructure
+    public partial class GridTreeStructure : GridMultiBlockStructure
     {
-        public GridNodeStructure(List<CubeBlock> StructureBlocks) : base(StructureBlocks)
+        public GridTreeStructure(List<CubeBlock> StructureBlocks) : base(StructureBlocks)
         {
+        }
+
+        public override void AddStructureBlock(CubeBlock block)
+        {
+            base.AddStructureBlock(block);
+            GD.Print("Structure added block " + block.Name);
         }
 
         public override void Update()
@@ -35,6 +41,12 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         public static void CheckConnection(CubeBlock block)
         {
 
+        }
+
+        public override void Init()
+        {
+            base.Init();
+            AddStructureType("tree", GetType());
         }
     }
 }

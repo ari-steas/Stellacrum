@@ -158,6 +158,7 @@ public partial class CubeGrid : RigidBody3D
 
         // Do this last so that it has time to get added to the scenetree
         block.GlobalRotation = rotation;
+		block.OnPlace();
     }
 
     /// <summary>
@@ -191,6 +192,8 @@ public partial class CubeGrid : RigidBody3D
             Cockpits.Add(c);
         if (block is ThrusterBlock t)
             ThrusterBlocks.Add(t);
+
+        block.OnPlace();
     }
 
     public void RemoveBlock(RayCast3D ray)
