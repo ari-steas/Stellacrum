@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Stellacrum.Data.CubeObjects;
 using FileAccess = Godot.FileAccess;
 
 public class CubeBlockLoader
@@ -135,11 +136,17 @@ public class CubeBlockLoader
 			try
 			{
 				Assembly asm = typeof(CubeBlock).Assembly;
-				type = asm.GetType((string) blockData["TypeId"]);
+				type = asm.GetType("Stellacrum.Data.CubeObjects." + (string) blockData["TypeId"]);
 			}
 			catch
 			{
 				GD.PrintErr($"Missing [Type] in {path}! Setting to default...");
+			}
+
+			if (type == null)
+			{
+				GD.PrintErr($"{subTypeId}'s Type ({blockData["TypeId"]}) is null!");
+				continue;
 			}
 			
 			if (type == typeof(CubeBlock) || type.IsSubclassOf(typeof(CubeBlock)))

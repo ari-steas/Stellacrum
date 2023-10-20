@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Stellacrum.Data.CubeObjects;
 
 public partial class CubeGrid : RigidBody3D
 {
@@ -194,7 +195,7 @@ public partial class CubeGrid : RigidBody3D
         if (block is ThrusterBlock t)
             ThrusterBlocks.Add(t);
 
-        block.OnPlace();
+        block.CallDeferred("OnPlace");
     }
 
     public void RemoveBlock(RayCast3D ray)

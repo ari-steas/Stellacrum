@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.CubeGridHelpers;
 using System;
 using System.Collections.Generic;
 
@@ -257,7 +258,10 @@ public partial class GameScene : Node3D
 		grids.Clear();
 		GD.Print("Closed all grids in GameScene.");
 
-		playerCharacter = null;
+        GridMultiBlockStructure.ClearStructureTypes();
+        GD.Print("Closed all GridMultiBlockStructures.");
+
+        playerCharacter = null;
 		GD.Print("Closed player in GameScene.\nFinished closing!\n\n");
 
 		GetTree().ReloadCurrentScene();

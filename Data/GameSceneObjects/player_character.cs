@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Runtime.CompilerServices;
+using Stellacrum.Data.CubeObjects;
 
 public partial class player_character : CharacterBody3D
 {

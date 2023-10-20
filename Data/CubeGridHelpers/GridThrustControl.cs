@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using Stellacrum.Data.CubeObjects;
 
 public class GridThrustControl
 {

@@ -18,21 +18,33 @@ namespace Stellacrum.Data.CubeObjects
         public CubeNodeBlock() { }
         public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
         {
-            foreach (Node3D child in GetChildren())
+            foreach (Node3D child in FindChildren("CNode_*", owned:false))
             {
-                if (child.Name.ToString().StartsWith("CNode_"))
-                {
-                    string type = child.Name.ToString().Substring(6);
-                    if (connectorNodes.ContainsKey(type))
-                        connectorNodes[type].Add(child);
-                    else
-                        connectorNodes.Add(type, new List<Node3D> { child });
-                }
+                string type = child.Name.ToString()[6..];
+                
+                int idx = type.IndexOf('.');
+                if (idx != -1)
+                    type = type[..idx];
+                idx = type.IndexOf('_');
+                if (idx != -1)
+                    type = type[..idx];
+                
+                if (connectorNodes.ContainsKey(type))
+                    connectorNodes[type].Add(child);
+                else
+                    connectorNodes.Add(type, new List<Node3D> { child });
             }
         }
 
+        public override void _Process(double delta)
+        {
+            foreach (var nodeL in connectorNodes.Values)
+                foreach (var node in nodeL)
+                    DebugDraw.Point(node.GlobalPosition, 0.5f, Colors.Turquoise);
+        }
+
         /// <summary>
-        /// Gets adajent connected blocks. Nodes must overlap. Node types are formatted as: CNode_[name]
+        /// Gets adajent connected blocks. Nodes must overlap. Node types are formatted as: CNode_[name]_[num]
         /// </summary>
         /// <param name="nodeType"></param>
         public List<CubeBlock> GetConnectedBlocks(string nodeType)
@@ -65,8 +77,10 @@ namespace Stellacrum.Data.CubeObjects
             Vector3 halfSize = size / 2;
             foreach (var typePair in connectorNodes)
             {
+                bool joinedType = false;
                 foreach (var node in typePair.Value)
                 {
+                    node.Position = node.Position.Snapped(Vector3.One / 100);
                     Vector3 checkPos = node.Position;
                     
                     // Offset the check position towards the block in front of the node
@@ -87,45 +101,73 @@ namespace Stellacrum.Data.CubeObjects
                     else
                     {
                         GD.PrintErr($"Node {node.Name} not aligned with block!");
+                        GD.PrintErr("Position: " + node.Position + "/" + halfSize);
                     }
 
                     // Rotate to account for block rotation
-                    checkPos *= Basis;
+                    checkPos = ToGlobal(checkPos);
+                    //checkPos *= Basis;
 
-                    checkPos += Position;
-                    CubeBlock adajent = grid.BlockAt(grid.LocalToGridCoordinates(checkPos));
-                    GD.Print("\n\n");
-                    if (adajent == null || adajent == this) continue;
+                    //checkPos += Position;
+                    CubeBlock adajent = grid.BlockAt(grid.GlobalToGridCoordinates(checkPos));
+                    DebugDraw.Point(grid.GridToGlobalPosition(grid.GlobalToGridCoordinates(checkPos)), 0.5f, Colors.Red, 1f);
 
-                    if (adajent is CubeNodeBlock adajentNode)
+                    GD.Print("\n");
+                    if (adajent == null || adajent == this)
+                    {
+                        GD.Print("Adajent is null or self");
+                        continue;
+                    }
+
+                    if (adajent is CubeNodeBlock adajentNodeBlock)
                     {
                         // Check every node of same type on adajent block. Hopefully doesn't have that big of a performance impact?
 
                         // Make sure the connection node types match up, ofc
-                        if (!adajentNode.connectorNodes.ContainsKey(typePair.Key))
+                        if (!adajentNodeBlock.connectorNodes.ContainsKey(typePair.Key))
+                        {
+                            GD.Print("Types don't match up");
                             return;
+                        }
 
-                        foreach (var aNode in adajentNode.connectorNodes[typePair.Key])
+                        foreach (var aNode in adajentNodeBlock.connectorNodes[typePair.Key])
                         {
                             // Check if node positions line up
                             if (!AccurateToOne(aNode.GlobalPosition, node.GlobalPosition))
+                            {
+                                GD.Print("Positions don't line up");
                                 continue;
+                            }
 
                             // Check for existing structures. if one exists, join. if already in one, merge.
+                            GridTreeStructure adajentStructure = adajentNodeBlock.GetMemberStructure(typePair.Key);
+                            if (adajentStructure == null)
+                            {
+                                GD.Print("Null adajentStructure");
+                                continue;
+                            }
 
                             // TODO check if this already has structure, if true merge
-
-                            GridTreeStructure adajentStructure = aNode.GetParent<CubeNodeBlock>().GetMemberStructure(typePair.Key);
-                            if (adajentStructure == null)
-                                continue;
-                            adajentStructure.AddStructureBlock(this);
-                            GD.Print("Joined structure!");
+                            if (MemberStructures.ContainsKey(typePair.Key))
+                            {
+                                // Merge structures
+                                joinedType = MemberStructures[typePair.Key].Merge(adajentStructure);
+                                GD.Print("Merge attempt");
+                            }
+                            else
+                            {
+                                // Join existing structure
+                                adajentStructure.AddStructureBlock(this);
+                                joinedType = true;
+                                GD.Print("Joined structure!");
+                            }
                         }
                     }
+                    else { GD.Print("Not a CubeNodeBlock");  }
                 }
 
                 // Create new structure if none could be found
-                if (!MemberStructures.ContainsKey(typePair.Key))
+                if (!joinedType)
                 {
                     GD.Print("Searching for structure of type " + typePair.Key);
                     GridTreeStructure structure = (GridTreeStructure) GridMultiBlockStructure.New(typePair.Key, new List<CubeBlock> { this });
@@ -137,7 +179,7 @@ namespace Stellacrum.Data.CubeObjects
         public override void OnPlace()
         {
             base.OnPlace();
-            CheckAllConnectedBlocks();
+            CallDeferred("CheckAllConnectedBlocks");
         }
 
         private bool AccurateToOne(Vector3 a, Vector3 b)

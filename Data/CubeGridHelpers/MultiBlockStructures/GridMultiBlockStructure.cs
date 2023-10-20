@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 using Stellacrum.Data.CubeGridHelpers.MultiBlockStructures;
+using Stellacrum.Data.CubeObjects;
 
 namespace Stellacrum.Data.CubeGridHelpers
 {
@@ -73,6 +74,11 @@ namespace Stellacrum.Data.CubeGridHelpers
                     StructureTypeMap.Add(structureName, type);
         }
 
+        public static void ClearStructureTypes()
+        {
+            StructureTypeMap.Clear();
+        }
+
 
 
 
@@ -95,13 +101,13 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// <returns></returns>
         public virtual bool Merge(GridTreeStructure structure)
         {
-            if (structure.GetType() != GetType())
+            if (structure.GetType() != GetType() || structure == this)
                 return false;
 
             foreach (CubeBlock block in structure.StructureBlocks)
             {
-                AddStructureBlock(block);
-                structure.RemoveStructureBlock(block);
+                CallDeferred("AddStructureBlock", block);
+                structure.CallDeferred("RemoveStructureBlock", block);
             }
 
             structure.Destroy();
@@ -111,15 +117,22 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public virtual void AddStructureBlock(CubeBlock block)
         {
+            if (IsQueuedForDeletion())
+                return;
+
             if (block != null && !this.StructureBlocks.Contains(block))
             {
                 this.StructureBlocks.Add(block);
+                block.MemberStructures.Remove(GetStructureName());
                 block.MemberStructures.Add(GetStructureName(), this);
             }
         }
 
         public virtual void RemoveStructureBlock(CubeBlock block)
         {
+            if (IsQueuedForDeletion())
+                return;
+
             if (this.StructureBlocks.Contains(block))
             {
                 this.StructureBlocks.Remove(block);

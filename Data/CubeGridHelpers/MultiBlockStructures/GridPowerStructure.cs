@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Stellacrum.Data.CubeObjects;
 
 namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
 {
@@ -23,7 +24,7 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         {
             base.Update();
             foreach (var block in StructureBlocks)
-                DebugDraw.Text3D("Power", block.GlobalPosition);
+                DebugDraw.Text3D(Name, block.GlobalPosition);
         }
 
         public override void Init()
