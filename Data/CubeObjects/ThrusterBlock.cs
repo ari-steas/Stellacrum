@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace Stellacrum.Data.CubeObjects
 {
-	public partial class ThrusterBlock : CubeNodeBlock
+	public partial class ThrusterBlock : CubeNodeBlock, IResourceConsumer
 	{
 		CubeGrid parent;
-		public float ThrustPercent { get; private set; } = 0;
-		public float MaximumThrust { get; private set; } = 0;
+		public float ThrustPercent = 0;
+		public float MaximumThrust = 0;
 		public bool Dampen = true;
 		//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 		private Node3D thrustNode;
@@ -19,14 +19,7 @@ namespace Stellacrum.Data.CubeObjects
 
 		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
 		{
-			try
-			{
-				MaximumThrust = blockData["ThrusterStrength"].As<float>();
-			}
-			catch
-			{
-				GD.PrintErr($"Missing [ThrusterStrength] in {subTypeId}! Setting to default...");
-			}
+			ReadFromData(blockData, "ThrusterStrength", ref MaximumThrust);
 
 			// ThrustNode shows where particles should be emitted
 			foreach (var node in meshes)
@@ -48,6 +41,7 @@ namespace Stellacrum.Data.CubeObjects
 
 		public override void _Ready()
 		{
+			base._Ready();
 			parent = GetParent<CubeGrid>();
 			particles = new()
 			{
@@ -66,13 +60,15 @@ namespace Stellacrum.Data.CubeObjects
 		Vector3 angularDesired = Vector3.Zero;
 		Vector3 linearDesired = Vector3.Zero;
 
+        public float CurrentRate => throw new NotImplementedException();
 
-		public override void _Process(double delta)
-		{
-		}
+        public float MaxRate => throw new NotImplementedException();
 
-		public override void _PhysicsProcess(double delta)
+        public float MinRate => throw new NotImplementedException();
+
+        public override void _PhysicsProcess(double delta)
 		{
+			base._PhysicsProcess(delta);
 			if (Dampen)
 			{
 				//SetThrustPercent(AngularControl());

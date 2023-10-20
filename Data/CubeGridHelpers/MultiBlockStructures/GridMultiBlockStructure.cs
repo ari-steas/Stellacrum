@@ -58,10 +58,7 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// <param name="type"></param>
         /// <param name="blocks"></param>
         /// <returns></returns>
-        public static GridMultiBlockStructure New(string type)
-        {
-            return New(type, new());
-        }
+        public static GridMultiBlockStructure New(string type) => New(type, new());
 
         /// <summary>
         /// Register all structure classes for later use.
@@ -74,14 +71,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                     StructureTypeMap.Add(structureName, type);
         }
 
-        public static void ClearStructureTypes()
-        {
-            StructureTypeMap.Clear();
-        }
-
-
-
-
+        public static void ClearStructureTypes() => StructureTypeMap.Clear();
 
 
         protected List<CubeBlock> StructureBlocks = new();
@@ -92,7 +82,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                 AddStructureBlock(block);
         }
 
-        public List<CubeBlock> GetStructureBlocks() { return this.StructureBlocks; }
+        public List<CubeBlock> GetStructureBlocks() => StructureBlocks;
 
         /// <summary>
         /// Combines a structure into this one.
@@ -120,11 +110,10 @@ namespace Stellacrum.Data.CubeGridHelpers
             if (IsQueuedForDeletion())
                 return;
 
-            if (block != null && !this.StructureBlocks.Contains(block))
+            if (block != null && !StructureBlocks.Contains(block))
             {
-                this.StructureBlocks.Add(block);
-                block.MemberStructures.Remove(GetStructureName());
-                block.MemberStructures.Add(GetStructureName(), this);
+                StructureBlocks.Add(block);
+                block.AddStructureRef(GetStructureName(), this);
             }
         }
 
@@ -133,21 +122,18 @@ namespace Stellacrum.Data.CubeGridHelpers
             if (IsQueuedForDeletion())
                 return;
 
-            if (this.StructureBlocks.Contains(block))
+            if (StructureBlocks.Contains(block))
             {
-                this.StructureBlocks.Remove(block);
-                if (block != null)
-                {
-                    block.MemberStructures.Remove(StructureName);
-                }
+                StructureBlocks.Remove(block);
+                block?.RemoveStructureRef(StructureName);
             }
 
-            if (this.StructureBlocks.Count == 0)
+            if (StructureBlocks.Count == 0)
                 Destroy();
         }
 
         private long updateCounter = 0;
-        public override void _Process(double delta)
+        public override void _PhysicsProcess(double delta)
         {
             updateCounter++;
             Update();
@@ -185,7 +171,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                 GD.PrintErr("Failed to remove structure parent! Was this the last block?");
             }
             StructureBlocks = null;
-            this.QueueFree();
+            QueueFree();
         }
     }
 }

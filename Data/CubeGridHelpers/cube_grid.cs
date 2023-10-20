@@ -159,8 +159,6 @@ public partial class CubeGrid : RigidBody3D
         {
 
         }
-
-		block.CallDeferred("OnPlace");
     }
 
     /// <summary>
@@ -194,8 +192,6 @@ public partial class CubeGrid : RigidBody3D
             Cockpits.Add(c);
         if (block is ThrusterBlock t)
             ThrusterBlocks.Add(t);
-
-        block.CallDeferred("OnPlace");
     }
 
     public void RemoveBlock(RayCast3D ray)

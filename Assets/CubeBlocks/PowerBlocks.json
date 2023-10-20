@@ -24,5 +24,16 @@
 		"TypeId":"PowerConduit",
 
 		"Mass":50
+	},
+
+	"SmallBatteryBlock":{
+		"Model":"SmallBatteryBlock",
+		"BlockSize":[1, 1, 1],
+		"Icon":"SmallBatteryBlock.png",
+		"TypeId":"GeneratorBlock",
+
+		"MaxOutput":10,
+
+		"Mass":500
 	}
 }

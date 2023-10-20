@@ -16,7 +16,7 @@ namespace Stellacrum.Data.CubeObjects
 		public int Mass = 100;
 
 		public CubeBlock() { }
-		public Dictionary<string, GridMultiBlockStructure> MemberStructures { get; private set; } = new();
+		protected Dictionary<string, GridMultiBlockStructure> MemberStructures { get; private set; } = new();
 
 		public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 		{
@@ -67,7 +67,35 @@ namespace Stellacrum.Data.CubeObjects
 			Name = "CubeBlock." + subTypeId + "." + GetIndex();
 		}
 
-		public Aabb Size(Vector3I position)
+        public override void _Ready()
+        {
+            base._Ready();
+			OnPlace();
+        }
+
+        /// <summary>
+        /// Adds structure reference. DOES NOT ADD TO STRUCTURE ITSELF!
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="structure"></param>
+        public virtual void AddStructureRef(string type, GridMultiBlockStructure structure)
+		{
+			if (MemberStructures.ContainsKey(type))
+				MemberStructures.Remove(type);
+			MemberStructures.Add(type, structure);
+		}
+
+		/// <summary>
+		/// Removes structure reference. DOES NOT REMOVE FROM STRUCTURE ITSELF
+		/// </summary>
+		/// <param name="type"></param>
+        public virtual void RemoveStructureRef(string type)
+        {
+            if (MemberStructures.ContainsKey(type))
+                MemberStructures.Remove(type);
+        }
+
+        public Aabb Size(Vector3I position)
 		{
 			// Offset position to bottom-left corner
 			position -= (Vector3I) (this.size / 5f);
@@ -119,5 +147,13 @@ namespace Stellacrum.Data.CubeObjects
 		{
 
 		}
-	}
+
+		protected static void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable)
+		{
+			if (blockData.ContainsKey(dataKey))
+                variable = blockData[dataKey].As<T>();
+            else
+                GD.PrintErr($"Missing CubeBlock data [{dataKey}]! Setting to default...");
+        }
+    }
 }

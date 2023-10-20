@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxu1jbo43eiwv"
-path="res://.godot/imported/ArmorBlock1x1SlopeCornerInv.png-f929f5281e96900c5b6e4f3abf127709.ctex"
+uid="uid://bv3iooit0t0wx"
+path="res://.godot/imported/SmallBatteryBlock.png-bd1dd9cf7b37b81bcdc624b3d859bca7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Images/Blocks/ArmorBlock1x1SlopeCornerInv.png"
-dest_files=["res://.godot/imported/ArmorBlock1x1SlopeCornerInv.png-f929f5281e96900c5b6e4f3abf127709.ctex"]
+source_file="res://Assets/Images/Blocks/Power/SmallBatteryBlock.png"
+dest_files=["res://.godot/imported/SmallBatteryBlock.png-bd1dd9cf7b37b81bcdc624b3d859bca7.ctex"]
 
 [params]
 

@@ -18,22 +18,30 @@ namespace Stellacrum.Data.CubeObjects
         public CubeNodeBlock() { }
         public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
         {
-            foreach (Node3D child in FindChildren("CNode_*", owned:false))
-            {
-                string type = child.Name.ToString()[6..];
-                
-                int idx = type.IndexOf('.');
-                if (idx != -1)
-                    type = type[..idx];
-                idx = type.IndexOf('_');
-                if (idx != -1)
-                    type = type[..idx];
-                
-                if (connectorNodes.ContainsKey(type))
-                    connectorNodes[type].Add(child);
-                else
-                    connectorNodes.Add(type, new List<Node3D> { child });
-            }
+            foreach (Node node in FindChildren("CNode_*", owned: false))
+                if (node is Node3D child)
+                    CheckNode(child);
+
+            foreach (Node node in FindChildren("CNode_*", owned: true))
+                if (node is Node3D child)
+                    CheckNode(child);
+        }
+
+        private void CheckNode(Node3D child)
+        {
+            string type = child.Name.ToString()[6..];
+
+            int idx = type.IndexOf('.');
+            if (idx != -1)
+                type = type[..idx];
+            idx = type.IndexOf('_');
+            if (idx != -1)
+                type = type[..idx];
+
+            if (connectorNodes.ContainsKey(type))
+                connectorNodes[type].Add(child);
+            else
+                connectorNodes.Add(type, new List<Node3D> { child });
         }
 
         public override void _Process(double delta)
@@ -151,7 +159,7 @@ namespace Stellacrum.Data.CubeObjects
                             if (MemberStructures.ContainsKey(typePair.Key))
                             {
                                 // Merge structures
-                                joinedType = MemberStructures[typePair.Key].Merge(adajentStructure);
+                                joinedType |= MemberStructures[typePair.Key].Merge(adajentStructure);
                                 GD.Print("Merge attempt");
                             }
                             else

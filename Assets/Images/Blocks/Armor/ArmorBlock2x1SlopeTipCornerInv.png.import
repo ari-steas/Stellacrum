@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjbryjdf07okw"
-path="res://.godot/imported/ArmorBlock2x1SlopeBaseCorner.png-6db4277f9d22eefdc01a8a516944f39e.ctex"
+uid="uid://21mjed8a1iwe"
+path="res://.godot/imported/ArmorBlock2x1SlopeTipCornerInv.png-8ce4826cd28fce4517a11ee717059548.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Images/Blocks/ArmorBlock2x1SlopeBaseCorner.png"
-dest_files=["res://.godot/imported/ArmorBlock2x1SlopeBaseCorner.png-6db4277f9d22eefdc01a8a516944f39e.ctex"]
+source_file="res://Assets/Images/Blocks/Armor/ArmorBlock2x1SlopeTipCornerInv.png"
+dest_files=["res://.godot/imported/ArmorBlock2x1SlopeTipCornerInv.png-8ce4826cd28fce4517a11ee717059548.ctex"]
 
 [params]
 
