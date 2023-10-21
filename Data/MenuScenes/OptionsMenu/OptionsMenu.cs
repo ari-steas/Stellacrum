@@ -75,37 +75,49 @@ public partial class OptionsMenu : CanvasLayer
 
 	void UpdateControls()
 	{
-		foreach (var control in controls.Values)
-			control.GetParent().QueueFree();
+		foreach (var control in optionsContainer.GetChildren())
+			control.QueueFree();
 
 		controls.Clear();
 		
 		foreach (var option in OptionsHelper.Options)
 		{
-			HBoxContainer box = new() { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-			optionsContainer.AddChild(box);
-
-			box.AddChild(new Label() { Text = option.Value.FriendlyName });
-			
-			Control control = new();
+			Label label = new() { Text = option.Value.FriendlyName };
+         
+            Control control = new();
 			
 			switch (option.Value.Value)
 			{
 				case bool v:
 					control = new CheckButton() { ButtonPressed = v };
-					break;
+                    HBoxContainer box = new() { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                    optionsContainer.AddChild(box);
+                    box.AddChild(label);
+                    box.AddChild(control);
+                    break;
 				case float v:
-					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Step = 0.01f, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-					((HSlider) control).Value = v;
-					break;
+					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Step = 0.05f, Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                    CreateSliderLabelAction((HSlider) control, label, 2);
+                    optionsContainer.AddChild(label);
+                    optionsContainer.AddChild(control);
+                    break;
 				case int v:
-					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-					break;
+					control = new HSlider() { MinValue = option.Value.sliderRange.X, MaxValue = option.Value.sliderRange.Y, Step = 1, Value = v, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+                    CreateSliderLabelAction((HSlider) control, label);
+                    optionsContainer.AddChild(label);
+                    optionsContainer.AddChild(control);
+                    break;
 			}
 
 			controls[option.Key] = control;
+        }
+	}
 
-			box.AddChild(control);
-		}
+	private void CreateSliderLabelAction(HSlider control, Label label, int places = 0)
+	{
+		string baseText = label.Text + ": ";
+        label.Text = baseText + Math.Round(control.Value, places).ToString();
+
+        control.GuiInput += (ie) => { label.Text = baseText + Math.Round(control.Value, places); };
 	}
 }
