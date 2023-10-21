@@ -20,16 +20,39 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         {
         }
 
-        public override void AddStructureBlock(CubeBlock block)
+        public override bool AddStructureBlock(CubeBlock block)
         {
-            base.AddStructureBlock(block);
+            if (!base.AddStructureBlock(block))
+                return false;
+
             GD.Print("Structure added block " + block.Name);
+            return true;
+        }
+
+        public override bool RemoveStructureBlock(CubeBlock block)
+        {
+            if (!base.RemoveStructureBlock(block))
+                return false;
+
+            if (block is CubeNodeBlock nodeBlock && nodeBlock.GetConnectedBlocks(GetStructureName()).Count > 1)
+            {
+                GD.PrintErr("Exploding myself!");
+                foreach (CubeNodeBlock structureBlock in StructureBlocks)
+                    structureBlock.RemoveStructureRef(GetStructureName());
+                foreach (CubeNodeBlock structureBlock in StructureBlocks)
+                    structureBlock.CheckConnectedBlocksOfType(GetStructureName());
+                
+                Destroy();
+            }
+
+            return true;
         }
 
         public override void Update()
         {
             foreach (var block in StructureBlocks)
-                DebugDraw.Point(block.GlobalPosition, 1, Colors.Magenta);
+                if (block.IsInsideTree())
+                    DebugDraw.Point(block.GlobalPosition, 1, Colors.Magenta);
         }
 
         public override void Update10()

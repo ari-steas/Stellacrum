@@ -80,14 +80,18 @@ namespace Stellacrum.Data.CubeObjects
 			if (!((int)(64 * ThrustPercent) > 0.01))
 				particles.Emitting = false;
 
-			parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float)delta, GlobalPosition - parent.GlobalPosition);
-
 			// Make particles inherit velocity of parent
 			particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
 			particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
 		}
 
-		float AngularControl()
+        public override void _Process(double delta)
+        {
+            base._Process(delta);
+            parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float)delta, GlobalPosition - parent.GlobalPosition);
+        }
+
+        float AngularControl()
 		{
 			//float pct = parent.MovementInput.Dot(Transform.Basis * Vector3.Forward);
 			//Vector3 pidOut = pid.Update(parent.AngularVelocity, desired, (float) delta);

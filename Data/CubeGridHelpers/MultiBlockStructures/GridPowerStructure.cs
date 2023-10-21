@@ -23,25 +23,33 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         {
         }
 
-        public override void AddStructureBlock(CubeBlock block)
+        public override bool AddStructureBlock(CubeBlock block)
         {
-            base.AddStructureBlock(block);
+            if (!base.AddStructureBlock(block))
+                return false;
+
             if (block is GeneratorBlock generator)
                 PowerCapacity += generator.MaxOutput;
+
+            return true;
         }
 
-        public override void RemoveStructureBlock(CubeBlock block)
+        public override bool RemoveStructureBlock(CubeBlock block)
         {
-            base.RemoveStructureBlock(block);
+            if (!base.RemoveStructureBlock(block))
+                return false;
+
             if (block is GeneratorBlock generator)
                 PowerCapacity -= generator.MaxOutput;
+            return true;
         }
 
         public override void Update()
         {
             base.Update();
             foreach (var block in StructureBlocks)
-                DebugDraw.Text3D(PowerCapacity, block.GlobalPosition, 0, Colors.Magenta);
+                if (block.IsInsideTree())
+                    DebugDraw.Text3D(PowerCapacity, block.GlobalPosition, 0, Colors.Magenta);
         }
 
         public override void Init()

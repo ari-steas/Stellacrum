@@ -96,8 +96,9 @@ namespace Stellacrum.Data.CubeGridHelpers
 
             foreach (CubeBlock block in structure.StructureBlocks)
             {
-                CallDeferred("AddStructureBlock", block);
-                structure.CallDeferred("RemoveStructureBlock", block);
+                AddStructureBlock(block);
+                //CallDeferred("AddStructureBlock", block);
+                //structure.CallDeferred("RemoveStructureBlock", block);
             }
 
             structure.Destroy();
@@ -105,36 +106,39 @@ namespace Stellacrum.Data.CubeGridHelpers
             return true;
         }
 
-        public virtual void AddStructureBlock(CubeBlock block)
+        public virtual bool AddStructureBlock(CubeBlock block)
         {
-            if (IsQueuedForDeletion())
-                return;
+            if (IsQueuedForDeletion() || block == null || StructureBlocks.Contains(block))
+                return false;
 
-            if (block != null && !StructureBlocks.Contains(block))
-            {
-                StructureBlocks.Add(block);
-                block.AddStructureRef(GetStructureName(), this);
-            }
+            StructureBlocks.Add(block);
+            block.AddStructureRef(GetStructureName(), this);
+
+            return true;
         }
 
-        public virtual void RemoveStructureBlock(CubeBlock block)
+        public virtual bool RemoveStructureBlock(CubeBlock block)
         {
-            if (IsQueuedForDeletion())
-                return;
+            if (IsQueuedForDeletion() || block == null)
+                return false;
 
             if (StructureBlocks.Contains(block))
             {
                 StructureBlocks.Remove(block);
-                block?.RemoveStructureRef(StructureName);
+                block?.RemoveStructureRef(GetStructureName());
             }
 
             if (StructureBlocks.Count == 0)
                 Destroy();
+
+            return true;
         }
 
         private long updateCounter = 0;
         public override void _PhysicsProcess(double delta)
         {
+            if (IsQueuedForDeletion())
+                return;
             updateCounter++;
             Update();
             if (updateCounter % 10 == 0)

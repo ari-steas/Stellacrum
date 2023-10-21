@@ -129,6 +129,7 @@ namespace Stellacrum.Data.CubeObjects
 		{
 			foreach (var structure in MemberStructures.Values)
 				structure.CallDeferred("RemoveStructureBlock", this);
+			QueueFree();
 		}
 
 		public virtual Godot.Collections.Dictionary<string, Variant> Save()
