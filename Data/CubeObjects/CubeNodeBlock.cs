@@ -46,9 +46,9 @@ namespace Stellacrum.Data.CubeObjects
 
         public override void _Process(double delta)
         {
-            foreach (var nodeL in connectorNodes.Values)
-                foreach (var node in nodeL)
-                    DebugDraw.Point(node.GlobalPosition, 0.5f, Colors.Turquoise);
+            //foreach (var nodeL in connectorNodes.Values)
+            //    foreach (var node in nodeL)
+            //        DebugDraw.Point(node.GlobalPosition, 0.5f, Colors.Turquoise);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Stellacrum.Data.CubeObjects
         /// Checks for connected blocks of a specific type.
         /// </summary>
         /// <param name="type"></param>
-        public GridTreeStructure CheckConnectedBlocksOfType(string type)
+        public virtual GridTreeStructure CheckConnectedBlocksOfType(string type)
         {
             CubeGrid grid = GetParent() as CubeGrid;
             Vector3 halfSize = size / 2;

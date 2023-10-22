@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Stellacrum.Data.CubeObjects
 {
-	public partial class ThrusterBlock : CubeNodeBlock, IResourceConsumer
+	public partial class ThrusterBlock : PowerConsumer
 	{
 		CubeGrid parent;
 		public float ThrustPercent = 0;
@@ -14,8 +14,6 @@ namespace Stellacrum.Data.CubeObjects
 		//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 		private Node3D thrustNode;
 		private GpuParticles3D particles;
-
-		public ThrusterBlock() { }
 
 		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
 		{
@@ -69,6 +67,13 @@ namespace Stellacrum.Data.CubeObjects
         public override void _PhysicsProcess(double delta)
 		{
 			base._PhysicsProcess(delta);
+
+			if (!Enabled || !HasPower)
+			{
+				particles.Emitting = false;
+				return;
+			}
+
 			if (Dampen)
 			{
 				//SetThrustPercent(AngularControl());

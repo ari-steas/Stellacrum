@@ -7,7 +7,8 @@
 
 		"Mass":150,
 
-		"ThrusterStrength":250000
+		"ThrusterStrength":250000,
+		"MaxInput":10
 	},
 
 	"ThrusterLarge":{
@@ -18,6 +19,7 @@
 
 		"Mass":150,
 
-		"ThrusterStrength":67500000
+		"ThrusterStrength":67500000,
+		"MaxInput":270
 	}
 }

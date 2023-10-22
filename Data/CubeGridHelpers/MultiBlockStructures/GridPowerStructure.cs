@@ -16,11 +16,55 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         public new const string StructureName = "Power";
         public override string GetStructureName() => StructureName;
 
+        /// <summary>
+        /// Power generation capacity, in MW
+        /// </summary>
         public float PowerCapacity { get; private set; } = 0;
+
+        /// <summary>
+        /// Power consumption, in MW
+        /// </summary>
         public float PowerUsage { get; private set; } = 0;
+
+        private bool needsAvailabilityUpdate = true;
 
         public GridPowerStructure(List<CubeBlock> StructureBlocks) : base(StructureBlocks)
         {
+        }
+
+        public void AddPowerCapacity(float cap)
+        {
+            bool sufficientPower = PowerCapacity > PowerUsage;
+            PowerCapacity += cap;
+            if (!sufficientPower && PowerCapacity > PowerUsage)
+                needsAvailabilityUpdate = true;
+        }
+
+        public void AddPowerUsage(float cap)
+        {
+            bool sufficientPower = PowerCapacity > PowerUsage;
+            PowerUsage += cap;
+            if (!sufficientPower && PowerCapacity > PowerUsage)
+                needsAvailabilityUpdate = true;
+        }
+
+        public override bool Merge(GridTreeStructure structure)
+        {
+            bool r = base.Merge(structure);
+            AddPowerCapacity(((GridPowerStructure) structure).PowerCapacity);
+            AddPowerUsage(((GridPowerStructure)structure).PowerUsage);
+            return r;
+        }
+
+        /// <summary>
+        /// Notify all contained powerconsumers that power generation is sufficient or insufficent.
+        /// </summary>
+        internal void UpdatePowerAvailability()
+        {
+            bool sufficientPower = PowerCapacity > PowerUsage;
+            foreach (var block in StructureBlocks)
+                if (block is PowerConsumer consumer)
+                    consumer.HasPower = sufficientPower;
         }
 
         public override bool AddStructureBlock(CubeBlock block)
@@ -28,8 +72,8 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
             if (!base.AddStructureBlock(block))
                 return false;
 
-            if (block is GeneratorBlock generator)
-                PowerCapacity += generator.MaxOutput;
+            //if (block is GeneratorBlock generator)
+            //    PowerCapacity += generator.MaxOutput;
 
             return true;
         }
@@ -39,8 +83,9 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
             if (!base.RemoveStructureBlock(block))
                 return false;
 
-            if (block is GeneratorBlock generator)
-                PowerCapacity -= generator.MaxOutput;
+            //if (block is GeneratorBlock generator)
+            //    PowerCapacity -= generator.MaxOutput;
+
             return true;
         }
 
@@ -49,7 +94,19 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
             base.Update();
             foreach (var block in StructureBlocks)
                 if (block.IsInsideTree())
-                    DebugDraw.Text3D(PowerCapacity, block.GlobalPosition, 0, Colors.Magenta);
+                    DebugDraw.Text3D(PowerCapacity - PowerUsage, block.GlobalPosition, 0, Colors.Magenta);
+
+            if (needsAvailabilityUpdate)
+            {
+                UpdatePowerAvailability();
+                needsAvailabilityUpdate = false;
+            }
+        }
+
+        public override void Update60()
+        {
+            base.Update60();
+            GD.PrintErr($"C:{PowerCapacity}\nP:{PowerUsage}");
         }
 
         public override void Init()
