@@ -114,8 +114,8 @@ namespace Stellacrum.Data.CubeObjects
                     checkPos.Z -= 1.25f;
                 else
                 {
-                    GD.PrintErr($"Node {node.Name} not aligned with block!");
-                    GD.PrintErr("Position: " + node.Position + "/" + halfSize);
+                    //GD.PrintErr($"Node {node.Name} not aligned with block!");
+                    //GD.PrintErr("Position: " + node.Position + "/" + halfSize);
                 }
 
                 // Rotate to account for block rotation
@@ -126,10 +126,10 @@ namespace Stellacrum.Data.CubeObjects
                 CubeBlock adajent = grid.BlockAt(grid.GlobalToGridCoordinates(checkPos));
                 DebugDraw.Point(grid.GridToGlobalPosition(grid.GlobalToGridCoordinates(checkPos)), 0.5f, Colors.Red, 1f);
 
-                GD.Print("\n");
+                //GD.Print("\n");
                 if (adajent == null || adajent == this)
                 {
-                    GD.Print("Adajent is null or self");
+                    //GD.Print("Adajent is null or self");
                     continue;
                 }
 
@@ -142,7 +142,7 @@ namespace Stellacrum.Data.CubeObjects
                     // Make sure the connection node types match up, ofc
                     if (!adajentNodeBlock.connectorNodes.ContainsKey(type))
                     {
-                        GD.Print("Types don't match up");
+                        //GD.Print("Types don't match up");
                         continue;
                     }
 
@@ -151,7 +151,7 @@ namespace Stellacrum.Data.CubeObjects
                         // Check if node positions line up
                         if (!AccurateToOne(aNode.GlobalPosition, node.GlobalPosition))
                         {
-                            GD.Print("Positions don't line up");
+                            //GD.Print("Positions don't line up");
                             continue;
                         }
 
@@ -159,7 +159,7 @@ namespace Stellacrum.Data.CubeObjects
                         GridTreeStructure adajentStructure = adajentNodeBlock.GetMemberStructure(type);
                         if (adajentStructure == null)
                         {
-                            GD.Print("Null adajentStructure");
+                            //GD.Print("Null adajentStructure");
                             continue;
                         }
 
@@ -173,24 +173,24 @@ namespace Stellacrum.Data.CubeObjects
                         {
                             // Merge structures
                             joinedType |= MemberStructures[type].Merge(adajentStructure);
-                            GD.Print("Merge attempt");
+                            //GD.Print("Merge attempt");
                         }
                         else
                         {
                             // Join existing structure
                             adajentStructure.AddStructureBlock(this);
                             joinedType = true;
-                            GD.Print("Joined structure!");
+                            //GD.Print("Joined structure!");
                         }
                     }
                 }
-                else { GD.Print("Not a CubeNodeBlock"); }
+                //else { GD.Print("Not a CubeNodeBlock"); }
             }
 
             // Create new structure if none could be found
             if (!joinedType)
             {
-                GD.Print("Searching for structure of type " + type);
+                //GD.Print("Searching for structure of type " + type);
                 GridTreeStructure structure = (GridTreeStructure)GridMultiBlockStructure.New(type, new List<CubeBlock> { this });
                 structure?.Init();
             }

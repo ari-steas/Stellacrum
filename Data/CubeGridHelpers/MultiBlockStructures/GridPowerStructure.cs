@@ -106,7 +106,7 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         public override void Update60()
         {
             base.Update60();
-            GD.PrintErr($"C:{PowerCapacity}\nP:{PowerUsage}");
+            //GD.PrintErr($"C:{PowerCapacity}\nP:{PowerUsage}");
         }
 
         public override void Init()

@@ -14,6 +14,7 @@ namespace Stellacrum.Data.CubeObjects
 		//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 		private Node3D thrustNode;
 		private GpuParticles3D particles;
+		private StandardMaterial3D coneMaterial;
 
 		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
 		{
@@ -30,7 +31,16 @@ namespace Stellacrum.Data.CubeObjects
 			}
 			if (thrustNode == null)
 				throw new($"{subTypeId} missing ThrustNode!");
-		}
+
+			foreach (var node in meshes)
+				if (node is MeshInstance3D meshInstance)
+					for (int i = 0; i < meshInstance.Mesh.GetSurfaceCount(); i++)
+						if (meshInstance.Mesh.SurfaceGetMaterial(i).ResourceName == "ThrustConeMaterial")
+							coneMaterial = (StandardMaterial3D) meshInstance.Mesh.SurfaceGetMaterial(i);
+			
+			coneMaterial.AlbedoColor = new Color(0, 0, 0);
+			coneMaterial.EmissionEnabled = true;
+        }
 
 		public void SetThrustPercent(float pct)
 		{
@@ -68,6 +78,11 @@ namespace Stellacrum.Data.CubeObjects
 		{
 			base._PhysicsProcess(delta);
 
+			if (Enabled)
+				MaxInput = DefMaxInput * ThrustPercent;
+
+			GD.PrintErr($"{ThrustPercent} : {MaxInput}");
+
 			if (!Enabled || !HasPower)
 			{
 				particles.Emitting = false;
@@ -85,8 +100,10 @@ namespace Stellacrum.Data.CubeObjects
 			if (!((int)(64 * ThrustPercent) > 0.01))
 				particles.Emitting = false;
 
-			// Make particles inherit velocity of parent
-			particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
+            coneMaterial.AlbedoColor = new Color(ThrustPercent, ThrustPercent, ThrustPercent);
+
+            // Make particles inherit velocity of parent
+            particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
 			particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
 		}
 

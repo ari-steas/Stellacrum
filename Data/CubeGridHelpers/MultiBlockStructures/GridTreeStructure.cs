@@ -25,7 +25,7 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
             if (!base.AddStructureBlock(block))
                 return false;
 
-            GD.Print("Structure added block " + block.Name);
+            //GD.Print("Structure added block " + block.Name);
             return true;
         }
 
@@ -36,7 +36,7 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
 
             if (block is CubeNodeBlock nodeBlock && nodeBlock.GetConnectedBlocks(GetStructureName()).Count > 1)
             {
-                GD.PrintErr("Exploding myself!");
+                //GD.PrintErr("Exploding myself!");
                 foreach (CubeNodeBlock structureBlock in StructureBlocks)
                     structureBlock.RemoveStructureRef(GetStructureName());
                 foreach (CubeNodeBlock structureBlock in StructureBlocks)

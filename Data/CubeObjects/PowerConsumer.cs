@@ -15,7 +15,7 @@ namespace Stellacrum.Data.CubeObjects
             get { return _maxInput; }
             set
             {
-                powerStructure?.AddPowerUsage(_maxInput - value);
+                powerStructure?.AddPowerUsage(value - _maxInput);
                 _maxInput = value > DefMaxInput ? _maxInput : value;
             }
         }
@@ -24,7 +24,7 @@ namespace Stellacrum.Data.CubeObjects
         /// <summary>
         /// Definition maximum input.
         /// </summary>
-        private readonly float DefMaxInput = 0;
+        public readonly float DefMaxInput = 0;
 
         private bool _enabled = true;
         private bool _hasPower = false;
@@ -42,7 +42,7 @@ namespace Stellacrum.Data.CubeObjects
 
         public PowerConsumer(string subTypeId, Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
         {
-            ReadFromData(blockData, "MaxInput", ref _maxInput);
+            ReadFromData(blockData, "MaxInput", ref DefMaxInput);
         }
 
         public override GridTreeStructure CheckConnectedBlocksOfType(string type)
@@ -65,11 +65,18 @@ namespace Stellacrum.Data.CubeObjects
                 powerStructure.AddPowerUsage(-MaxInput);
         }
 
-        public void SetPower(bool value)
+        private void SetPower(bool value)
         {
             if (_hasPower == value) return;
 
             _hasPower = value;
+        }
+
+        public override void RemoveStructureRef(string type)
+        {
+            base.RemoveStructureRef(type);
+            if (type == "Power")
+                MaxInput = 0;
         }
     }
 }

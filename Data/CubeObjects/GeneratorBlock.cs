@@ -60,5 +60,12 @@ namespace Stellacrum.Data.CubeObjects
             else
                 powerStructure.AddPowerCapacity(-MaxOutput);
         }
-	}
+
+        public override void RemoveStructureRef(string type)
+        {
+            base.RemoveStructureRef(type);
+            if (type == "Power")
+                MaxOutput = 0;
+        }
+    }
 }
