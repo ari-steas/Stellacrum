@@ -264,6 +264,10 @@ public partial class GameScene : Node3D
         playerCharacter = null;
 		GD.Print("Closed player in GameScene.\nFinished closing!\n\n");
 
-		GetTree().ReloadCurrentScene();
+        CubeBlockLoader.Clear();
+        ModelLoader.Clear();
+        TextureLoader.Clear();
+
+        GetTree().ReloadCurrentScene();
 	}
 }

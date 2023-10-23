@@ -34,11 +34,16 @@ namespace Stellacrum.Data.CubeObjects
 
 			foreach (var node in meshes)
 				if (node is MeshInstance3D meshInstance)
-					for (int i = 0; i < meshInstance.Mesh.GetSurfaceCount(); i++)
-						if (meshInstance.Mesh.SurfaceGetMaterial(i).ResourceName == "ThrustConeMaterial")
-							coneMaterial = (StandardMaterial3D) meshInstance.Mesh.SurfaceGetMaterial(i);
-			
-			coneMaterial.AlbedoColor = new Color(0, 0, 0);
+					for (int i = 0; i < meshInstance.GetSurfaceOverrideMaterialCount(); i++)
+						if (meshInstance.GetActiveMaterial(i).ResourceName == "ThrustConeMaterial")
+						{
+							//StandardMaterial3D m = (StandardMaterial3D) meshInstance.GetActiveMaterial(i);
+							coneMaterial = (StandardMaterial3D) meshInstance.GetActiveMaterial(i);
+                            //meshInstance.Mesh.SurfaceSetMaterial(i, coneMaterial);
+						}
+
+			Random r = new Random();
+            coneMaterial.Emission = new Color(r.NextSingle(), r.NextSingle(), r.NextSingle());
 			coneMaterial.EmissionEnabled = true;
         }
 
@@ -81,8 +86,6 @@ namespace Stellacrum.Data.CubeObjects
 			if (Enabled)
 				MaxInput = DefMaxInput * ThrustPercent;
 
-			GD.PrintErr($"{ThrustPercent} : {MaxInput}");
-
 			if (!Enabled || !HasPower)
 			{
 				particles.Emitting = false;
@@ -100,7 +103,8 @@ namespace Stellacrum.Data.CubeObjects
 			if (!((int)(64 * ThrustPercent) > 0.01))
 				particles.Emitting = false;
 
-            coneMaterial.AlbedoColor = new Color(ThrustPercent, ThrustPercent, ThrustPercent);
+			//coneMaterial.Emission = new Color(0.1f + 0.9f*ThrustPercent, 0.1f, 0.1f);
+			//GD.Print(coneMaterial.Emission);
 
             // Make particles inherit velocity of parent
             particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);

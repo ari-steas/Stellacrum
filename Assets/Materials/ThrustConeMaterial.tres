@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://70sww1ov6so3"]
+
+[resource]
+resource_local_to_scene = true
+resource_name = "ThrustConeMaterial"
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.392374, 0.206107, 0.191015, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(1, 0, 0.00392962, 1)

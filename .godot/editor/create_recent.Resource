@@ -1,2 +1,3 @@
+ShaderMaterial
 Resource
 JSON

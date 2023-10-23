@@ -20,37 +20,22 @@ namespace Stellacrum.Data.CubeObjects
 
 		public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
 		{
-			List<Node3D> model = ModelLoader.Models["ArmorBlock1x1"];
+			List<Node3D> model;
 			Vector3 size = Vector3.One * 2.5f;
 			int mass = 100;
 
 			// Load model from ModelLoader
-			if (blockData.ContainsKey("Model") && ModelLoader.Models.ContainsKey((string)blockData["Model"]))
-				model = ModelLoader.Models[(string)blockData["Model"]];
-			else
-				GD.PrintErr($"Missing [Model] in {subTypeId}! Setting to default...");
+			string modelId = "ArmorBlock1x1";
+			ReadFromData(blockData, "Model", ref modelId);
+
+			model = ModelLoader.GetModel(modelId);
 
 			// Calc BlockSize
-			try
-			{
-				int[] bSize = blockData["BlockSize"].AsInt32Array();
-				size = new Vector3(bSize[0], bSize[1], bSize[2]) * 2.5f;
-			}
-			catch
-			{
-				GD.PrintErr($"Missing [Size] in {subTypeId}! Setting to default...");
-			}
+			ReadFromData(blockData, "BlockSize", ref size);
+			size *= 2.5f;
 
-			try
-			{
-				mass = blockData["Mass"].AsInt32();
-			}
-			catch
-			{
-				GD.PrintErr($"Missing [Mass] in {subTypeId}! Setting to default...");
-			}
+			ReadFromData(blockData, "Mass", ref mass);
 
-			this.meshes = model;
 			this.size = size;
 			this.subTypeId = subTypeId;
 
@@ -61,8 +46,12 @@ namespace Stellacrum.Data.CubeObjects
 
 			Mass = mass;
 
-			foreach (Node3D mesh in model)
-				AddChild(mesh.Duplicate());
+			if (model != null)
+			{
+                meshes = model;
+                foreach (Node3D mesh in model)
+					AddChild(mesh);
+			}
 
 			Name = "CubeBlock." + subTypeId + "." + GetIndex();
 		}
@@ -152,7 +141,12 @@ namespace Stellacrum.Data.CubeObjects
 		protected static void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable)
 		{
 			if (blockData.ContainsKey(dataKey))
-                variable = blockData[dataKey].As<T>();
+			{
+				if (typeof(T) == typeof(Vector3))
+					variable = (T) Convert.ChangeType(JsonHelper.LoadVec(blockData[dataKey]), typeof(T));
+				else
+					variable = blockData[dataKey].As<T>();
+				}
             else
                 GD.PrintErr($"Missing CubeBlock data [{dataKey}]! Setting to default...");
         }

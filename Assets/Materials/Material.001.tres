@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cue2fx5ykwd2v"]
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Material.001"
+cull_mode = 2
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.460531, 0.460531, 0.460531, 1)
+metallic = 0.371429

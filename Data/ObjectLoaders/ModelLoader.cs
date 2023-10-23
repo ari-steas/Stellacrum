@@ -1,12 +1,13 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 
 public class ModelLoader
 {
-    public static readonly Dictionary<string, List<Node3D>> Models = new ();
+    private static readonly Dictionary<string, PackedScene> Models = new ();
 
 	#nullable enable
     public static Thread? StartLoad(string path, bool threaded = false)
@@ -22,7 +23,14 @@ public class ModelLoader
 		return null;
 	}
 
-	static void Load(object data)
+	public static List<Node3D>? GetModel(string id)
+	{
+		if (Models.ContainsKey(id))
+			return UnPackScene(Models[id]);
+		return null;
+	}
+
+	static void Load(object? data)
 	{
 		if (data is string path)
 		{
@@ -38,7 +46,9 @@ public class ModelLoader
 
 				try
 				{
-					Models.Add(name, UnPackScene(GD.Load<PackedScene>(model)));
+					PackedScene p = GD.Load<PackedScene>(model);
+					p.ResourceLocalToScene = true;
+                    Models.Add(name, p);
 					GD.Print("Loaded model \"" + name + "\".");
 				}
 				catch (Exception e)
@@ -49,21 +59,21 @@ public class ModelLoader
 
 			GD.Print($"Loaded {Models.Count} Models.");
 		}
+
+		//foreach (var model in Models.Values)
+		//	foreach (var mesh in model)
+		//		if (mesh is MeshInstance3D mI)
+		//			for (int i = 0; i < mI.Mesh.GetSurfaceCount(); i++)
+		//				mI.Mesh.SurfaceGetMaterial(i).ResourceLocalToScene = true;
 	}
 
-	public void Clear()
+	public static void Clear()
 	{
 		Models.Clear();
 	}
 
     private static List<Node3D> UnPackScene(PackedScene p)
 	{
-		List<Node3D> meshes = new ();
-
-		foreach (var node in p.Instantiate().GetChildren())
-			if (node is Node3D d)
-				meshes.Add(d);
-
-		return meshes;
+        return p.Instantiate().GetChildren().Select(x => (Node3D)x.Duplicate()).ToList();
 	}
 }
