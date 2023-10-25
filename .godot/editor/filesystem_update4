@@ -18,6 +18,7 @@ res://Data/CubeObjects/PowerConsumer.cs
 res://Data/CubeObjects/ThrusterBlock.cs
 res://Data/GameSceneObjects/GameScene.cs
 res://Data/GameSceneObjects/hud_scene.cs
+res://Data/GameSceneObjects/PathFollow3D.cs
 res://Data/GameSceneObjects/PlaceBox.cs
 res://Data/GameSceneObjects/player_character.cs
 res://Data/MenuScenes/BlockMenu/BlockMenu.cs

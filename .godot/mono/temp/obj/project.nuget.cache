@@ -1,12 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "BmX5DMaLC9WDQjD+Ub77Z0qSEXRLthv0DOD9+m0IgEw00ZXtqpCV4POLA7M5fJ6QC0kq1H915lyZ8ObUJCwTSw==",
+  "dgSpecHash": "dNKUYW4qffqvCy2ZUWc+5iJ7NAQFmucdpdd2Dq9L1c0ec/Mjb3+QxKwd71Z3iJRP8my9We80+YQ1ZvSMykq/Og==",
   "success": true,
   "projectFilePath": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum\\Stellacrum.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jnick\\.nuget\\packages\\godot.sourcegenerators\\4.1.2\\godot.sourcegenerators.4.1.2.nupkg.sha512",
     "C:\\Users\\jnick\\.nuget\\packages\\godotsharp\\4.1.2\\godotsharp.4.1.2.nupkg.sha512",
-    "C:\\Users\\jnick\\.nuget\\packages\\godotsharpeditor\\4.1.2\\godotsharpeditor.4.1.2.nupkg.sha512"
+    "C:\\Users\\jnick\\.nuget\\packages\\godotsharpeditor\\4.1.2\\godotsharpeditor.4.1.2.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.4\\microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.codeanalysis.common\\4.7.0\\microsoft.codeanalysis.common.4.7.0.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.7.0\\microsoft.codeanalysis.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\system.collections.immutable\\7.0.0\\system.collections.immutable.7.0.0.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\system.reflection.metadata\\7.0.0\\system.reflection.metadata.7.0.0.nupkg.sha512",
+    "C:\\Users\\jnick\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }

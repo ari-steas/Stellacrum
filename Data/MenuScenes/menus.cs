@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 
 public partial class menus : Node2D
@@ -28,6 +29,33 @@ public partial class menus : Node2D
 		json.Parse(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText());
 
 		OptionsHelper.Load(json.Data.As<Dictionary<string, Variant>>());
+
+        //string code = @"
+		//	using System;
+		//	
+		//	namespace First
+		//	{
+		//		public class Program
+		//		{
+        //    		public static void Main()
+        //    		{
+        //    			Console.WriteLine(""Hello, world!"");
+		//			}
+		//			public static void WithParams(string message)
+		//			{
+		//				Console.WriteLine(message);
+		//			}
+		//		}
+		//	}";
+		//
+		//var compiler = new ScriptLoader("First.Program", code, new[] { typeof(Console) });
+		//var type = compiler.Compile();
+
+		//type.GetMethod("Main").Invoke(null, null);
+		//result: Hellow World!
+
+		// pass an object array to the second null parameter to pass arguments
+		//type.GetMethod("WithParams").Invoke(null, new object[] { "Hi there from invoke!" });
 	}
 
     private void _Fullscreen(object value)
