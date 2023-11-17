@@ -1,4 +1,5 @@
 using Godot;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Stellacrum.Data.CubeGridHelpers;
 using Stellacrum.Data.CubeGridHelpers.MultiBlockStructures;
 using System;
@@ -13,7 +14,16 @@ namespace Stellacrum.Data.CubeObjects
 		public List<Node3D> meshes;
 		public string subTypeId = "";
 		public Vector3 size = Vector3.One * 2.5f;
-		public int Mass = 100;
+		public int Mass { get; private set; } = 100;
+		public int Health { get => _health; set => SetHealth(value); }
+		private int _health = 100;
+
+		private void SetHealth(int newHealth)
+		{
+            _health = newHealth;
+			if (_health <= 0)
+				Remove();
+		}
 
 		public CubeBlock() { }
 		protected Dictionary<string, GridMultiBlockStructure> MemberStructures { get; private set; } = new();
@@ -35,6 +45,7 @@ namespace Stellacrum.Data.CubeObjects
 			size *= 2.5f;
 
 			ReadFromData(blockData, "Mass", ref mass);
+			ReadFromData(blockData, "Health", ref _health);
 
 			this.size = size;
 			this.subTypeId = subTypeId;
@@ -114,10 +125,28 @@ namespace Stellacrum.Data.CubeObjects
 			return slots.ToArray();
 		}
 
+        static PackedScene explodeScene = GD.Load<PackedScene>("res://Data/CubeObjects/WeaponObjects/explosion_particle.tscn");
+
+        /// <summary>
+        /// Destroy via grid removal. Safe.
+        /// </summary>
+        public virtual void Remove()
+		{
+			//GetParent<CubeGrid>().CallDeferred(CubeGrid.MethodName.RemoveBlock, this, true);
+			Node3D particle = (Node3D) explodeScene.Instantiate();
+			particle.Position = GlobalPosition;
+            GetParent<CubeGrid>().GetParent().AddChild(particle);
+            GetParent<CubeGrid>().RemoveBlock(this, true);
+        }
+
+		/// <summary>
+		/// Hard-close. 
+		/// </summary>
 		public virtual void Close()
 		{
 			foreach (var structure in MemberStructures.Values)
-				structure.CallDeferred("RemoveStructureBlock", this);
+				//structure.CallDeferred("RemoveStructureBlock", this);
+				structure.RemoveStructureBlock(this);
 			QueueFree();
 		}
 

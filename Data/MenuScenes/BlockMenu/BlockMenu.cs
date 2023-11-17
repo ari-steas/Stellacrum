@@ -48,7 +48,7 @@ public partial class BlockMenu : CanvasLayer
             }
 
             // kinda cringe code
-            HUD = (GetParent().FindChild("GameScene") as GameScene).playerCharacter.HUD;
+            HUD = GameScene.GetGameScene(this).playerCharacter.HUD;
         }
 
 		// Return if esc or tab pressed

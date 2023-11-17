@@ -136,7 +136,7 @@ namespace Stellacrum.Data.CubeObjects
                 if (adajent is CubeNodeBlock adajentNodeBlock)
                 {
                     // Check every node of same type on adajent block. Hopefully doesn't have that big of a performance impact?
-                    if (adajent.IsQueuedForDeletion())
+                    if (adajent.IsQueuedForDeletion() || !adajent.IsInsideTree())
                         continue;
 
                     // Make sure the connection node types match up, ofc

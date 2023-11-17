@@ -1,6 +1,7 @@
 res://Data/GameSceneObjects/player_character.tscn
 res://Data/GameSceneObjects/GameScene.tscn
 res://Data/MenuScenes/menus.tscn
+res://Data/CubeObjects/ReactorEffects.tscn
 res://addons/debug_drawing/control/DebugDock.cs
 res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
@@ -15,12 +16,15 @@ res://Data/CubeObjects/CubeNodeBlock.cs
 res://Data/CubeObjects/GeneratorBlock.cs
 res://Data/CubeObjects/PowerConduit.cs
 res://Data/CubeObjects/PowerConsumer.cs
+res://Data/CubeObjects/Power/ReactorMagnet.cs
+res://Data/CubeObjects/ReactorEffects.cs
 res://Data/CubeObjects/ThrusterBlock.cs
 res://Data/GameSceneObjects/GameScene.cs
 res://Data/GameSceneObjects/hud_scene.cs
 res://Data/GameSceneObjects/PathFollow3D.cs
 res://Data/GameSceneObjects/PlaceBox.cs
 res://Data/GameSceneObjects/player_character.cs
+res://Data/GameSceneObjects/WeaponBase.cs
 res://Data/MenuScenes/BlockMenu/BlockMenu.cs
 res://Data/MenuScenes/BlockMenu/DraggableItem.cs
 res://Data/MenuScenes/LoadingScene/LoadingScene.cs
@@ -32,3 +36,13 @@ res://Data/MenuScenes/PauseMenu/PauseMenu.cs
 res://Data/MenuScenes/SaveMenu/ItemList.cs
 res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
+res://Data/CubeObjects/WeaponObjects/WeaponBase.cs
+res://Data/CubeObjects/Power/ReactorEffects.tscn
+res://Data/CubeObjects/Power/PowerConduit.cs
+res://Data/CubeObjects/Power/PowerConsumer.cs
+res://Data/CubeObjects/Power/ReactorEffects.cs
+res://Data/CubeObjects/WeaponObjects/explosion_particle.tscn
+res://Data/CubeObjects/WeaponObjects/ExplosionParticle.cs
+res://Assets/Images/Particles/explosion_particle.tres
+res://Data/CubeObjects/WeaponObjects/WeaponBase.tscn
+res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn

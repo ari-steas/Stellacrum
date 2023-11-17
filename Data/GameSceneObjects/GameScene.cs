@@ -1,5 +1,7 @@
+using GameSceneObjects;
 using Godot;
 using Stellacrum.Data.CubeGridHelpers;
+using Stellacrum.Data.CubeObjects;
 using System;
 using System.Collections.Generic;
 
@@ -61,23 +63,6 @@ public partial class GameScene : Node3D
 				grid.LinearVelocity = Vector3.Zero;
 				grid.AngularVelocity = Vector3.Zero;
 			}
-		}
-
-		if (tick % 100 == 0)
-		{
-			List<CubeGrid> emptyGrids = new();
-
-			foreach (var grid in grids)
-			{
-				if (grid.GetChildCount() == 0)
-				{
-					emptyGrids.Add(grid);
-					grid.QueueFree();
-				}
-			}
-
-			foreach (var grid in emptyGrids)
-				grids.Remove(grid);
 		}
     }
 	
@@ -151,30 +136,28 @@ public partial class GameScene : Node3D
 	}
 
 	#nullable enable
-	public CubeGrid? GetGrid(RayCast3D cast)
+	public static CubeGrid? GetGrid(RayCast3D cast)
 	{
 		if (cast.IsColliding())
-		{
 			if (cast.GetCollider() is CubeGrid grid)
-			{
 				return grid;
-			}
-		}
 		return null;
 	}
 
-	public void RemoveBlock(RayCast3D ray)
+	public static CubeBlock? BlockAt(RayCast3D cast)
+	{
+		CubeGrid? grid = GetGrid(cast);
+		if (grid == null)
+			return null;
+
+		return grid.BlockAt(cast);
+	}
+
+	public static void RemoveBlock(RayCast3D ray)
 	{
 		if (ray.IsColliding())
-		{
 			if (ray.GetCollider() is CubeGrid grid)
-			{
 				grid.RemoveBlock(ray);
-
-				if (grid.IsEmpty())
-					grid.Close();
-			}
-		}
 	}
 
 	public bool IsPointEmpty(Vector3 point)
@@ -249,6 +232,20 @@ public partial class GameScene : Node3D
 
 		GD.Print("Pre-setting player data...");
 	}
+
+	public static GameScene? GetGameScene(Node node)
+	{
+        Node parent = node.GetParent();
+        if (parent == null)
+            return null;
+		if (node is GameScene gameScene1)
+			return gameScene1;
+
+        if (parent is GameScene gameScene2)
+            return gameScene2;
+        else
+            return GetGameScene(parent);
+    }
 
 	public void Close()
 	{

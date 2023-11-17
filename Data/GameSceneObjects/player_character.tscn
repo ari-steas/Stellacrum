@@ -1,12 +1,10 @@
-[gd_scene load_steps=25 format=3 uid="uid://cey0g83qn2irp"]
+[gd_scene load_steps=19 format=3 uid="uid://cey0g83qn2irp"]
 
 [ext_resource type="Script" path="res://Data/GameSceneObjects/player_character.cs" id="1_u14pr"]
 [ext_resource type="Script" path="res://Data/GameSceneObjects/PlaceBox.cs" id="2_ym5iq"]
 [ext_resource type="Texture2D" uid="uid://cbwuweltef2mw" path="res://Assets/Images/GUI/PlaceBoxOutline.png" id="3_a1hvv"]
 [ext_resource type="Texture2D" uid="uid://b1y45lewwc0y5" path="res://Assets/Images/GUI/SelectWheel.png" id="3_q3h1k"]
 [ext_resource type="Texture2D" uid="uid://juxgcejolv08" path="res://Assets/Images/GUI/Crosshair.png" id="4_1n628"]
-[ext_resource type="Script" path="res://Data/GameSceneObjects/PathFollow3D.cs" id="6_ayp78"]
-[ext_resource type="Texture2D" uid="uid://byq5d5w1auu5f" path="res://Assets/Images/Particles/ReactorParticle.png" id="6_ywxoa"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0sxp0"]
 
@@ -89,44 +87,6 @@ particles_anim_loop = false
 [sub_resource type="QuadMesh" id="QuadMesh_1e5pp"]
 material = SubResource("StandardMaterial3D_d6pmo")
 size = Vector2(0.5, 0.5)
-
-[sub_resource type="Curve3D" id="Curve3D_g6crv"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 10, 10, 0, 0, 0, 0, 0, -10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, -10, -10, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, -10, 0, 0, 0, 0, 0, 0, 10, 0, 0),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
-}
-point_count = 5
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_6wnm8"]
-lifetime_randomness = 1.0
-emission_shape = 1
-emission_sphere_radius = 1.5
-direction = Vector3(0.395, 0, 0.635)
-spread = 5.0
-gravity = Vector3(0, 0, 0)
-initial_velocity_min = 15.0
-initial_velocity_max = 20.0
-radial_accel_min = -30.0
-damping_min = 12.871
-damping_max = 12.871
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rq5l3"]
-transparency = 1
-albedo_texture = ExtResource("6_ywxoa")
-emission_enabled = true
-emission = Color(0.607843, 0.25098, 0, 1)
-emission_energy_multiplier = 100000.0
-disable_receive_shadows = true
-billboard_mode = 3
-particles_anim_h_frames = 1
-particles_anim_v_frames = 1
-particles_anim_loop = false
-proximity_fade_distance = 4096.0
-distance_fade_max_distance = 0.0
-
-[sub_resource type="QuadMesh" id="QuadMesh_647dh"]
-material = SubResource("StandardMaterial3D_rq5l3")
-size = Vector2(0.1, 0.1)
 
 [node name="PlayerCharacter" type="CharacterBody3D"]
 motion_mode = 1
@@ -222,19 +182,3 @@ local_coords = true
 transform_align = 1
 process_material = SubResource("ParticleProcessMaterial_ty11j")
 draw_pass_1 = SubResource("QuadMesh_1e5pp")
-
-[node name="Path3D" type="Path3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, -21.709)
-curve = SubResource("Curve3D_g6crv")
-
-[node name="PathFollow3D" type="PathFollow3D" parent="Path3D"]
-transform = Transform3D(-0.999983, 0, -8.74213e-08, 0, 1, 0, 8.74213e-08, 0, -0.999983, 10, 0, 0)
-script = ExtResource("6_ayp78")
-
-[node name="GPUParticles3D" type="GPUParticles3D" parent="Path3D/PathFollow3D"]
-transform = Transform3D(1, 0, -7.10543e-15, 0, 1, 0, 7.10543e-15, 0, 1, 0, 0, 0)
-amount = 2048
-fixed_fps = 0
-transform_align = 2
-process_material = SubResource("ParticleProcessMaterial_6wnm8")
-draw_pass_1 = SubResource("QuadMesh_647dh")

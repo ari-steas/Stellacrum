@@ -194,45 +194,58 @@ public partial class CubeGrid : RigidBody3D
             ThrusterBlocks.Add(t);
     }
 
-    public void RemoveBlock(RayCast3D ray)
+	#nullable enable
+	public CubeBlock? BlockAt(RayCast3D ray)
 	{
-		RemoveBlock(ray.GetCollisionPoint() - ray.GetCollisionNormal());
+		if (ray == null) return null;
+		return BlockAt(GlobalToGridCoordinates(ray.GetCollisionPoint() - ray.GetCollisionNormal()));
+    }
+
+    public void RemoveBlock(RayCast3D ray, bool ignoreMirror = false)
+	{
+		RemoveBlock(BlockAt(ray), ignoreMirror);
 	}
 
-	public void RemoveBlock(Vector3 globalPosition)
+	public void RemoveBlock(Vector3 globalPosition, bool ignoreMirror = false)
 	{
-		RemoveBlock(GlobalToGridCoordinates(globalPosition));
+		RemoveBlock(GlobalToGridCoordinates(globalPosition), ignoreMirror);
 	}
 
-	public void RemoveBlock(Vector3I targetPosition)
+	public void RemoveBlock(Vector3I targetPosition, bool ignoreMirror = false)
 	{
-		// Sanity check
-		CubeBlock block = BlockAt(targetPosition);
-		if (block == null)
-			return;
+		RemoveBlock(BlockAt(targetPosition), ignoreMirror);
+    }
 
-		Vector3I blockPosition = LocalToGridCoordinates(block.Position);
+	public void RemoveBlock(CubeBlock? block, bool ignoreMirror = false)
+	{
+		if (block == null) return;
+
+        Vector3I blockPosition = LocalToGridCoordinates(block.Position);
 
         FullRemoveBlock(blockPosition);
 
         RecalcSize();
-		RecalcMass();
+        RecalcMass();
 
-		if (block is CockpitBlock c)
-			Cockpits.Remove(c);
+        if (block is CockpitBlock c)
+            Cockpits.Remove(c);
+		GD.Print("Removed " + block.Name);
 
-		// Remove mirrored blocks. Is recursive, but hopefully the isNull check stops it.
-		if (MirrorEnabled)
-		{
-			Vector3I diff = MirrorPosition - targetPosition;
-			if (GridMirrors[0])
-				RemoveBlock(new Vector3I(diff.X, targetPosition.Y, targetPosition.Z));
-			if (GridMirrors[1])
-				RemoveBlock(new Vector3I(targetPosition.X, diff.Y, targetPosition.Z));
-			if (GridMirrors[2])
-				RemoveBlock(new Vector3I(targetPosition.X, targetPosition.Y, diff.Z));
-		}
-	}
+        if (ignoreMirror)
+            return;
+
+        // Remove mirrored blocks. Is recursive, but hopefully the isNull check stops it.
+        if (MirrorEnabled)
+        {
+            Vector3I diff = MirrorPosition - blockPosition;
+            if (GridMirrors[0])
+                RemoveBlock(new Vector3I(diff.X, blockPosition.Y, blockPosition.Z));
+            if (GridMirrors[1])
+                RemoveBlock(new Vector3I(blockPosition.X, diff.Y, blockPosition.Z));
+            if (GridMirrors[2])
+                RemoveBlock(new Vector3I(blockPosition.X, blockPosition.Y, diff.Z));
+        }
+    }
 
 	/// <summary>
 	/// Safe-removes block and closes it.
@@ -256,6 +269,9 @@ public partial class CubeGrid : RigidBody3D
             blockToRemove.Close();
 
             CubeBlocks.Remove(position);
+
+            if (IsEmpty())
+                Close();
         }
     }
 
@@ -281,36 +297,30 @@ public partial class CubeGrid : RigidBody3D
 
 	private void RecalcSize()
 	{
-		if (CubeBlocks.Count == 0)
-		{
-			Close();
-			return;
-		}
-
-		Vector3I max = CubeBlocks.Keys.ToList()[0];
-		Vector3I min = CubeBlocks.Keys.ToList()[0];
-
-		foreach (var pos in CubeBlocks.Keys)
-		{
-			Aabb block = CubeBlocks[pos].Size(pos);
-			
-			if (block.End.X > max.X)
-				max.X = (int) block.End.X;
-			if (block.End.Y > max.Y)
-				max.Y = (int) block.End.Y;
-			if (block.End.Z > max.Z)
-				max.Z = (int) block.End.Z;
-
-			if (block.Position.X < min.X)
-				min.X = (int) block.Position.X;
-			if (block.Position.Y < min.Y)
-				min.Y = (int) block.Position.Y;
-			if (block.Position.Z < min.Z)
-				min.Z = (int) block.Position.Z;
-			
-		}
-
-		Size = new Aabb(min, max);
+		//Vector3I max = CubeBlocks.Keys.ToList()[0];
+		//Vector3I min = CubeBlocks.Keys.ToList()[0];
+		//
+		//foreach (var pos in CubeBlocks.Keys)
+		//{
+		//	Aabb block = CubeBlocks[pos].Size(pos);
+		//	
+		//	if (block.End.X > max.X)
+		//		max.X = (int) block.End.X;
+		//	if (block.End.Y > max.Y)
+		//		max.Y = (int) block.End.Y;
+		//	if (block.End.Z > max.Z)
+		//		max.Z = (int) block.End.Z;
+		//
+		//	if (block.Position.X < min.X)
+		//		min.X = (int) block.Position.X;
+		//	if (block.Position.Y < min.Y)
+		//		min.Y = (int) block.Position.Y;
+		//	if (block.Position.Z < min.Z)
+		//		min.Z = (int) block.Position.Z;
+		//	
+		//}
+		//
+		//Size = new Aabb(min, max);
 	}
 
 	private void RecalcMass()
@@ -400,8 +410,10 @@ public partial class CubeGrid : RigidBody3D
 		{
 			ShapeOwnerClearShapes(block.Value.collisionId);
 			RemoveShapeOwner(block.Value.collisionId);
-			block.Value.QueueFree();
+			block.Value.Close();
 		}
+		GetParent<GameScene>().grids.Remove(this);
+		QueueFree();
 	}
 
 	public bool IsEmpty()
