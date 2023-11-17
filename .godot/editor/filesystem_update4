@@ -46,3 +46,5 @@ res://Data/CubeObjects/WeaponObjects/ExplosionParticle.cs
 res://Assets/Images/Particles/explosion_particle.tres
 res://Data/CubeObjects/WeaponObjects/WeaponBase.tscn
 res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn
+res://Data/CubeObjects/WeaponObjects/ProjectileBase.cs
+res://Data/CubeObjects/WeaponObjects/ProjectilePhysical.cs

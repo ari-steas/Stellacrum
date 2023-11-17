@@ -41,23 +41,14 @@ namespace GameSceneObjects
 				return;
 			CurrentBlockId = subTypeId;
 
-			IsHoldingBlock = false;
+            IsHoldingBlock = Visible = subTypeId != "";
 
-			// If not showing block, don't try to show block...
-			if (subTypeId == "")
-			{
-				IsHoldingBlock = false;
-				Visible = false;
+            // If not showing block, don't try to show block...
+            if (subTypeId == "")
 				return;
-			}
-			else
-			{
-				Visible = true;
-				IsHoldingBlock = true;
-			}
 
-			// Remove existing block
-			foreach (var child in GetChildren())
+            // Remove existing block
+            foreach (var child in GetChildren())
 				if (child != ProjectMesh)
 					RemoveChild(child);
 

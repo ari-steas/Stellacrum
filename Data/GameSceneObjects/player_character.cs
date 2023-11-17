@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Runtime.CompilerServices;
 using Stellacrum.Data.CubeObjects;
-using Stellacrum.Data.GameSceneObjects;
+using Stellacrum.Data.CubeObjects.WeaponObjects;
 
 namespace GameSceneObjects
 {
@@ -37,9 +37,6 @@ namespace GameSceneObjects
 
 		MirrorManager mirrorManager;
 
-		// TODO remove
-		ProjectileBase wep = ProjectileBase.New();
-
 		public override void _Ready()
 		{
 			scene = GameScene.GetGameScene(this);
@@ -61,10 +58,6 @@ namespace GameSceneObjects
 
 			// Wait 1 second after scene start to place blocks
 			nextPlaceTime = DateTime.Now.Ticks + 10_000_000;
-
-			// TODO remove
-			AddChild(wep);
-			wep.Firing = true;
 		}
 
 		private bool isLookingAtGrid = false;
@@ -265,11 +258,18 @@ namespace GameSceneObjects
 			}
 
 
-			//if (Input.IsActionJustPressed("MirrorModeRotate") && PlayerPlaceBox.IsPlacingMirror)
+            //if (Input.IsActionJustPressed("MirrorModeRotate") && PlayerPlaceBox.IsPlacingMirror)
 
+			// TODO remove
+            if (Input.IsActionJustPressed("MousePressL"))
+                if (!PlayerPlaceBox.IsHoldingBlock)
+				{
+					scene.AddChild(ProjectileBase.New<ProjectileBase>(this));
+					GD.Print("Fire!");
+				}
 
-			// Prevents placing 60 blocks per second. Rate-limited to 6 per second.
-			if (PlayerPlaceBox.IsHoldingBlock && nextPlaceTime < DateTime.Now.Ticks)
+            // Prevents placing 60 blocks per second. Rate-limited to 6 per second.
+            if (PlayerPlaceBox.IsHoldingBlock && nextPlaceTime < DateTime.Now.Ticks)
 			{
 				// TODO: variable distance
 				if (Input.IsActionJustPressed("MousePressL"))

@@ -412,6 +412,8 @@ public partial class CubeGrid : RigidBody3D
 			RemoveShapeOwner(block.Value.collisionId);
 			block.Value.Close();
 		}
+		foreach (var child in GetChildren())
+			child.Reparent(GetParent());
 		GetParent<GameScene>().grids.Remove(this);
 		QueueFree();
 	}
