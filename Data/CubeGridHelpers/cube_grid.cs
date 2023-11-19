@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Stellacrum.Data.CubeObjects;
+using Stellacrum.Data.ObjectLoaders;
 
 public partial class CubeGrid : RigidBody3D
 {
@@ -88,7 +89,7 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
 	{
-		AddBlock(position, rotation, CubeBlockLoader.BaseFromId(blocKid));
+		AddBlock(position, rotation, CubeBlockLoader.BlockFromId(blocKid));
 	}
 
 	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
@@ -200,6 +201,17 @@ public partial class CubeGrid : RigidBody3D
 		if (ray == null) return null;
 		return BlockAt(GlobalToGridCoordinates(ray.GetCollisionPoint() - ray.GetCollisionNormal()));
     }
+
+    public CubeBlock? BlockAt(ShapeCast3D cast, int index = 0)
+    {
+        if (cast == null) return null;
+        return BlockAt(GlobalToGridCoordinates(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index)));
+    }
+
+	public CubeBlock[] GetCubeBlocks()
+	{
+		return CubeBlocks.Values.ToArray();
+	}
 
     public void RemoveBlock(RayCast3D ray, bool ignoreMirror = false)
 	{

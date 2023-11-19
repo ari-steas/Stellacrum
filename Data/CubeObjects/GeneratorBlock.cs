@@ -36,9 +36,9 @@ namespace Stellacrum.Data.CubeObjects
             set { SetEnabled(value); }
         }
 
-        public GeneratorBlock(string subTypeId, Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+        public GeneratorBlock(string subTypeId, Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
-            ReadFromData(blockData, "MaxOutput", ref DefMaxOutput);
+            ReadFromData(blockData, "MaxOutput", ref DefMaxOutput, verbose);
         }
 
         public override GridTreeStructure CheckConnectedBlocksOfType(string type)

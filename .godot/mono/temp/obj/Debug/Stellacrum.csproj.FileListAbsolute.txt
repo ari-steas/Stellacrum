@@ -62,3 +62,4 @@ C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\r
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.sourcelink.json

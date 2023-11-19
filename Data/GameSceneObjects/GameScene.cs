@@ -2,6 +2,7 @@ using GameSceneObjects;
 using Godot;
 using Stellacrum.Data.CubeGridHelpers;
 using Stellacrum.Data.CubeObjects;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Collections.Generic;
 
@@ -95,7 +96,7 @@ public partial class GameScene : Node3D
 
 	private void SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation)
 	{
-		if (!IsShapeEmpty(position, CubeBlockLoader.BaseFromId(blockId).collision))
+		if (!IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
 			return;
 
 		CubeGrid newGrid = new()
@@ -136,7 +137,7 @@ public partial class GameScene : Node3D
 	}
 
 	#nullable enable
-	public static CubeGrid? GetGrid(RayCast3D cast)
+	public static CubeGrid? GetGridAt(RayCast3D cast)
 	{
 		if (cast.IsColliding())
 			if (cast.GetCollider() is CubeGrid grid)
@@ -144,16 +145,33 @@ public partial class GameScene : Node3D
 		return null;
 	}
 
-	public static CubeBlock? BlockAt(RayCast3D cast)
+    public static CubeGrid? GetGridAt(ShapeCast3D cast, int index = 0)
+    {
+        if (cast.IsColliding())
+            if (cast.GetCollider(index) is CubeGrid grid)
+                return grid;
+        return null;
+    }
+
+    public static CubeBlock? GetBlockAt(RayCast3D cast)
 	{
-		CubeGrid? grid = GetGrid(cast);
+		CubeGrid? grid = GetGridAt(cast);
 		if (grid == null)
 			return null;
 
 		return grid.BlockAt(cast);
 	}
 
-	public static void RemoveBlock(RayCast3D ray)
+    public static CubeBlock? GetBlockAt(ShapeCast3D cast, int index = 0)
+    {
+        CubeGrid? grid = GetGridAt(cast, index);
+        if (grid == null)
+            return null;
+
+        return grid.BlockAt(cast);
+    }
+
+    public static void RemoveBlock(RayCast3D ray)
 	{
 		if (ray.IsColliding())
 			if (ray.GetCollider() is CubeGrid grid)
@@ -235,11 +253,13 @@ public partial class GameScene : Node3D
 
 	public static GameScene? GetGameScene(Node node)
 	{
+
         Node parent = node.GetParent();
         if (parent == null)
             return null;
-		if (node is GameScene gameScene1)
-			return gameScene1;
+
+		if (parent is menus m)
+			return m.GetChild<GameScene>(m.GetChildCount()-1);
 
         if (parent is GameScene gameScene2)
             return gameScene2;
@@ -264,6 +284,7 @@ public partial class GameScene : Node3D
         CubeBlockLoader.Clear();
         ModelLoader.Clear();
         TextureLoader.Clear();
+		ProjectileDefinitionLoader.Clear();
 
         GetTree().ReloadCurrentScene();
 	}

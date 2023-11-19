@@ -22,3 +22,5 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Stellacrum
 build_property.ProjectDir = C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

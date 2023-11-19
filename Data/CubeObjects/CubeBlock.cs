@@ -28,27 +28,27 @@ namespace Stellacrum.Data.CubeObjects
 		public CubeBlock() { }
 		protected Dictionary<string, GridMultiBlockStructure> MemberStructures { get; private set; } = new();
 
-		public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData)
+		public CubeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false)
 		{
-			List<Node3D> model;
+            this.subTypeId = subTypeId;
+            List<Node3D> model;
 			Vector3 size = Vector3.One * 2.5f;
 			int mass = 100;
 
 			// Load model from ModelLoader
 			string modelId = "ArmorBlock1x1";
-			ReadFromData(blockData, "Model", ref modelId);
+			ReadFromData(blockData, "Model", ref modelId, verbose);
 
 			model = ModelLoader.GetModel(modelId);
 
 			// Calc BlockSize
-			ReadFromData(blockData, "BlockSize", ref size);
+			ReadFromData(blockData, "BlockSize", ref size, verbose);
 			size *= 2.5f;
 
-			ReadFromData(blockData, "Mass", ref mass);
-			ReadFromData(blockData, "Health", ref _health);
+			ReadFromData(blockData, "Mass", ref mass, verbose);
+			ReadFromData(blockData, "Health", ref _health, verbose);
 
 			this.size = size;
-			this.subTypeId = subTypeId;
 
 			collision = new BoxShape3D()
 			{
@@ -167,7 +167,7 @@ namespace Stellacrum.Data.CubeObjects
 
 		}
 
-		protected static void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable)
+		protected void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable, bool verbose)
 		{
 			if (blockData.ContainsKey(dataKey))
 			{
@@ -176,8 +176,8 @@ namespace Stellacrum.Data.CubeObjects
 				else
 					variable = blockData[dataKey].As<T>();
 				}
-            else
-                GD.PrintErr($"Missing CubeBlock data [{dataKey}]! Setting to default...");
+            else if (verbose)
+                GD.PrintErr($"Missing CubeBlock.{subTypeId} data [{dataKey}]! Setting to default...");
         }
     }
 }

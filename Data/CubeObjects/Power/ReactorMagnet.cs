@@ -12,7 +12,7 @@ namespace Stellacrum.Data.CubeObjects.Power
         GpuParticlesAttractorBox3D fwdBox;
         //GpuParticlesAttractorBox3D downBox;
 
-        public ReactorMagnet(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+        public ReactorMagnet(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
             fwdBox = new GpuParticlesAttractorBox3D()
             {

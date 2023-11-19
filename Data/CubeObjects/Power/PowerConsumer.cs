@@ -40,9 +40,9 @@ namespace Stellacrum.Data.CubeObjects
             set { SetPower(value); }
         }
 
-        public PowerConsumer(string subTypeId, Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+        public PowerConsumer(string subTypeId, Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
-            ReadFromData(blockData, "MaxInput", ref DefMaxInput);
+            ReadFromData(blockData, "MaxInput", ref DefMaxInput, verbose);
         }
 
         public override GridTreeStructure CheckConnectedBlocksOfType(string type)

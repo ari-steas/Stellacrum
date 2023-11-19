@@ -16,7 +16,7 @@ namespace Stellacrum.Data.CubeObjects
         private Dictionary<string, List<CubeNodeBlock>> connectedBlocks = new();
 
         public CubeNodeBlock() { }
-        public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+        public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
             foreach (Node node in FindChildren("CNode_*", owned: false))
                 if (node is Node3D child)

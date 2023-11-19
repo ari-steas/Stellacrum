@@ -1,5 +1,6 @@
 using GameSceneObjects;
 using Godot;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Linq;
 

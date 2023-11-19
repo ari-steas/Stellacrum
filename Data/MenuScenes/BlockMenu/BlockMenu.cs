@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +11,7 @@ public partial class BlockMenu : CanvasLayer
 	Button ReturnButton;
 	GridContainer BlockContainer;
 	Dictionary<DraggableItem, string> BlockIcons = new();
+	GameScene scene;
 
 	hud_scene HUD;
 
@@ -19,7 +21,8 @@ public partial class BlockMenu : CanvasLayer
 		ReturnButton.Pressed += ReturnPress;
 
 		BlockContainer = FindChild("BlockContainer") as GridContainer;
-	}
+		scene = GameScene.GetGameScene(this);
+    }
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -47,8 +50,7 @@ public partial class BlockMenu : CanvasLayer
                 BlockContainer.AddChild(icon);
             }
 
-            // kinda cringe code
-            HUD = GameScene.GetGameScene(this).playerCharacter.HUD;
+            HUD = scene.playerCharacter.HUD;
         }
 
 		// Return if esc or tab pressed

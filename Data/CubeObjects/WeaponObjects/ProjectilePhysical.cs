@@ -1,23 +1,32 @@
 ﻿using Godot;
+using Godot.Collections;
 using System;
 
 namespace Stellacrum.Data.CubeObjects.WeaponObjects
 {
     public partial class ProjectilePhysical : ProjectileBase
     {
-        public float Speed { get; private set; } = 40;
-        public float Range { get; private set; } = 100;
+        internal float Speed = 40;
+        internal Vector3 Velocity = Vector3.Zero;
 
-        
+        public ProjectilePhysical(string subTypeId, Dictionary<string, Variant> projectileData, bool verbose = false) : base(subTypeId, projectileData, verbose)
+        {
+            ReadFromData(projectileData, "Speed", ref Speed, verbose);
+        }
 
-        [Obsolete("Not for manual use", true)]
-        public ProjectilePhysical() : base() { }
+        public void SetFirer(Node3D firer, Vector3 _velocity)
+        {
+            SetFirer(firer);
+            Velocity = _velocity;
+        }
 
         public override void _PhysicsProcess(double delta)
         {
             base._PhysicsProcess(delta);
 
-            Position += Basis * Vector3.Forward * Speed * (float) delta;
+            // Dynamically update size to prevent projectile phasing.
+            rayCast.TargetPosition = Vector3.Forward * (float) (Size + (Speed + Velocity.Length())*delta);
+            Position += (Basis * Vector3.Forward * Speed + Velocity) * (float) delta;
         }
     }
 }

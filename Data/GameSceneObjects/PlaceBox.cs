@@ -1,4 +1,5 @@
 using Godot;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 
 namespace GameSceneObjects

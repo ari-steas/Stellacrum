@@ -13,7 +13,7 @@ namespace Stellacrum.Data.CubeObjects
     {
         internal GridPowerStructure powerStructure;
 
-        public PowerConduit(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+        public PowerConduit(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
         }
 

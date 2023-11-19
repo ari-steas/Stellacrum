@@ -1,4 +1,6 @@
 using Godot;
+using Stellacrum.Data.CubeGridHelpers;
+using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -85,7 +87,7 @@ public class WorldLoader
 			return;
 
 		stage = LoadingStage.Started;
-		Thread thread = new Thread(RunLoad);
+		Thread thread = new (RunLoad);
 		thread.Start(scene);
     }
 
@@ -111,12 +113,18 @@ public class WorldLoader
             stage = LoadingStage.ModelLoad;
             ModelLoader.StartLoad("res://Assets/Models");
 
-			// Load blocks
             stage = LoadingStage.BlockLoad;
-            CubeBlockLoader.StartLoad("res://Assets/CubeBlocks");
+
+            // Load MultiBlockStructures
+            GridMultiBlockStructure.FindStructureTypes();
+
+            // Load blocks
+            CubeBlockLoader.StartLoad("res://Assets/");
+
+			// Load projectiles
+			ProjectileDefinitionLoader.StartLoad("res://Assets/");
 
 			// Load save data
-            stage = LoadingStage.DataLoad;
             if (!Worlds.Contains(CurrentSave))
             {
                 WorldSave.Create(CurrentSave);

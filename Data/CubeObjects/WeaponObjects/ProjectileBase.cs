@@ -19,43 +19,75 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
 
         private static PackedScene baseScene = GD.Load<PackedScene>("res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn");
 
-        /// <summary>
-        /// Instantiate new projectile of type T.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T New<T>(Node3D firer) where T : ProjectileBase
+        public ProjectileBase(string subTypeId, Godot.Collections.Dictionary<string, Variant> projectileData, bool verbose = false)
         {
-            // GROSS
-            T projectile = Activator.CreateInstance<T>();
             foreach (var child in baseScene.Instantiate().GetChildren())
             {
                 child.GetParent().RemoveChild(child);
-                projectile.AddChild(child);
+                AddChild(child);
                 //child.Reparent(projectile, false);
             }
-            projectile.Rotation = firer.Rotation;
-            projectile.Position = firer.GlobalPosition;
-            return projectile;
+
+            SubTypeId = subTypeId;
+            ReadFromData(projectileData, "Damage", ref Damage, verbose);
+            ReadFromData(projectileData, "MaxBlockHits", ref MaxBlockHits, verbose);
+            ReadFromData(projectileData, "DamageSum", ref DamageSum, verbose);
+            ReadFromData(projectileData, "ActiveTime", ref ActiveTime, verbose);
+            ReadFromData(projectileData, "Size", ref Size, verbose);
+            ReadFromData(projectileData, "AreaEffectEnabled", ref AreaEffectEnabled, verbose);
+            ReadFromData(projectileData, "AreaEffectRadius", ref AreaEffectRadius, verbose);
+            ReadFromData(projectileData, "AreaEffectDamage", ref AreaEffectDamage, verbose);
+
+            Name = "Projectile." + subTypeId + "." + GetIndex();
         }
 
-        [Obsolete("Not for manual use", true)]
         public ProjectileBase() { }
 
-        public int Damage { get; internal set; } = 100;
+        public void SetFirer(Node3D firer)
+        {
+            Rotation = firer.Rotation;
+            Position = firer.GlobalPosition;
+        }
+
+        internal string SubTypeId = "";
+
+        /// <summary>
+        /// Single-hit damage. Affected by DamageSum.
+        /// </summary>
+        internal int Damage = 100;
+
         /// <summary>
         /// Total possible block hits. Set to a negative number to ignore.
         /// </summary>
-        public int MaxBlockHits = 4;
-        public float Size { get; internal set; } = 1;
+        internal int MaxBlockHits = 1;
+
+        internal float Size = 1;
+
         /// <summary>
         /// Total active time. Set to zero for a one-tick pulse, set to (MaxDistance/Speed) for max distance.
         /// </summary>
-        public float ActiveTime = 4;
+        internal float ActiveTime = 4;
+
         /// <summary>
         /// If true, Damage is subtracted by block HP on hit.
         /// </summary>
-        public bool DamageSum = false;
+        internal bool DamageSum = false;
+
+        /// <summary>
+        /// If true, deal AoE damage.
+        /// </summary>
+        internal bool AreaEffectEnabled = false;
+
+        /// <summary>
+        /// Radius of AoE damage sphere.
+        /// </summary>
+        internal float AreaEffectRadius = 5;
+
+        /// <summary>
+        /// Explosive damage applied. Affected by DamageSum.
+        /// </summary>
+        internal int AreaEffectDamage = 100;
+
 
         internal RayCast3D rayCast;
         internal GpuParticles3D particles;
@@ -80,32 +112,81 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         public override void _PhysicsProcess(double delta)
         {
             base._PhysicsProcess(delta);
-            
+
+            HandleBlockHits();
+
+            // Remove self if too old.
+            ActiveTime -= (float)delta;
+            if (ActiveTime < 0)
+                QueueFree();
+        }
+
+        private void HandleBlockHits()
+        {
             // Hit all valid blocks in a single tick
             while (rayCast.IsColliding())
             {
-                CubeBlock block = GameScene.BlockAt(rayCast);
+                CubeBlock block = GameScene.GetBlockAt(rayCast);
+                // If hits self...
+                if (block == null)
+                    break;
+
                 // Support for DamageSum setting
                 if (Damage > 0)
                 {
+                    // Single hit damage
                     int blockHealthBuffer = block.Health;
                     block.Health -= Damage;
                     if (DamageSum)
                         Damage -= blockHealthBuffer;
                 }
+
+                if (AreaEffectEnabled && AreaEffectDamage > 0)
+                    HandleExplosiveHits(GameScene.GetGridAt(rayCast), rayCast.GetCollisionPoint());
+
                 MaxBlockHits--;
                 if (MaxBlockHits == 0)
                 {
                     QueueFree();
                     break;
                 }
+
                 rayCast.AddException(block);
             }
             rayCast.ClearExceptions();
+        }
 
-            ActiveTime -= (float)delta;
-            if (ActiveTime < 0)
-                QueueFree();
+        private void HandleExplosiveHits(CubeGrid grid, Vector3 globalHitPosition)
+        {
+            foreach (var block in grid.GetCubeBlocks())
+            {
+                // TODO consider collision shapes
+                if (block.GlobalPosition.DistanceTo(globalHitPosition) < AreaEffectRadius)
+                {
+                    // Support for DamageSum setting
+                    if (AreaEffectDamage > 0)
+                    {
+                        // Single hit damage
+                        int blockHealthBuffer = block.Health;
+                        block.Health -= AreaEffectDamage;
+                        if (DamageSum)
+                            AreaEffectDamage -= blockHealthBuffer;
+                    } 
+                }
+            }
+        }
+
+        protected void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable, bool verbose)
+        {
+            if (blockData.ContainsKey(dataKey))
+            {
+                if (typeof(T) == typeof(Vector3))
+                    variable = (T)Convert.ChangeType(JsonHelper.LoadVec(blockData[dataKey]), typeof(T));
+                else
+                    variable = blockData[dataKey].As<T>();
+            }
+            else if (verbose)
+                GD.PrintErr($"Missing Projectile.{SubTypeId} data [{dataKey}]! Setting to default...");
         }
     }
 }

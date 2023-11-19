@@ -16,9 +16,9 @@ namespace Stellacrum.Data.CubeObjects
 		private GpuParticles3D particles;
 		private StandardMaterial3D coneMaterial;
 
-		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData) : base(subTypeId, blockData)
+		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
 		{
-			ReadFromData(blockData, "ThrusterStrength", ref MaximumThrust);
+			ReadFromData(blockData, "ThrusterStrength", ref MaximumThrust, verbose);
 
 			// ThrustNode shows where particles should be emitted
 			foreach (var node in meshes)

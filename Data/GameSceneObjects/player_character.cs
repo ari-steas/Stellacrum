@@ -3,6 +3,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Stellacrum.Data.CubeObjects;
 using Stellacrum.Data.CubeObjects.WeaponObjects;
+using Stellacrum.Data.ObjectLoaders;
 
 namespace GameSceneObjects
 {
@@ -264,19 +265,19 @@ namespace GameSceneObjects
             if (Input.IsActionJustPressed("MousePressL"))
                 if (!PlayerPlaceBox.IsHoldingBlock)
 				{
-					scene.AddChild(ProjectileBase.New<ProjectileBase>(this));
-					GD.Print("Fire!");
+					ProjectilePhysical p = (ProjectilePhysical) ProjectileDefinitionLoader.ProjectileFromId("PhysicalTest");
+					p.SetFirer(this, Velocity);
+                    scene.AddChild(p);
 				}
 
             // Prevents placing 60 blocks per second. Rate-limited to 6 per second.
             if (PlayerPlaceBox.IsHoldingBlock && nextPlaceTime < DateTime.Now.Ticks)
 			{
-				// TODO: variable distance
 				if (Input.IsActionJustPressed("MousePressL"))
 				{
 					if (mirrorManager.PlacingMirror)
 					{
-						mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, GameScene.GetGrid(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
+						mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, GameScene.GetGridAt(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
 						mirrorManager.UnsetActiveMirror();
 						PlayerPlaceBox.Visible = true;
 					}

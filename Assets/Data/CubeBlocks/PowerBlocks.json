@@ -1,0 +1,52 @@
+{
+	"CubeBlockDefinitions":{
+		"PowerLargeStraight":{
+			"Model":"ConduitLargeStraight",
+			"BlockSize":[1, 1, 1],
+			"Icon":"ConduitLargeStraight.png",
+			"TypeId":"PowerConduit",
+
+			"Mass":50
+		},
+
+		"PowerLargeCorner":{
+			"Model":"ConduitLargeCorner",
+			"BlockSize":[1, 1, 1],
+			"Icon":"ConduitLargeCorner.png",
+			"TypeId":"PowerConduit",
+
+			"Mass":50
+		},
+
+		"PowerLargeT":{
+			"Model":"ConduitLargeT",
+			"BlockSize":[1, 1, 1],
+			"Icon":"ConduitLargeT.png",
+			"TypeId":"PowerConduit",
+
+			"Mass":50
+		},
+
+		"SmallBatteryBlock":{
+			"Model":"SmallBatteryBlock",
+			"BlockSize":[1, 1, 1],
+			"Icon":"SmallBatteryBlock.png",
+			"TypeId":"GeneratorBlock",
+
+			"MaxOutput":10,
+
+			"Mass":500
+		},
+
+		"ReactorMagnet":{
+			"Model":"SmallBatteryBlock",
+			"BlockSize":[1, 1, 1],
+			"Icon":"SmallBatteryBlock.png",
+			"TypeId":"ReactorMagnet",
+
+			"MaxInput":-2,
+
+			"Mass":500
+		}
+	}
+}

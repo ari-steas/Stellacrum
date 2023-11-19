@@ -119,6 +119,7 @@ public partial class menus : Node2D
 		prevMenu = currentMenu;
 		currentMenu = toShow;
 
+		// If toShow == 0, show gamescene.
 		if (toShow == 0)
 			EmitSignal(SignalName.ToggleActive, true);
 		else
