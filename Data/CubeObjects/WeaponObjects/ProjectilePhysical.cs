@@ -14,10 +14,11 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
             ReadFromData(projectileData, "Speed", ref Speed, verbose);
         }
 
-        public void SetFirer(Node3D firer, Vector3 _velocity)
+
+        public void SetFirer(Vector3 position, Vector3 direction, Vector3 velocity)
         {
-            SetFirer(firer);
-            Velocity = _velocity;
+            SetFirer(position, direction);
+            Velocity += velocity;
         }
 
         public override void _PhysicsProcess(double delta)

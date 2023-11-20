@@ -35,6 +35,7 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
             ReadFromData(projectileData, "ActiveTime", ref ActiveTime, verbose);
             ReadFromData(projectileData, "Size", ref Size, verbose);
             ReadFromData(projectileData, "AreaEffectEnabled", ref AreaEffectEnabled, verbose);
+            ReadFromData(projectileData, "AreaEffectFalloff", ref AreaEffectFalloff, verbose);
             ReadFromData(projectileData, "AreaEffectRadius", ref AreaEffectRadius, verbose);
             ReadFromData(projectileData, "AreaEffectDamage", ref AreaEffectDamage, verbose);
 
@@ -49,6 +50,11 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
             Position = firer.GlobalPosition;
         }
 
+        public void SetFirer(Vector3 position, Vector3 direction)
+        {
+            LookAtFromPosition(position, position + direction);
+        }
+
         internal string SubTypeId = "";
 
         /// <summary>
@@ -61,6 +67,9 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         /// </summary>
         internal int MaxBlockHits = 1;
 
+        /// <summary>
+        /// Size of projectile.
+        /// </summary>
         internal float Size = 1;
 
         /// <summary>
@@ -77,6 +86,11 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         /// If true, deal AoE damage.
         /// </summary>
         internal bool AreaEffectEnabled = false;
+
+        /// <summary>
+        /// Linear falloff multiplier for AoE.
+        /// </summary>
+        internal float AreaEffectFalloff = 1;
 
         /// <summary>
         /// Radius of AoE damage sphere.
@@ -168,9 +182,10 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
                     {
                         // Single hit damage
                         int blockHealthBuffer = block.Health;
-                        block.Health -= AreaEffectDamage;
+                        float distanceMultiplier = (globalHitPosition.DistanceTo(block.GlobalPosition) * AreaEffectFalloff) / AreaEffectRadius;
+                        block.Health -= (int)(AreaEffectDamage * distanceMultiplier);
                         if (DamageSum)
-                            AreaEffectDamage -= blockHealthBuffer;
+                            AreaEffectDamage -= blockHealthBuffer - block.Health;
                     } 
                 }
             }

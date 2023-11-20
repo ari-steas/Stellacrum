@@ -11,13 +11,17 @@
         },
         "PhysicalTest":{
             "TypeId":"ProjectilePhysical",
+
             "Damage":100,
             "MaxBlockHits":1,
             "DamageSum":false,
-            "AreaEffectEnabled":true,
-            "AreaEffectRadius":1,
-
             "ActiveTime":4,
+            "Size":1,
+
+            "AreaEffectEnabled":true,
+            "AreaEffectFalloff":1,
+            "AreaEffectRadius":1,
+            "AreaEffectDamage":100,
 
             "Speed":250
         }
