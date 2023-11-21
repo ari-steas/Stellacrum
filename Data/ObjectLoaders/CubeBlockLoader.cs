@@ -18,6 +18,8 @@ namespace Stellacrum.Data.ObjectLoaders
 		private static Dictionary<string, Godot.Collections.Dictionary<string, Variant>> blockDefinitions = new();
 		private static readonly Dictionary<string, CubeBlock> baseBlocks = new();
 
+		private static readonly List<Type> validBlockTypes = new();
+
 		public static void StartLoad(string path)
 		{
 			GD.Print("\n\nStart CubeBlock load from " + path);
@@ -26,6 +28,18 @@ namespace Stellacrum.Data.ObjectLoaders
 			baseBlocks.Clear();
 			typeIds.Clear();
 			CubeBlockTextures.Clear();
+			validBlockTypes.Clear();
+
+			GD.Print("\nValid TypeIds:");
+            foreach (var item in Assembly.GetAssembly(typeof(CubeBlock)).GetTypes())
+            {
+				if (item.IsAssignableTo(typeof(CubeBlock)) || item == typeof(CubeBlock))
+				{
+					GD.Print("  " + item.Name);
+					validBlockTypes.Add(item);
+				}
+            };
+			GD.Print();
 
 			if (path[^1] != '/')
 				path += '/';
@@ -143,7 +157,15 @@ namespace Stellacrum.Data.ObjectLoaders
 			try
 			{
 				Assembly asm = typeof(CubeBlock).Assembly;
-				type = asm.GetType("Stellacrum.Data.CubeObjects." + (string)blockData["TypeId"]);
+				foreach (var validType in validBlockTypes)
+				{
+					if (validType.Name == (string)blockData["TypeId"])
+					{
+						type = validType;
+						break;
+					}
+				}
+				//type = asm.GetType("Stellacrum.Data.CubeObjects." + (string)blockData["TypeId"]);
 			}
 			catch
 			{

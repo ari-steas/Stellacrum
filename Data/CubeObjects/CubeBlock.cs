@@ -18,7 +18,7 @@ namespace Stellacrum.Data.CubeObjects
 		public int Health { get => _health; set => SetHealth(value); }
 		private int _health = 100;
 
-		private void SetHealth(int newHealth)
+		internal void SetHealth(int newHealth)
 		{
             _health = newHealth;
 			if (_health <= 0)
@@ -111,10 +111,15 @@ namespace Stellacrum.Data.CubeObjects
 			};
 		}
 
+		/// <summary>
+		/// Gets a Vector3I[] containing all points within the block's bounds. Offset by basePosition.
+		/// </summary>
+		/// <param name="basePosition"></param>
+		/// <returns></returns>
 		public Vector3I[] OccupiedSlots(Vector3I basePosition)
 		{
 			// Offset position to bottom-left corner
-			basePosition -= (Vector3I)(this.size / 5f);
+			basePosition -= (Vector3I)(size / 5f);
 
 			List<Vector3I> slots = new();
 			for (int z = basePosition.Z; z < size.Z / 2.5f + basePosition.Z; z++)
@@ -135,8 +140,8 @@ namespace Stellacrum.Data.CubeObjects
 			//GetParent<CubeGrid>().CallDeferred(CubeGrid.MethodName.RemoveBlock, this, true);
 			Node3D particle = (Node3D) explodeScene.Instantiate();
 			particle.Position = GlobalPosition;
-            GetParent<CubeGrid>().GetParent().AddChild(particle);
-            GetParent<CubeGrid>().RemoveBlock(this, true);
+			GameScene.GetGameScene(this).AddChild(particle);
+            Grid().RemoveBlock(this, true);
         }
 
 		/// <summary>
@@ -150,6 +155,10 @@ namespace Stellacrum.Data.CubeObjects
 			QueueFree();
 		}
 
+		/// <summary>
+		/// Returns a Json dictionary containing block data.
+		/// </summary>
+		/// <returns></returns>
 		public virtual Godot.Collections.Dictionary<string, Variant> Save()
 		{
 			Godot.Collections.Dictionary<string, Variant> data = new()
@@ -162,11 +171,22 @@ namespace Stellacrum.Data.CubeObjects
 			return data;
 		}
 
+		/// <summary>
+		/// Triggers on place, after being added to the scene tree.
+		/// </summary>
 		public virtual void OnPlace()
 		{
 
 		}
 
+		/// <summary>
+		/// Reads a variable from Json dictionary blockData. If key missing in blockData, does not change variable.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="blockData"></param>
+		/// <param name="dataKey"></param>
+		/// <param name="variable"></param>
+		/// <param name="verbose"></param>
 		protected void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable, bool verbose)
 		{
 			if (blockData.ContainsKey(dataKey))
@@ -179,5 +199,14 @@ namespace Stellacrum.Data.CubeObjects
             else if (verbose)
                 GD.PrintErr($"Missing CubeBlock.{subTypeId} data [{dataKey}]! Setting to default...");
         }
+
+		/// <summary>
+		/// Returns parent grid (or null if somehow missing).
+		/// </summary>
+		/// <returns></returns>
+		public CubeGrid Grid()
+		{
+			return GetParent<CubeGrid>();
+		}
     }
 }

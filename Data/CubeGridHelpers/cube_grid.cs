@@ -22,6 +22,9 @@ public partial class CubeGrid : RigidBody3D
 	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
 	readonly List<Vector3I> OccupiedBlocks = new ();
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
+	readonly internal List<SubGrid> subGrids = new();
+
+	private float OwnMass = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -120,6 +123,7 @@ public partial class CubeGrid : RigidBody3D
         ShapeOwnerSetTransform(block.collisionId, block.Transform);
 
         Mass += block.Mass;
+        OwnMass += block.Mass;
 
         RecalcSize();
         RecalcMass();
@@ -184,7 +188,7 @@ public partial class CubeGrid : RigidBody3D
         ShapeOwnerAddShape(block.collisionId, block.collision);
         ShapeOwnerSetTransform(block.collisionId, block.Transform);
 
-        Mass += block.Mass;
+        OwnMass += block.Mass;
 
         RecalcSize();
         RecalcMass();
@@ -241,7 +245,6 @@ public partial class CubeGrid : RigidBody3D
 
         if (block is CockpitBlock c)
             Cockpits.Remove(c);
-		GD.Print("Removed " + block.Name);
 
         if (ignoreMirror)
             return;
@@ -277,6 +280,7 @@ public partial class CubeGrid : RigidBody3D
 
             RemoveChild(blockToRemove);
             Mass -= blockToRemove.Mass;
+            OwnMass -= blockToRemove.Mass;
 
             blockToRemove.Close();
 
@@ -335,11 +339,19 @@ public partial class CubeGrid : RigidBody3D
 		//Size = new Aabb(min, max);
 	}
 
+	/// <summary>
+	/// Custom method to set center of mass.
+	/// </summary>
 	private void RecalcMass()
 	{
+		// Add mass of subgrids to own mass
+		Mass = OwnMass;
+		subGrids.ForEach(s => Mass += s.Mass);
+
 		Vector3 centerOfMass = Vector3.Zero;
 		foreach (var block in CubeBlocks.Values)
 			centerOfMass += block.Position * block.Mass;
+		subGrids.ForEach(s => centerOfMass += s.Position * s.Mass);
 		centerOfMass /= Mass;
 
 		if (CenterOfMassMode != CenterOfMassModeEnum.Custom)
@@ -416,7 +428,7 @@ public partial class CubeGrid : RigidBody3D
 		return saveData;
 	}
 
-	public void Close()
+	public virtual void Close()
 	{
 		foreach (var block in CubeBlocks)
 		{

@@ -82,10 +82,10 @@ namespace GameSceneObjects
 			// TODO remove
 			DebugDraw.Point(WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault(), 1, Colors.Red);
 			DebugDraw.Point(Vector3.Zero);
-
-            ProjectilePhysical p = (ProjectilePhysical)ProjectileDefinitionLoader.ProjectileFromId("PhysicalTest");
-            p.SetFirer(GlobalPosition, WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault() - GlobalPosition, Velocity);
-            scene.AddChild(p);
+			//
+            //ProjectilePhysical p = (ProjectilePhysical)ProjectileDefinitionLoader.ProjectileFromId("PhysicalTest");
+            //p.SetFirer(GlobalPosition, WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault() - GlobalPosition, Velocity);
+            //scene.AddChild(p);
 
             
 

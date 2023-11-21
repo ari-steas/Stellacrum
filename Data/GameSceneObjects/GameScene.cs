@@ -94,26 +94,36 @@ public partial class GameScene : Node3D
 		}
 	}
 
-	private void SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation)
+	public CubeGrid? SpawnGridWithBlock<T>(string blockId, Vector3 position, Vector3 rotation, bool force = false) where T : CubeGrid
 	{
-		if (!IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
-			return;
+		if (!force && !IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
+			return null;
 
-		CubeGrid newGrid = new()
-		{
-			Position = position,
-			Rotation = rotation,
-		};
-		newGrid.AddBlock(Vector3I.Zero, Vector3.Zero, blockId);
+		T newGrid = (T)Activator.CreateInstance(typeof(T), args: new object[] { });
+		newGrid.Position = position;
+		newGrid.Rotation = rotation;
+
+        //T newGrid = new()
+        //{
+        //	Position = position,
+        //	Rotation = rotation,
+        //};
+        newGrid.AddBlock(Vector3I.Zero, Vector3.Zero, blockId);
 
 		AddChild(newGrid);
 		grids.Add(newGrid);
 		newGrid.Name = "CubeGrid." + GetIndex();
 
 		GD.Print("Spawned grid " + newGrid.Name + " @ " + newGrid.Position);
+		return newGrid;
 	}
 
-	public void SpawnPremadeGrid(CubeGrid grid)
+    public CubeGrid? SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation, bool force = false)
+    {
+        return SpawnGridWithBlock<CubeGrid>(blockId, position, rotation, force);
+    }
+
+    public void SpawnPremadeGrid(CubeGrid grid)
 	{
 		CallDeferred(Node.MethodName.AddChild, grid);
 		grids.Add(grid);
@@ -269,7 +279,7 @@ public partial class GameScene : Node3D
 
 	public void Close()
 	{
-		foreach (var grid in grids)
+		foreach (var grid in grids.ToArray())
 			grid.Close();
 
 		grids.Clear();

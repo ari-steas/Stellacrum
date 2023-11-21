@@ -11,10 +11,12 @@ res://addons/debug_drawing/demo/DrawDemo.cs
 res://Data/CubeGridHelpers/MultiBlockStructures/GridMultiBlockStructure.cs
 res://Data/CubeGridHelpers/MultiBlockStructures/GridPowerStructure.cs
 res://Data/CubeGridHelpers/MultiBlockStructures/GridTreeStructure.cs
+res://Data/CubeGridHelpers/SubGrid.cs
 res://Data/CubeObjects/CockpitBlock.cs
 res://Data/CubeObjects/CubeBlock.cs
 res://Data/CubeObjects/CubeNodeBlock.cs
 res://Data/CubeObjects/GeneratorBlock.cs
+res://Data/CubeObjects/Mechanical/MechanicalBlock.cs
 res://Data/CubeObjects/Power/PowerConduit.cs
 res://Data/CubeObjects/Power/PowerConsumer.cs
 res://Data/CubeObjects/Power/ReactorEffects.cs

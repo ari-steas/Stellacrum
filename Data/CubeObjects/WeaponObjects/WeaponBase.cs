@@ -1,32 +1,11 @@
 ﻿using Godot;
 using System;
+using System.Linq;
 
 namespace Stellacrum.Data.CubeObjects.WeaponObjects
 {
     public class WeaponBase
     {
-        //public static Vector3 Interception(Vector3 selfPos, Vector3 targetPos, Vector3 selfVel, Vector3 targetVel)
-        //{
-        //    // Calculate relative velocity
-        //    Vector3 relativeVelocity = targetVel - selfVel;
-        //
-        //    // Check if the target is moving away from the pursuer
-        //    float relativeSpeedSquared = relativeVelocity.Dot(relativeVelocity);
-        //    if (relativeSpeedSquared < float.Epsilon)
-        //    {
-        //        // Target is not moving relative to the pursuer, no interception point
-        //        return targetPos;
-        //    }
-        //
-        //    // Calculate time of intersection
-        //    float timeToIntersection = (targetPos - selfPos).Dot(relativeVelocity) / relativeSpeedSquared;
-        //
-        //    // Calculate interception point
-        //    Vector3 interceptionPoint = targetPos + targetVel * timeToIntersection;
-        //
-        //    return interceptionPoint;
-        //}
-
         public static Vector3? CalculateInterceptionPoint(Vector3 selfPosition, Vector3 selfVelocity, Vector3 targetPosition, Vector3 targetVelocity, float projectileSpeed)
         {
             Vector3 relativeVelocity = targetVelocity - selfVelocity;
