@@ -30,33 +30,22 @@ public partial class menus : Node2D
 
 		OptionsHelper.Load(json.Data.As<Dictionary<string, Variant>>());
 
-        //string code = @"
-		//	using System;
-		//	
-		//	namespace First
-		//	{
-		//		public class Program
-		//		{
-        //    		public static void Main()
-        //    		{
-        //    			Console.WriteLine(""Hello, world!"");
-		//			}
-		//			public static void WithParams(string message)
-		//			{
-		//				Console.WriteLine(message);
-		//			}
-		//		}
-		//	}";
-		//
-		//var compiler = new ScriptLoader("First.Program", code, new[] { typeof(Console) });
-		//var type = compiler.Compile();
+        string sourceCode = @"
+            using System;
 
-		//type.GetMethod("Main").Invoke(null, null);
-		//result: Hellow World!
+            namespace DynamicCode
+            {
+                public class Program
+                {
+                    public static void Run()
+                    {
+                        Console.WriteLine(""Hello, dynamic code!"");
+                    }
+                }
+            }";
 
-		// pass an object array to the second null parameter to pass arguments
-		//type.GetMethod("WithParams").Invoke(null, new object[] { "Hi there from invoke!" });
-	}
+		ScriptLoader.CompileAndRunCode();
+    }
 
     private void _Fullscreen(object value)
 	{
