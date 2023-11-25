@@ -6,9 +6,13 @@
 			"Icon":"ArmorBlock1x1.png",
 			"TypeId":"MechanicalBlock",
 
+			"JointAngularX_Limited":true,
+			"JointAngularY_Limited":true,
+			"JointAngularZ_Limited":false,
+
 			"Mass":500,
 
-            "SubPartId":"ArmorBlock1x1SlopeCorner"
+            "SubPartId":"ArmorBlockSlopeCorner"
 		}
 	}
 }

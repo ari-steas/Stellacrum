@@ -94,33 +94,29 @@ public partial class GameScene : Node3D
 		}
 	}
 
-	public CubeGrid? SpawnGridWithBlock<T>(string blockId, Vector3 position, Vector3 rotation, bool force = false) where T : CubeGrid
-	{
-		if (!force && !IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
-			return null;
 
-		T newGrid = (T)Activator.CreateInstance(typeof(T), args: new object[] { });
-		newGrid.Position = position;
-		newGrid.Rotation = rotation;
+    public CubeGrid? SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation, bool force = false, Node parent = null)
+    {
+        if (!force && !IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
+            return null;
 
-        //T newGrid = new()
-        //{
-        //	Position = position,
-        //	Rotation = rotation,
-        //};
+        CubeGrid newGrid = new()
+        {
+            Position = position,
+            Rotation = rotation
+        };
+
         newGrid.AddBlock(Vector3I.Zero, Vector3.Zero, blockId);
 
-		AddChild(newGrid);
-		grids.Add(newGrid);
-		newGrid.Name = "CubeGrid." + GetIndex();
+        if (parent == null)
+            AddChild(newGrid);
+        else
+            parent.CallDeferred(Node.MethodName.AddChild, newGrid);
+        grids.Add(newGrid);
+        newGrid.Name = "CubeGrid." + GetIndex();
 
-		GD.Print("Spawned grid " + newGrid.Name + " @ " + newGrid.Position);
-		return newGrid;
-	}
-
-    public CubeGrid? SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation, bool force = false)
-    {
-        return SpawnGridWithBlock<CubeGrid>(blockId, position, rotation, force);
+        GD.Print("Spawned grid " + newGrid.Name + " @ " + newGrid.Position);
+        return newGrid;
     }
 
     public void SpawnPremadeGrid(CubeGrid grid)

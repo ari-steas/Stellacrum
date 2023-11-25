@@ -1,7 +1,4 @@
-﻿using Microsoft.CSharp;
-using System;
-using System.CodeDom;
-using System.CodeDom.Compiler;
+﻿using System;
 using System.Collections.Generic;
 using Godot;
 using Microsoft.CodeAnalysis.CSharp;
@@ -41,70 +38,71 @@ namespace Stellacrum.Data.ObjectLoaders
         //    }
         //}
 
-        static readonly string code = @"
-            using System;
-
-            class Program
-            {
-                static void Main(string[] args)
-                {
-                    Console.WriteLine(""Hello World!"");
-                    Console.ReadLine();
-                }
-            }
-        ";
-
-
-        public static void CompileAndRunCode()
-        {
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
-
-            string assemblyName = Path.GetRandomFileName();
-            MetadataReference[] references = new MetadataReference[]
-            {
-                MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Console).GetTypeInfo().Assembly.Location),
-            };
-
-            CSharpCompilation compilation = CSharpCompilation.Create(
-                assemblyName,
-                syntaxTrees: new[] { syntaxTree },
-                references: references,
-                options: new CSharpCompilationOptions(OutputKind.ConsoleApplication)
-            );
-
-            using (var ms = new MemoryStream())
-            {
-                EmitResult result = compilation.Emit(ms);
-
-                if (result.Success)
-                {
-                    ms.Seek(0, SeekOrigin.Begin);
-                    Assembly assembly = Assembly.Load(ms.ToArray());
-                    MethodInfo entryPoint = assembly.EntryPoint;
-
-                    if (entryPoint != null)
-                    {
-                        object[] args = new object[] { new string[] { } };
-                        entryPoint.Invoke(null, args);
-                    }
-                    else
-                    {
-                        GD.Print("No entry point found.");
-                    }
-                }
-                else
-                {
-                    IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                        diagnostic.IsWarningAsError ||
-                        diagnostic.Severity == DiagnosticSeverity.Error);
-
-                    foreach (Diagnostic diagnostic in failures)
-                    {
-                        GD.PrintErr($"{diagnostic.Id}: {diagnostic.GetMessage()}");
-                    }
-                }
-            }
-        }
+        //static readonly string code = @"
+        //    using System;
+        //    using Godot;
+        //
+        //    class Program
+        //    {
+        //        static void Main(string[] args)
+        //        {
+        //            //GD.Print(""Test"");
+        //            Console.WriteLine(""Hello World!"");
+        //            Console.ReadLine();
+        //        }
+        //    }
+        //";
+        //
+        //public static void CompileAndRunCode()
+        //{
+        //    SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
+        //
+        //    string assemblyName = Path.GetRandomFileName();
+        //    MetadataReference[] references = new MetadataReference[]
+        //    {
+        //        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+        //        //MetadataReference.CreateFromFile(typeof(GD).Assembly.Location, new())
+        //        MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+        //    };
+        //    CSharpCompilation compilation = CSharpCompilation.Create(
+        //        assemblyName,
+        //        new[] { syntaxTree },
+        //        new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
+        //        options: new CSharpCompilationOptions(OutputKind.ConsoleApplication)
+        //    );
+        //
+        //    using (var ms = new MemoryStream())
+        //    {
+        //        EmitResult result = compilation.Emit(ms);
+        //
+        //        if (result.Success)
+        //        {
+        //            ms.Seek(0, SeekOrigin.Begin);
+        //            Assembly assembly = Assembly.Load(ms.ToArray());
+        //            MethodInfo entryPoint = assembly.EntryPoint;
+        //
+        //            if (entryPoint != null)
+        //            {
+        //                object[] args = new object[] { new string[] { } };
+        //                entryPoint.Invoke(null, args);
+        //            }
+        //            else
+        //            {
+        //                GD.Print("No entry point found.");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+        //                diagnostic.IsWarningAsError ||
+        //                diagnostic.Severity == DiagnosticSeverity.Error);
+        //
+        //            foreach (Diagnostic diagnostic in failures)
+        //            {
+        //                GD.PrintErr($"{diagnostic.Id}: {diagnostic.GetMessage()}");
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

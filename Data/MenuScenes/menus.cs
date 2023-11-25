@@ -30,21 +30,7 @@ public partial class menus : Node2D
 
 		OptionsHelper.Load(json.Data.As<Dictionary<string, Variant>>());
 
-        string sourceCode = @"
-            using System;
-
-            namespace DynamicCode
-            {
-                public class Program
-                {
-                    public static void Run()
-                    {
-                        Console.WriteLine(""Hello, dynamic code!"");
-                    }
-                }
-            }";
-
-		ScriptLoader.CompileAndRunCode();
+		//ScriptLoader.CompileAndRunCode();
     }
 
     private void _Fullscreen(object value)
@@ -77,7 +63,7 @@ public partial class menus : Node2D
 
 	private void _FpsSet(object value)
 	{
-		GD.PrintErr("FPS set " + value);
+		//GD.PrintErr("FPS set " + value);
 		if (value is int fps)
 		{
 			Engine.MaxFps = fps;

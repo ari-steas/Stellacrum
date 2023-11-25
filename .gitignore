@@ -12,3 +12,4 @@ data_*/
 
 # Cache files
 *.cache
+*.dll

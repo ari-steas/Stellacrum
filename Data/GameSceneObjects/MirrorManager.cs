@@ -96,13 +96,13 @@ public class MirrorManager
         switch (mirror)
         {
             case MirrorMode.X:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(position.X, center.Y, center.Z));
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(position.X, center.Y, center.Z));
                 break;
             case MirrorMode.Y:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(center.X, position.Y, center.Z));
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, position.Y, center.Z));
                 break;
             case MirrorMode.Z:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalCoordinates(new(center.X, center.Y, position.Z));
+                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, center.Y, position.Z));
                 break;
         }
 

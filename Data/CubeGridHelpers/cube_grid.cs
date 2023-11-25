@@ -9,6 +9,8 @@ using Stellacrum.Data.ObjectLoaders;
 
 public partial class CubeGrid : RigidBody3D
 {
+	public CubeGrid ParentGrid;
+
 	public Aabb Size { get; private set; } = new Aabb();
 	public float Speed { get; private set; } = 0;
 	public readonly List<CockpitBlock> Cockpits = new();
@@ -22,7 +24,7 @@ public partial class CubeGrid : RigidBody3D
 	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
 	readonly List<Vector3I> OccupiedBlocks = new ();
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
-	readonly internal List<SubGrid> subGrids = new();
+	readonly internal List<CubeGrid> subGrids = new();
 
 	private float OwnMass = 0;
 
@@ -31,6 +33,24 @@ public partial class CubeGrid : RigidBody3D
 	{
 		DesiredRotation = Rotation;
 		ThrustControl.Init(ThrusterBlocks);
+
+		ParentGrid = GetParentGrid(this);
+		ParentGrid?.subGrids.Add(this);
+	}
+
+	/// <summary>
+	/// Attempts to find parent of [grid]. If no parent exists, returns null.
+	/// </summary>
+	/// <param name="grid"></param>
+	/// <returns></returns>
+	private static CubeGrid? GetParentGrid(Node grid)
+	{
+		Node parent = grid.GetParent();
+		if (parent == null)
+			return null;
+		if (parent is CubeGrid pGrid)
+			return pGrid;
+		return GetParentGrid(parent);
 	}
 
 
@@ -240,9 +260,6 @@ public partial class CubeGrid : RigidBody3D
 
         FullRemoveBlock(blockPosition);
 
-        RecalcSize();
-        RecalcMass();
-
         if (block is CockpitBlock c)
             Cockpits.Remove(c);
 
@@ -277,10 +294,11 @@ public partial class CubeGrid : RigidBody3D
 
             // Remove from collision
             RemoveShapeOwner(blockToRemove.collisionId);
-
             RemoveChild(blockToRemove);
-            Mass -= blockToRemove.Mass;
+
             OwnMass -= blockToRemove.Mass;
+            RecalcSize();
+            RecalcMass();
 
             blockToRemove.Close();
 
@@ -344,6 +362,9 @@ public partial class CubeGrid : RigidBody3D
 	/// </summary>
 	private void RecalcMass()
 	{
+		if (OwnMass <= 0)
+			return;
+
 		// Add mass of subgrids to own mass
 		Mass = OwnMass;
 		subGrids.ForEach(s => Mass += s.Mass);
@@ -394,14 +415,14 @@ public partial class CubeGrid : RigidBody3D
 		return (Vector3I) (local/2.5f).Round();
 	}
 
-	public Vector3 GridToLocalCoordinates(Vector3I gridCoords)
+	public Vector3 GridToLocalPosition(Vector3I gridCoords)
 	{
 		return ((Vector3) gridCoords) * 2.5f;
 	}
 
 	public Vector3 GridToGlobalPosition(Vector3I gridCoords)
 	{
-		return ToGlobal(GridToLocalCoordinates(gridCoords));
+		return ToGlobal(GridToLocalPosition(gridCoords));
 	}
 
 	#endregion
@@ -430,16 +451,30 @@ public partial class CubeGrid : RigidBody3D
 
 	public virtual void Close()
 	{
-		foreach (var block in CubeBlocks)
+		// Safe-remove all blocks.
+		foreach (var block in CubeBlocks.Values)
 		{
-			ShapeOwnerClearShapes(block.Value.collisionId);
-			RemoveShapeOwner(block.Value.collisionId);
-			block.Value.Close();
+			ShapeOwnerClearShapes(block.collisionId);
+			RemoveShapeOwner(block.collisionId);
+			block.Close();
 		}
+		GameScene? scene = GameScene.GetGameScene(this);
+
+		// Move children to main scene, just in case PlaceBox or subgrids got caught up.
+		// Removes joints so that subgrids detach properly.
 		foreach (var child in GetChildren())
-			child.Reparent(GetParent());
-		GetParent<GameScene>().grids.Remove(this);
-		QueueFree();
+		{
+			if (child is Joint3D)
+				foreach (var subChild in child.GetChildren())
+                    subChild.Reparent(scene);
+			else
+                child.Reparent(scene);
+        }
+
+		GameScene.GetGameScene(this)?.grids.Remove(this);
+        ParentGrid?.subGrids.Remove(this);
+
+        QueueFree();
 	}
 
 	public bool IsEmpty()
