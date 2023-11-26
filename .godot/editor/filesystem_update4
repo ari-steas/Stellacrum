@@ -1,4 +1,8 @@
 res://Data/GameSceneObjects/GameScene.tscn
+res://Data/GameSceneObjects/player_character.tscn
+res://Data/MenuScenes/menus.tscn
+res://Data/CubeObjects/Power/ReactorEffects.tscn
+res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn
 res://addons/debug_drawing/control/DebugDock.cs
 res://addons/debug_drawing/DebugDraw.cs
 res://addons/debug_drawing/DebugDrawingPlugin.cs
@@ -36,7 +40,3 @@ res://Data/MenuScenes/PauseMenu/PauseMenu.cs
 res://Data/MenuScenes/SaveMenu/ItemList.cs
 res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
-res://Data/GameSceneObjects/player_character.tscn
-res://Data/MenuScenes/menus.tscn
-res://Data/CubeObjects/Power/ReactorEffects.tscn
-res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn

@@ -12,21 +12,24 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
     // TODO: Make abstract
     public partial class MechanicalBlock : CubeBlock
     {
-        public Generic6DofJoint3D SubpartJoint { get; internal set; }
+        public HingeJoint3D SubpartJoint { get; internal set; }
         public CubeGrid SubpartGrid { get; internal set; }
         internal string subPartSubType = "";
-        internal Vector3I Offset = Vector3I.Up;
+        internal Vector3I Offset = Vector3I.Forward*2;
 
-        internal bool JointAngularX_Limited = false, JointAngularY_Limited = false, JointAngularZ_Limited = false;
+        internal float maxSpeed = 10;
+        internal float minAngle = 0, maxAngle = 0;
+        internal bool rotorLock = false;
 
         public MechanicalBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
             ReadFromData(blockData, "SubPartId", ref subPartSubType, verbose);
             ReadFromData(blockData, "SubPartOffset", ref Offset, verbose);
 
-            ReadFromData(blockData, "JointAngularX_Limited", ref JointAngularX_Limited, verbose);
-            ReadFromData(blockData, "JointAngularY_Limited", ref JointAngularY_Limited, verbose);
-            ReadFromData(blockData, "JointAngularZ_Limited", ref JointAngularZ_Limited, verbose);
+            ReadFromData(blockData, "MaxSpeed", ref maxSpeed, verbose);
+            ReadFromData(blockData, "MinAngle", ref minAngle, verbose);
+            ReadFromData(blockData, "MaxAngle", ref maxAngle, verbose);
+            ReadFromData(blockData, "RotorLock", ref rotorLock, verbose);
         }
         public MechanicalBlock() { }
 
@@ -36,16 +39,17 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
         //public abstract void CreateJoint();
         public void CreateJoint()
         {
-            SubpartJoint = new Generic6DofJoint3D()
+            SubpartJoint = new HingeJoint3D()
             {
                 NodeA = Grid().GetPath(),
                 NodeB = SubpartGrid.GetPath(),
                 Position = Position + Grid().GridToLocalPosition(Offset),
             };
+            SubpartJoint.SetFlag(HingeJoint3D.Flag.EnableMotor, true);
+            SubpartJoint.SetFlag(HingeJoint3D.Flag.UseLimit, rotorLock);
 
-            SubpartJoint.SetFlagX(Generic6DofJoint3D.Flag.EnableAngularLimit, JointAngularX_Limited);
-            SubpartJoint.SetFlagY(Generic6DofJoint3D.Flag.EnableAngularLimit, JointAngularY_Limited);
-            SubpartJoint.SetFlagZ(Generic6DofJoint3D.Flag.EnableAngularLimit, JointAngularZ_Limited);
+            SubpartJoint.SetParam(HingeJoint3D.Param.LimitLower, minAngle);
+            SubpartJoint.SetParam(HingeJoint3D.Param.LimitUpper, maxAngle);
 
             Grid().AddChild(SubpartJoint);
         }
@@ -76,6 +80,42 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
             SubpartGrid.ParentGrid = null;
 
             base.Close();
+        }
+
+        public void SetSpeed(float speed)
+        {
+            // Limit speed to max speed.
+            if (speed > maxSpeed)
+                speed = maxSpeed;
+            else if (speed < -maxSpeed)
+                speed = -maxSpeed;
+
+            SubpartJoint.SetParam(HingeJoint3D.Param.MotorTargetVelocity, speed);
+        }
+
+        public float GetSpeed()
+        {
+            return SubpartJoint.GetParam(HingeJoint3D.Param.MotorTargetVelocity);
+        }
+
+        public void SetMinAngle(float angle)
+        {
+            SubpartJoint.SetParam(HingeJoint3D.Param.LimitLower, angle);
+        }
+
+        public float GetMinAngle()
+        {
+            return SubpartJoint.GetParam(HingeJoint3D.Param.LimitLower);
+        }
+
+        public void SetMaxAngle(float angle)
+        {
+            SubpartJoint.SetParam(HingeJoint3D.Param.LimitUpper, angle);
+        }
+
+        public float GetMaxAngle()
+        {
+            return SubpartJoint.GetParam(HingeJoint3D.Param.LimitUpper);
         }
     }
 }
