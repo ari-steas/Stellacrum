@@ -90,7 +90,7 @@ public partial class menus : Node2D
 	public void _SwitchMenu(int toShow)
 	{
 		GD.Print("Current Menu: " + toShow);
-		GD.Print("Prev Menu: " + currentMenu + "\n");
+		//GD.Print("Prev Menu: " + currentMenu + "\n");
 		prevMenu = currentMenu;
 		currentMenu = toShow;
 
@@ -99,7 +99,7 @@ public partial class menus : Node2D
 			EmitSignal(SignalName.ToggleActive, true);
 		else
 		{
-			GD.Print("Showing menu " + _children[toShow - 1].Name);
+			//GD.Print("Showing menu " + _children[toShow - 1].Name);
 			EmitSignal(SignalName.ToggleActive, false);
 		}
 		

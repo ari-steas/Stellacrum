@@ -289,8 +289,8 @@ public partial class CubeGrid : RigidBody3D
 		{
 			CubeBlock blockToRemove = CubeBlocks[position];
 
-			foreach (Vector3I pos in blockToRemove.OccupiedSlots(position))
-				OccupiedBlocks.Remove(pos);
+			Vector3I[] occupied = blockToRemove.OccupiedSlots(position);
+            OccupiedBlocks.RemoveAll(pos => occupied.Contains(pos));
 
             // Remove from collision
             RemoveShapeOwner(blockToRemove.collisionId);

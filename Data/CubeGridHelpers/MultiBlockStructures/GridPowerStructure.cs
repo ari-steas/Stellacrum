@@ -92,9 +92,9 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
         public override void Update()
         {
             base.Update();
-            foreach (var block in StructureBlocks)
-                if (block.IsInsideTree())
-                    DebugDraw.Text3D(PowerCapacity - PowerUsage, block.GlobalPosition, 0, Colors.Magenta);
+            //foreach (var block in StructureBlocks)
+            //    if (block.IsInsideTree())
+            //        DebugDraw.Text3D(PowerCapacity - PowerUsage, block.GlobalPosition, 0, Colors.Magenta);
 
             if (needsAvailabilityUpdate)
             {

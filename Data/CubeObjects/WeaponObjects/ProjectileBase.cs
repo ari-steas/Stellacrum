@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +19,8 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         static int ParticleIntensity = 8;
 
         private static PackedScene baseScene = GD.Load<PackedScene>("res://Data/CubeObjects/WeaponObjects/ProjectileBase.tscn");
+
+        private Firer firer = new Firer(Vector3.Zero, Vector3.Zero);
 
         public ProjectileBase(string subTypeId, Godot.Collections.Dictionary<string, Variant> projectileData, bool verbose = false)
         {
@@ -46,13 +49,15 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
 
         public void SetFirer(Node3D firer)
         {
-            Rotation = firer.Rotation;
-            Position = firer.GlobalPosition;
+            this.firer.Rotation = firer.Rotation;
+            this.firer.Position = firer.GlobalPosition;
         }
 
         public void SetFirer(Vector3 position, Vector3 direction)
         {
             LookAtFromPosition(position, position + direction);
+            this.firer.Rotation = Rotation;
+            this.firer.Position = position;
         }
 
         internal string SubTypeId = "";
@@ -109,6 +114,9 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         public override void _Ready()
         {
             base._Ready();
+
+            GlobalPosition = firer.Position;
+            GlobalRotation = firer.Rotation;
 
             rayCast = GetChild<RayCast3D>(0);
             rayCast.TargetPosition = Vector3.Forward * Size;
@@ -202,6 +210,16 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
             }
             else if (verbose)
                 GD.PrintErr($"Missing Projectile.{SubTypeId} data [{dataKey}]! Setting to default...");
+        }
+
+        private class Firer
+        {
+            public Vector3 Position, Rotation;
+            public Firer(Vector3 Position, Vector3 Rotation)
+            {
+                this.Position = Position;
+                this.Rotation = Rotation;
+            }
         }
     }
 }

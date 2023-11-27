@@ -50,9 +50,9 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
 
         public override void Update()
         {
-            foreach (var block in StructureBlocks)
-                if (block.IsInsideTree())
-                    DebugDraw.Point(block.GlobalPosition, 1, Colors.Magenta);
+            //foreach (var block in StructureBlocks)
+            //    if (block.IsInsideTree())
+            //        DebugDraw.Point(block.GlobalPosition, 1, Colors.Magenta);
         }
 
         public override void Update10()

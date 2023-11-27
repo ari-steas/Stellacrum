@@ -70,7 +70,7 @@ namespace Stellacrum.Data.CubeObjects
         public override void _Ready()
         {
             base._Ready();
-			OnPlace();
+			CallDeferred(MethodName.OnPlace);
         }
 
         /// <summary>

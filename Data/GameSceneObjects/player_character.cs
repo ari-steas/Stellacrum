@@ -310,9 +310,17 @@ namespace GameSceneObjects
 					}
 					else
 					{
-                        GameScene.RemoveBlock(interactCast);
-						nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
-						mirrorManager.CheckGridMirrors();
+						CubeGrid grid = GameScene.GetGridAt(interactCast);
+						// Prevent place box from being deleted
+						if (grid != null)
+						{
+							if (grid.GetCubeBlocks().Length == 1)
+								PlayerPlaceBox.Reparent(this);
+                            grid.RemoveBlock(interactCast);
+
+                            nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
+                            mirrorManager.CheckGridMirrors();
+                        }
 					}
 				}
 			}

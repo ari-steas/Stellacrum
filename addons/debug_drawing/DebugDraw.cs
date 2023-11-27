@@ -1696,11 +1696,14 @@ namespace Burden.DebugDrawing
 
 			void DrawString3D(DrawText3DInstance msg)
 			{
-				Vector2 offset = _textFont.GetStringSize(msg.Text, HorizontalAlignment.Left,
-					-1f, _fontSize) * 0.5f;
-				Vector2 pos = camera.UnprojectPosition(msg.Location) - offset;
-				_canvas3D.DrawString(_textFont, pos, msg.Text, HorizontalAlignment.Left, -1,
-					_fontSize, msg.Color);
+				if (!camera.IsPositionBehind(msg.Location))
+				{
+                    Vector2 offset = _textFont.GetStringSize(msg.Text, HorizontalAlignment.Left,
+                    -1f, _fontSize) * 0.5f;
+                    Vector2 pos = camera.UnprojectPosition(msg.Location) - offset;
+                    _canvas3D.DrawString(_textFont, pos, msg.Text, HorizontalAlignment.Left, -1,
+						_fontSize, msg.Color);
+				}
 				msg.BeenDrawn = true;
 			}
 		}

@@ -43,7 +43,8 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
             {
                 NodeA = Grid().GetPath(),
                 NodeB = SubpartGrid.GetPath(),
-                Position = Position + Grid().GridToLocalPosition(Offset),
+                Position = Position + Grid().GridToLocalPosition((Vector3I)(Basis * Offset)),
+                Rotation = Rotation,
             };
             SubpartJoint.SetFlag(HingeJoint3D.Flag.EnableMotor, true);
             SubpartJoint.SetFlag(HingeJoint3D.Flag.UseLimit, rotorLock);
@@ -54,14 +55,14 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
             Grid().AddChild(SubpartJoint);
         }
 
-        public override void _Ready()
+        public override void OnPlace()
         {
-            base._Ready();
+            base.OnPlace();
 
             SubpartGrid = GameScene.GetGameScene(this)
                 .SpawnGridWithBlock(
                     subPartSubType,
-                    Position + Grid().GridToLocalPosition(Offset),
+                    Position + Grid().GridToLocalPosition((Vector3I)(Basis * Offset)),
                     Rotation,
                     true,
                     Grid()
@@ -72,13 +73,16 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
 
         public override void Close()
         {
+            GD.Print(Position);
             SubpartJoint.QueueFree();
 
             // Seperate subpart grid from parent
-            SubpartGrid.Reparent(GameScene.GetGameScene(this));
-            SubpartGrid.ParentGrid.subGrids.Remove(SubpartGrid);
-            SubpartGrid.ParentGrid = null;
-
+            if (SubpartGrid != null)
+            {
+                SubpartGrid.Reparent(GameScene.GetGameScene(this));
+                SubpartGrid.ParentGrid.subGrids.Remove(SubpartGrid);
+                SubpartGrid.ParentGrid = null;
+            }
             base.Close();
         }
 
@@ -96,6 +100,11 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
         public float GetSpeed()
         {
             return SubpartJoint.GetParam(HingeJoint3D.Param.MotorTargetVelocity);
+        }
+
+        public float GetAngle()
+        {
+            return SubpartGrid.Rotation.Z;
         }
 
         public void SetMinAngle(float angle)

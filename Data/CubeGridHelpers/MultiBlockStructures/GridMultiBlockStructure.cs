@@ -65,6 +65,7 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// </summary>
         public static void FindStructureTypes()
         {
+            StructureTypeMap.Clear();
             List<Type> allTypes = ReflectiveEnumerator.GetEnumerableOfType<GridMultiBlockStructure>();
             foreach (var type in allTypes)
                 if (type.GetFields()[0].GetValue(null) is string structureName)

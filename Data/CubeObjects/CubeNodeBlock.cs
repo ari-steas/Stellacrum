@@ -124,7 +124,7 @@ namespace Stellacrum.Data.CubeObjects
 
                 //checkPos += Position;
                 CubeBlock adajent = grid.BlockAt(grid.GlobalToGridCoordinates(checkPos));
-                DebugDraw.Point(grid.GridToGlobalPosition(grid.GlobalToGridCoordinates(checkPos)), 0.5f, Colors.Red, 1f);
+                //DebugDraw.Point(grid.GridToGlobalPosition(grid.GlobalToGridCoordinates(checkPos)), 0.5f, Colors.Red, 1f);
 
                 //GD.Print("\n");
                 if (adajent == null || adajent == this)

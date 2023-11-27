@@ -19,6 +19,7 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
         {
             SetFirer(position, direction);
             Velocity += velocity;
+            GD.Print(position);
         }
 
         public override void _PhysicsProcess(double delta)
