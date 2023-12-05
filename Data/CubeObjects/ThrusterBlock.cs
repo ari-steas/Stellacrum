@@ -109,11 +109,7 @@ namespace Stellacrum.Data.CubeObjects
             // Make particles inherit velocity of parent
             particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
 			particles.ProcessMaterial.Set("initial_velocity_max", parent.Speed + 40);
-		}
 
-        public override void _Process(double delta)
-        {
-            base._Process(delta);
             parent.ApplyForce(GlobalTransform.Basis * Vector3.Forward * ThrustPercent * MaximumThrust * (float)delta, GlobalPosition - parent.GlobalPosition);
         }
 

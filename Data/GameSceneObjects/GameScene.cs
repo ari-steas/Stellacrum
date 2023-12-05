@@ -28,19 +28,15 @@ public partial class GameScene : Node3D
 		//AddChild(n);
     }
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		if(playerCharacter.GlobalPosition.Length() > 2000)
-			ShiftOrigin();
-	}
-
 	long tick = 0;
 	public override void _PhysicsProcess(double delta)
 	{
 		tick++;
 
-		DebugDraw.Text(grids.Count + " CubeGrids");
+        if (playerCharacter.GlobalPosition.Length() > 2000)
+            ShiftOrigin();
+
+        DebugDraw.Text(grids.Count + " CubeGrids");
 
 		if (Input.IsActionPressed("Pause"))
 		{
@@ -221,7 +217,7 @@ public partial class GameScene : Node3D
 	private void ShiftOrigin()
 	{
 		GlobalPosition -= playerCharacter.GlobalPosition;
-	}
+    }
 
 	public void Save()
 	{

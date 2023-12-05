@@ -1,7 +1,8 @@
+Node3D
+CharacterBody3D
 GPUParticles3D
 MeshInstance3D
 RayCast3D
-Node3D
 GPUParticlesAttractorBox3D
 GPUParticlesAttractorVectorField3D
 PathFollow3D
@@ -22,7 +23,6 @@ RichTextLabel
 ColorRect
 TabContainer
 MultiplayerSynchronizer
-CharacterBody3D
 Sprite3D
 WorldEnvironment
 CollisionShape3D

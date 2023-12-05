@@ -13,7 +13,8 @@ namespace Stellacrum.Data.CubeObjects
     public partial class CubeNodeBlock : CubeBlock
     {
         private readonly Dictionary<string, List<Node3D>> connectorNodes = new();
-        private Dictionary<string, List<CubeNodeBlock>> connectedBlocks = new();
+        private readonly Dictionary<string, List<CubeNodeBlock>> connectedBlocks = new();
+        private readonly Dictionary<string, string[]> connectionWhitelist;
 
         public CubeNodeBlock() { }
         public CubeNodeBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
@@ -25,8 +26,16 @@ namespace Stellacrum.Data.CubeObjects
             foreach (Node node in FindChildren("CNode_*", owned: true))
                 if (node is Node3D child)
                     CheckNode(child);
+
+            Godot.Collections.Dictionary<string, Variant> allowedConnectionsGD = new();
+            ReadFromData(blockData, "ConnectionWhitelist", ref allowedConnectionsGD, verbose);
+            connectionWhitelist = JsonHelper.GDToDictionary<string, string[]>(allowedConnectionsGD);
         }
 
+        /// <summary>
+        /// Checks single node for type, and adds to list.
+        /// </summary>
+        /// <param name="child"></param>
         private void CheckNode(Node3D child)
         {
             string type = child.Name.ToString()[6..];
@@ -42,13 +51,6 @@ namespace Stellacrum.Data.CubeObjects
                 connectorNodes[type].Add(child);
             else
                 connectorNodes.Add(type, new List<Node3D> { child });
-        }
-
-        public override void _Process(double delta)
-        {
-            //foreach (var nodeL in connectorNodes.Values)
-            //    foreach (var node in nodeL)
-            //        DebugDraw.Point(node.GlobalPosition, 0.5f, Colors.Turquoise);
         }
 
         /// <summary>
@@ -80,19 +82,19 @@ namespace Stellacrum.Data.CubeObjects
         /// <summary>
         /// Checks for connected blocks of a specific type.
         /// </summary>
-        /// <param name="type"></param>
-        public virtual GridTreeStructure CheckConnectedBlocksOfType(string type)
+        /// <param name="connectionType"></param>
+        public virtual GridTreeStructure CheckConnectedBlocksOfType(string connectionType)
         {
             CubeGrid grid = GetParent() as CubeGrid;
             Vector3 halfSize = size / 2;
-            connectedBlocks.Remove(type);
-            connectedBlocks.Add(type, new());
+            connectedBlocks.Remove(connectionType);
+            connectedBlocks.Add(connectionType, new());
 
-            if (!connectorNodes.ContainsKey(type))
+            if (!connectorNodes.ContainsKey(connectionType))
                 return null;
 
             bool joinedType = false;
-            foreach (var node in connectorNodes[type])
+            foreach (var node in connectorNodes[connectionType])
             {
                 node.Position = node.Position.Snapped(Vector3.One / 100);
                 Vector3 checkPos = node.Position;
@@ -120,82 +122,64 @@ namespace Stellacrum.Data.CubeObjects
 
                 // Rotate to account for block rotation
                 checkPos = ToGlobal(checkPos);
-                //checkPos *= Basis;
 
-                //checkPos += Position;
-                CubeBlock adajent = grid.BlockAt(grid.GlobalToGridCoordinates(checkPos));
-                //DebugDraw.Point(grid.GridToGlobalPosition(grid.GlobalToGridCoordinates(checkPos)), 0.5f, Colors.Red, 1f);
+                CubeBlock adajentCubeBlock = grid.BlockAt(grid.GlobalToGridCoordinates(checkPos));
 
-                //GD.Print("\n");
-                if (adajent == null || adajent == this)
-                {
-                    //GD.Print("Adajent is null or self");
+                if (adajentCubeBlock == null || adajentCubeBlock == this)
                     continue;
-                }
 
-                if (adajent is CubeNodeBlock adajentNodeBlock)
+                if (adajentCubeBlock is CubeNodeBlock adajentNodeBlock)
                 {
                     // Check every node of same type on adajent block. Hopefully doesn't have that big of a performance impact?
-                    if (adajent.IsQueuedForDeletion() || !adajent.IsInsideTree())
+                    if (adajentCubeBlock.IsQueuedForDeletion() || !adajentCubeBlock.IsInsideTree())
                         continue;
 
                     // Make sure the connection node types match up, ofc
-                    if (!adajentNodeBlock.connectorNodes.ContainsKey(type))
-                    {
-                        //GD.Print("Types don't match up");
+                    if (!adajentNodeBlock.connectorNodes.ContainsKey(connectionType))
                         continue;
-                    }
 
-                    foreach (var aNode in adajentNodeBlock.connectorNodes[type])
+                    // Skips if the block's subtypeid is not in the connectiontype whitelist.
+                    // Does not check if the whitelist is missing.
+                    if (connectionWhitelist.ContainsKey(connectionType) && !connectionWhitelist[connectionType].Contains(adajentNodeBlock.subTypeId))
+                        continue;
+
+                    foreach (var aNode in adajentNodeBlock.connectorNodes[connectionType])
                     {
                         // Check if node positions line up
                         if (!AccurateToOne(aNode.GlobalPosition, node.GlobalPosition))
-                        {
-                            //GD.Print("Positions don't line up");
                             continue;
-                        }
 
                         // Check for existing structures. if one exists, join. if already in one, merge.
-                        GridTreeStructure adajentStructure = adajentNodeBlock.GetMemberStructure(type);
+                        GridTreeStructure adajentStructure = adajentNodeBlock.GetMemberStructure(connectionType);
                         if (adajentStructure == null)
-                        {
-                            //GD.Print("Null adajentStructure");
                             continue;
-                        }
 
-                        connectedBlocks[type].Add(adajentNodeBlock);
+                        connectedBlocks[connectionType].Add(adajentNodeBlock);
 
-                        if (adajentNodeBlock.connectedBlocks.ContainsKey(type))
-                            adajentNodeBlock.connectedBlocks[type].Add(this);
+                        if (adajentNodeBlock.connectedBlocks.ContainsKey(connectionType))
+                            adajentNodeBlock.connectedBlocks[connectionType].Add(this);
 
                         // Check if this already has structure, if true merge
-                        if (MemberStructures.ContainsKey(type))
-                        {
-                            // Merge structures
-                            joinedType |= MemberStructures[type].Merge(adajentStructure);
-                            //GD.Print("Merge attempt");
-                        }
+                        if (MemberStructures.ContainsKey(connectionType))
+                            joinedType |= MemberStructures[connectionType].Merge(adajentStructure);
                         else
                         {
                             // Join existing structure
                             adajentStructure.AddStructureBlock(this);
                             joinedType = true;
-                            //GD.Print("Joined structure!");
                         }
                     }
                 }
-                //else { GD.Print("Not a CubeNodeBlock"); }
             }
 
             // Create new structure if none could be found
             if (!joinedType)
             {
-                //GD.Print("Searching for structure of type " + type);
-                GridTreeStructure structure = (GridTreeStructure)GridMultiBlockStructure.New(type, new List<CubeBlock> { this });
+                GridTreeStructure structure = (GridTreeStructure)GridMultiBlockStructure.New(connectionType, new List<CubeBlock> { this });
                 structure?.Init();
             }
 
-            return (GridTreeStructure) MemberStructures[type];
+            return (GridTreeStructure) MemberStructures[connectionType];
         }
 
         public override void Close()
@@ -222,6 +206,12 @@ namespace Stellacrum.Data.CubeObjects
             CallDeferred("CheckAllConnectedBlocks");
         }
 
+        /// <summary>
+        /// Checks if two vectors are within 0.1m of eachother.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         private bool AccurateToOne(Vector3 a, Vector3 b)
         {
             Vector3 c = Vector3.One * 0.1f;

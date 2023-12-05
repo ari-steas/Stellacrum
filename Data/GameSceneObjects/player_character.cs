@@ -66,13 +66,7 @@ namespace GameSceneObjects
 		{
 			if (!scene.isActive)
 				return;
-
-			HandleMovement(delta);
-			HandleRotation(delta);
-			lastX = 0;
-			lastY = 0;
-			lastZ = 0;
-		}
+        }
 
 		public override void _PhysicsProcess(double delta)
 		{
@@ -82,13 +76,10 @@ namespace GameSceneObjects
 			// TODO remove
 			DebugDraw.Point(WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault(), 1, Colors.Red);
 			DebugDraw.Point(Vector3.Zero);
-			//
+            //
             //ProjectilePhysical p = (ProjectilePhysical)ProjectileDefinitionLoader.ProjectileFromId("PhysicalTest");
             //p.SetFirer(GlobalPosition, WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault() - GlobalPosition, Velocity);
             //scene.AddChild(p);
-
-            
-
 
             InputHandler();
 
@@ -155,7 +146,14 @@ namespace GameSceneObjects
 				DelayedEnableCollision = 0;
 				collision.Disabled = false;
 			}
-		}
+
+            HandleMovement(delta);
+            HandleRotation(delta);
+            lastX = 0;
+            lastY = 0;
+            lastZ = 0;
+            MoveAndSlide();
+        }
 
 		public bool IsInCockpit = false;
 		public CubeGrid currentGrid;
@@ -393,7 +391,21 @@ namespace GameSceneObjects
 						PlayerPlaceBox.Rotate(Vector3.Forward, -ohd);
 				}
 			}
-		}
+
+			// Goofy ahh warp effect
+			//WorldEnvironment w = scene.FindChild("WorldEnvironment") as WorldEnvironment;
+			//
+			//if (Input.IsActionPressed("button_up") && w.Environment.SkyCustomFov < 180)
+			//{
+			//	w.Environment.SkyCustomFov = w.Environment.SkyCustomFov + 1;
+            //    w.Environment.BackgroundEnergyMultiplier = w.Environment.BackgroundEnergyMultiplier + 0.06f;
+            //}
+            //if (Input.IsActionPressed("button_down") && w.Environment.SkyCustomFov > 0)
+            //{
+            //    w.Environment.SkyCustomFov = w.Environment.SkyCustomFov - 1;
+            //    w.Environment.BackgroundEnergyMultiplier = w.Environment.BackgroundEnergyMultiplier - 0.06f;
+            //}
+        }
 
 		// 1.5 degrees, in radians
 		private const float ohd = Mathf.Pi / 120;
@@ -448,8 +460,8 @@ namespace GameSceneObjects
 
 				Vector3 crosshairForward = shipCrosshair.Basis * Vector3.Forward;
 
-				Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, (float)(lastX * delta));
-				rotatedPos = rotatedPos.Rotated(Vector3.Right, (float)(lastY * delta));
+				Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, lastX);
+				rotatedPos = rotatedPos.Rotated(Vector3.Right, lastY);
 
 				float scalar = Vector3.Forward.Dot(rotatedPos);
 
@@ -468,7 +480,7 @@ namespace GameSceneObjects
 				//currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-lastY, -lastX, lastZ);
 				return;
 			}
-
+			
 			RotateObjectLocal(Vector3.Up, (float)(lastX * delta));
 			RotateObjectLocal(Vector3.Right, (float)(lastY * delta));
 			RotateObjectLocal(Vector3.Forward, (float)(lastZ * delta));
@@ -493,7 +505,6 @@ namespace GameSceneObjects
 				velocity = IndividualDampen(velocity, Vector3.Zero, Speed * (float)delta * 1.15f);
 
 			Velocity = velocity;
-			MoveAndSlide();
 		}
 
 		private Vector3 MovementVector()

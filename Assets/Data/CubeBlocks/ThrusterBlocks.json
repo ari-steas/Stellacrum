@@ -21,7 +21,13 @@
 			"Mass":150,
 
 			"ThrusterStrength":67500000,
-			"MaxInput":270
+			"MaxInput":270,
+
+			"ConnectionWhitelist":{
+				"Power":[
+					"ConduitLargeStraight"
+				]
+			}
 		}
 	}
 }

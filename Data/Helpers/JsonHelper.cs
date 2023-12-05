@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Godot;
 
@@ -52,4 +53,23 @@ public class JsonHelper
 			_ => null,
         };
     }
+
+	public static Dictionary<string, TValue> GDToDictionary<[MustBeVariant] TKey, [MustBeVariant] TValue>(Godot.Collections.Dictionary<string, Variant> gdDictionary)
+	{
+		Dictionary<string, TValue> sysDictionary = new();
+
+		foreach (var kvp in gdDictionary)
+		{
+			try
+			{
+                TValue value = kvp.Value.As<TValue>();
+				sysDictionary.Add(kvp.Key, value);
+			}
+			catch {
+				GD.PrintErr("Could not dictionary convert " + kvp.Key + "!");
+			}
+		}
+
+		return sysDictionary;
+	}
 }

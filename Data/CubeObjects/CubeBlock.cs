@@ -65,7 +65,7 @@ namespace Stellacrum.Data.CubeObjects
 			}
 
 			Name = "CubeBlock." + subTypeId + "." + GetIndex();
-		}
+        }
 
         public override void _Ready()
         {
@@ -189,13 +189,20 @@ namespace Stellacrum.Data.CubeObjects
 		/// <param name="verbose"></param>
 		protected void ReadFromData<[MustBeVariant] T>(Godot.Collections.Dictionary<string, Variant> blockData, string dataKey, ref T variable, bool verbose)
 		{
-			if (blockData.ContainsKey(dataKey))
+            if (blockData.ContainsKey(dataKey))
 			{
 				if (typeof(T) == typeof(Vector3))
-					variable = (T) Convert.ChangeType(JsonHelper.LoadVec(blockData[dataKey]), typeof(T));
+				{
+					variable = (T)Convert.ChangeType(JsonHelper.LoadVec(blockData[dataKey]), typeof(T));
+				}
 				else
+				{
 					variable = blockData[dataKey].As<T>();
 				}
+
+				if (verbose)
+					GD.PrintErr(dataKey + " : " + blockData[dataKey].AsString());
+            }
             else if (verbose)
                 GD.PrintErr($"Missing CubeBlock.{subTypeId} data [{dataKey}]! Setting to default...");
         }
