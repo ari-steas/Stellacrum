@@ -143,6 +143,11 @@ namespace Stellacrum.Data.CubeObjects
                     if (connectionWhitelist.ContainsKey(connectionType) && !connectionWhitelist[connectionType].Contains(adajentNodeBlock.subTypeId))
                         continue;
 
+                    // Skips if the adajent block's connectiontype whitelist contains own subTypeId
+                    // Does not check if the whitelist is missing.
+                    if (adajentNodeBlock.connectionWhitelist.ContainsKey(connectionType) && !adajentNodeBlock.connectionWhitelist[connectionType].Contains(subTypeId))
+                        continue;
+
                     foreach (var aNode in adajentNodeBlock.connectorNodes[connectionType])
                     {
                         // Check if node positions line up

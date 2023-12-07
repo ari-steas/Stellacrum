@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Stellacrum")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba73144fadd13712fb0f8b3a758da8b53c3d7b34")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+861b6a94fc180b13b6b9b87e56f38dadbf3e905b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Stellacrum")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Stellacrum")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -18,6 +18,8 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
 
         public GridTreeStructure(List<CubeBlock> StructureBlocks) : base(StructureBlocks)
         {
+            //Random r = new();
+            //color = new Color(r.NextSingle(), r.NextSingle(), r.NextSingle());
         }
 
         public override bool AddStructureBlock(CubeBlock block)
@@ -48,11 +50,12 @@ namespace Stellacrum.Data.CubeGridHelpers.MultiBlockStructures
             return true;
         }
 
+        //Color color;
         public override void Update()
         {
             //foreach (var block in StructureBlocks)
             //    if (block.IsInsideTree())
-            //        DebugDraw.Point(block.GlobalPosition, 1, Colors.Magenta);
+            //        DebugDraw.Point(block.GlobalPosition, 1, color);
         }
 
         public override void Update10()
