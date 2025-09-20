@@ -26,6 +26,7 @@ namespace GameSceneObjects
 
 		private SpotLight3D light;
 		private Camera3D camera;
+        private float _cameraOffset = 10;
 		public hud_scene HUD;
 		private long DelayedEnableCollision = 0;
 		private Node3D shipCrosshair;
@@ -420,6 +421,26 @@ namespace GameSceneObjects
 				lastY = motion.Relative.Y * (float)(OptionsHelper.GetOption("mousesensitivityy") ?? 1) * ((bool)OptionsHelper.GetOption("mouseinverty") ? 1 : -1) / (float)GetProcessDeltaTime() / 250;
 				return;
 			}
+
+            if (inputEvent is InputEventMouseButton mouseButton)
+            {
+                if (!mouseButton.IsPressed())
+                    return;
+
+                float factor = mouseButton.Factor == 0 ? 1 : mouseButton.Factor;
+
+                switch (mouseButton.ButtonIndex)
+                {
+					case MouseButton.WheelUp:
+						if (Input.IsActionPressed("PivotCamera"))
+                            _cameraOffset = Math.Clamp(_cameraOffset - 0.4f * factor, 1f, 200f);
+                        break;
+                    case MouseButton.WheelDown:
+                        if (Input.IsActionPressed("PivotCamera"))
+                            _cameraOffset = Math.Clamp(_cameraOffset + 0.4f * factor, 1f, 200f);
+                        break;
+                }
+            }
 		}
 
 
@@ -437,17 +458,33 @@ namespace GameSceneObjects
 
 		private void _ToggleThirdPerson(bool enabled)
 		{
-			if (enabled)
-				camera.Position = new Vector3(0, 1.5f, 10f);
-			else
-				camera.Position = new Vector3(0, 0.5f, 0);
+            if (enabled)
+            {
+                camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
+                camera.Rotation = Vector3.Zero;
+            }
+            else
+            {
+                camera.Position = new Vector3(0, 0.5f, 0);
+                camera.Rotation = Vector3.Zero;
+            }
 		}
 
 		#region movement
 
 		private Vector3 prevCrosshair = Vector3.Zero;
 		private void HandleRotation(double delta)
-		{
+        {
+            bool doXYRotate = true;
+            if (Input.IsActionPressed("PivotCamera"))
+            {
+                camera.RotateObjectLocal(Vector3.Up, (float)(lastX * delta));
+                camera.RotateObjectLocal(Vector3.Right, (float)(lastY * delta));
+                camera.Rotation *= new Vector3(1, 1, 0);
+                camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
+                doXYRotate = false;
+            }
+
 			// Q and E keys
 			if (Input.IsActionPressed("RotateClockwise"))
 				lastZ = 1;
@@ -467,8 +504,11 @@ namespace GameSceneObjects
 
 				if (Vector3.Forward.Dot(rotatedPos) > 0.5f)
 				{
-					shipCrosshair.Rotate(Vector3.Up, (float)(lastX * scalar * delta));
-					shipCrosshair.Rotate(Vector3.Right, (float)(lastY * scalar * delta));
+                    if (doXYRotate)
+                    {
+                        shipCrosshair.Rotate(Vector3.Up, (float)(lastX * scalar * delta));
+                        shipCrosshair.Rotate(Vector3.Right, (float)(lastY * scalar * delta));
+                    }
 					crosshairForward = shipCrosshair.Basis * Vector3.Forward;
 
 					currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-crosshairForward.Y, crosshairForward.X, lastZ);
@@ -480,9 +520,12 @@ namespace GameSceneObjects
 				//currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-lastY, -lastX, lastZ);
 				return;
 			}
-			
-			RotateObjectLocal(Vector3.Up, (float)(lastX * delta));
-			RotateObjectLocal(Vector3.Right, (float)(lastY * delta));
+
+            if (doXYRotate)
+            {
+                RotateObjectLocal(Vector3.Up, (float)(lastX * delta));
+                RotateObjectLocal(Vector3.Right, (float)(lastY * delta));
+            }
 			RotateObjectLocal(Vector3.Forward, (float)(lastZ * delta));
 		}
 
