@@ -13,3 +13,8 @@ data_*/
 # Cache files
 *.cache
 *.dll
+
+# Visual Studio
+bin/**
+.vs/**
+obj/**

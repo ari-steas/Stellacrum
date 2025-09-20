@@ -9,7 +9,6 @@ C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\S
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.AssemblyInfoInputs.cache
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.AssemblyInfo.cs
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.CoreCompileInputs.cache
-C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.CopyComplete
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.dll
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\refint\Stellacrum.dll
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.pdb
@@ -64,3 +63,4 @@ C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\z
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\bin\Debug\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
 C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.sourcelink.json
 C:\USERS\JNICK\ONEDRIVE\DOCUMENTS\GITHUB\STELLACRUM\.godot\mono\temp\bin\Debug\System.CodeDom.dll
+C:\Users\jnick\OneDrive\Documents\GitHub\Stellacrum\.godot\mono\temp\obj\Debug\Stellacrum.csproj.Up2Date

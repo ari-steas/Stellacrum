@@ -14,7 +14,7 @@ namespace Stellacrum.Data.CubeObjects
 		//public Vector3 ThrustForwardVector { get; private set; } = Vector3.Zero;
 		private Node3D thrustNode;
 		private GpuParticles3D particles;
-		private StandardMaterial3D coneMaterial;
+		private StandardMaterial3D coneMaterial = null;
 
 		public ThrusterBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
 		{
@@ -32,19 +32,25 @@ namespace Stellacrum.Data.CubeObjects
 			if (thrustNode == null)
 				throw new($"{subTypeId} missing ThrustNode!");
 
-			foreach (var node in meshes)
-				if (node is MeshInstance3D meshInstance)
-					for (int i = 0; i < meshInstance.GetSurfaceOverrideMaterialCount(); i++)
-						if (meshInstance.GetActiveMaterial(i).ResourceName == "ThrustConeMaterial")
-						{
-							//StandardMaterial3D m = (StandardMaterial3D) meshInstance.GetActiveMaterial(i);
-							coneMaterial = (StandardMaterial3D) meshInstance.GetActiveMaterial(i);
-                            //meshInstance.Mesh.SurfaceSetMaterial(i, coneMaterial);
-						}
+            foreach (var node in meshes)
+            {
+                if (node is not MeshInstance3D meshInstance)
+                    continue;
 
-			Random r = new Random();
-            coneMaterial.Emission = new Color(r.NextSingle(), r.NextSingle(), r.NextSingle());
-			coneMaterial.EmissionEnabled = true;
+                for (int i = 0; i < meshInstance.GetSurfaceOverrideMaterialCount(); i++)
+                {
+                    if (meshInstance.GetActiveMaterial(i).ResourceName != "ThrustConeMaterial")
+                        continue;
+
+                    coneMaterial = (StandardMaterial3D) meshInstance.GetActiveMaterial(i).Duplicate();
+                    meshInstance.SetSurfaceOverrideMaterial(i, coneMaterial);
+
+                    break;
+                }
+
+                if (coneMaterial != null)
+                    break;
+            }
         }
 
 		public void SetThrustPercent(float pct)
@@ -69,7 +75,6 @@ namespace Stellacrum.Data.CubeObjects
 			AddChild(particles);
 		}
 
-		VectorPID pid;
 		Vector3 angularDesired = Vector3.Zero;
 		Vector3 linearDesired = Vector3.Zero;
 
@@ -103,7 +108,7 @@ namespace Stellacrum.Data.CubeObjects
 			if (!((int)(64 * ThrustPercent) > 0.01))
 				particles.Emitting = false;
 
-			//coneMaterial.Emission = new Color(0.1f + 0.9f*ThrustPercent, 0.1f, 0.1f);
+			coneMaterial.Emission = new Color(0.1f + 0.9f*ThrustPercent, 0.1f, 0.1f);
 			//GD.Print(coneMaterial.Emission);
 
             // Make particles inherit velocity of parent
