@@ -497,8 +497,8 @@ namespace GameSceneObjects
 
 				Vector3 crosshairForward = shipCrosshair.Basis * Vector3.Forward;
 
-				Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, lastX);
-				rotatedPos = rotatedPos.Rotated(Vector3.Right, lastY);
+				Vector3 rotatedPos = crosshairForward.Rotated(Vector3.Up, (float)(lastX * delta));
+				rotatedPos = rotatedPos.Rotated(Vector3.Right, (float)(lastY * delta));
 
 				float scalar = Vector3.Forward.Dot(rotatedPos);
 
@@ -509,9 +509,10 @@ namespace GameSceneObjects
                         shipCrosshair.Rotate(Vector3.Up, (float)(lastX * scalar * delta));
                         shipCrosshair.Rotate(Vector3.Right, (float)(lastY * scalar * delta));
                     }
-					crosshairForward = shipCrosshair.Basis * Vector3.Forward;
 
-					currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(-crosshairForward.Y, crosshairForward.X, lastZ);
+                    crosshairForward = shipCrosshair.Basis.Z;
+
+					currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(crosshairForward.Y, -crosshairForward.X, lastZ);
 				}
 
 				prevCrosshair = shipCrosshair.GlobalRotation;

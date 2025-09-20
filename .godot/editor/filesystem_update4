@@ -47,3 +47,4 @@ res://Data/GameSceneObjects/Hud/ToolbarObject.tscn
 res://Data/GameSceneObjects/Hud/hud_scene.tscn
 res://Data/GameSceneObjects/Hud/hud_scene.cs
 res://Data/GameSceneObjects/Hud/ToolbarObject.cs
+res://Assets/Data/CubeBlocks/ThrusterBlocks.json
