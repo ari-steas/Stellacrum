@@ -1,8 +1,6 @@
 using GameSceneObjects;
 using Godot;
-using Stellacrum.Data.ObjectLoaders;
 using System;
-using System.Linq;
 
 public partial class hud_scene : CanvasLayer
 {
@@ -18,9 +16,9 @@ public partial class hud_scene : CanvasLayer
 	private Label dampenersLabel, speedLabel;
 
 	private player_character player;
-	public readonly TextureRect[] ToolbarIcons = new TextureRect[10];
+	public ToolbarObject[] ToolbarIcons = Array.Empty<ToolbarObject>();
 
-	public string[] Toolbar = new string[] {
+	public readonly string[] DefaultToolbar = { // TODO move to a more sensible location
 		"",
 		"ArmorBlock",
 		"ArmorBlockSlope",
@@ -42,19 +40,17 @@ public partial class hud_scene : CanvasLayer
 
 		player = GetParent<player_character>();
 
-		ToolbarIcons[0] = FindChild("Icon0") as TextureRect;
-		ToolbarIcons[1] = FindChild("Icon1") as TextureRect;
-		ToolbarIcons[2] = FindChild("Icon2") as TextureRect;
-		ToolbarIcons[3] = FindChild("Icon3") as TextureRect;
-		ToolbarIcons[4] = FindChild("Icon4") as TextureRect;
-		ToolbarIcons[5] = FindChild("Icon5") as TextureRect;
-		ToolbarIcons[6] = FindChild("Icon6") as TextureRect;
-		ToolbarIcons[7] = FindChild("Icon7") as TextureRect;
-		ToolbarIcons[8] = FindChild("Icon8") as TextureRect;
-		ToolbarIcons[9] = FindChild("Icon9") as TextureRect;
+        var toolbarContainer = FindChild("ToolbarContainer");
+        ToolbarIcons = new ToolbarObject[toolbarContainer.GetChildCount()];
+        ToolbarIcons[0] = (ToolbarObject) toolbarContainer.GetChild(ToolbarIcons.Length-1);
+        for (int i = 0; i < ToolbarIcons.Length - 1; i++)
+        {
+            ToolbarIcons[i+1] = (ToolbarObject) toolbarContainer.GetChild(i);
+        }
 
-		VisibilityChanged += OnVisibilityChanged;
-	}
+        WorldLoader.OnLoad += RefreshToolbar;
+        //VisibilityChanged += OnVisibilityChanged;
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -85,33 +81,49 @@ public partial class hud_scene : CanvasLayer
 
 	public void SetToolbar(int slot, string subTypeId)
 	{
-		if (slot == 0 || Toolbar[slot].Equals(subTypeId))
+		if (slot == 0 || ToolbarIcons[slot].BlockSubtype == subTypeId)
 			return;
 
-		if (CubeBlockLoader.GetAllIds().Contains(subTypeId))
-            for (int i = 0; i < 10; i++)
-                if (Toolbar[i].Equals(subTypeId))
-                    SetToolbar(i, "");
-
-		Toolbar[slot] = subTypeId;
-		UpdateToolbar(slot);
-	}
-
-	void UpdateToolbar(int slot)
-	{
-        if (!CubeBlockLoader.GetAllIds().Contains(Toolbar[slot]))
+        if (subTypeId != "")
         {
-            ToolbarIcons[slot].Texture = TextureLoader.Get("EmptyToolbar.png");
-            return;
+            foreach (var toolbar in ToolbarIcons)
+            {
+                if (!toolbar.BlockSubtype.Equals(subTypeId)) continue;
+                toolbar.BlockSubtype = "";
+                break;
+            }
         }
 
-        ToolbarIcons[slot].Texture = CubeBlockLoader.GetTexture(Toolbar[slot]);
+		ToolbarIcons[slot].BlockSubtype = subTypeId;
 	}
 
-	private void OnVisibilityChanged()
-	{
-		if (Visible)
-			for (int i = 0; i < 10; i++)
-				UpdateToolbar(i);
-	}
+    public string SelectSlot(int slot)
+    {
+        for (var i = 0; i < ToolbarIcons.Length; i++)
+            ToolbarIcons[i].Selected = i == slot && ToolbarIcons[i].BlockSubtype != "";
+        return ToolbarIcons[slot].BlockSubtype;
+    }
+
+    public string[] SerializedToolbar()
+    {
+		string[] toolbar = new string[ToolbarIcons.Length];
+        for (int i = 0; i < ToolbarIcons.Length; i++)
+            toolbar[i] = ToolbarIcons[i].BlockSubtype;
+		return toolbar;
+    }
+
+    //void UpdateToolbar(int slot) => ToolbarIcons[slot].Block = Toolbar[slot];
+	//
+	//private void OnVisibilityChanged()
+	//{
+	//	if (Visible)
+	//		for (int i = 0; i < 10; i++)
+	//			UpdateToolbar(i);
+	//}
+
+    private void RefreshToolbar()
+    {
+        foreach (var icon in ToolbarIcons)
+            icon.Refresh();
+    }
 }

@@ -42,3 +42,8 @@ res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
 res://Data/CubeObjects/cube_block.tscn
 res://Data/MenuScenes/PauseMenu/PauseMenu.tscn
+res://Data/GameSceneObjects/hud_scene.tscn
+res://Data/GameSceneObjects/Hud/ToolbarObject.tscn
+res://Data/GameSceneObjects/Hud/hud_scene.tscn
+res://Data/GameSceneObjects/Hud/hud_scene.cs
+res://Data/GameSceneObjects/Hud/ToolbarObject.cs

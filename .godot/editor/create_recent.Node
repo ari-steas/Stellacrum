@@ -1,3 +1,7 @@
+AspectRatioContainer
+Container
+TextureRect
+Control
 Node3D
 CharacterBody3D
 GPUParticles3D
@@ -10,7 +14,6 @@ Path3D
 Label
 CanvasLayer
 LineEdit
-TextureRect
 GridContainer
 Button
 ScrollContainer
@@ -28,5 +31,3 @@ WorldEnvironment
 CollisionShape3D
 RigidBody3D
 ResourcePreloader
-StaticBody3D
-Camera3D

@@ -1,0 +1,84 @@
+[gd_scene load_steps=4 format=3 uid="uid://b1nm08junp3js"]
+
+[ext_resource type="Script" path="res://Data/GameSceneObjects/Hud/hud_scene.cs" id="1_n8a6b"]
+[ext_resource type="PackedScene" uid="uid://cte04tk2k5gpd" path="res://Data/GameSceneObjects/Hud/ToolbarObject.tscn" id="2_a7jkq"]
+[ext_resource type="Texture2D" uid="uid://juxgcejolv08" path="res://Assets/Images/GUI/Crosshair.png" id="3_6afco"]
+
+[node name="HudScene" type="CanvasLayer"]
+script = ExtResource("1_n8a6b")
+
+[node name="SpeedLabel" type="Label" parent="."]
+offset_left = 1733.0
+offset_top = 7.0
+offset_right = 1799.0
+offset_bottom = 33.0
+text = "SPEED: 0"
+
+[node name="DampenersLabel" type="Label" parent="."]
+offset_left = 1733.0
+offset_top = 32.0
+offset_right = 1906.0
+offset_bottom = 58.0
+text = "DAMPENERS ENABLED"
+
+[node name="ToolbarContainer" type="HBoxContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -658.0
+offset_top = -128.0
+offset_right = 658.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Toolbar1" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar2" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar3" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar4" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar5" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar6" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar7" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar8" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar9" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Toolbar0" parent="ToolbarContainer" instance=ExtResource("2_a7jkq")]
+layout_mode = 2
+
+[node name="Crosshair" type="TextureRect" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("3_6afco")
+stretch_mode = 2

@@ -326,27 +326,27 @@ namespace GameSceneObjects
 			// Surely there's a better way to do this, but would be a waste of dev time.
 			if (Input.IsActionJustPressed("Toolbar0"))
 			{
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[0]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(0));
 				mirrorManager.SetMirrorsVisible(false);
 			}
 			if (Input.IsActionJustPressed("Toolbar1"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[1]);
+				PlayerPlaceBox.SetBlock(HUD.SelectSlot(1));
 			if (Input.IsActionJustPressed("Toolbar2"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[2]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(2));
 			if (Input.IsActionJustPressed("Toolbar3"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[3]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(3));
 			if (Input.IsActionJustPressed("Toolbar4"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[4]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(4));
 			if (Input.IsActionJustPressed("Toolbar5"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[5]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(5));
 			if (Input.IsActionJustPressed("Toolbar6"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[6]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(6));
 			if (Input.IsActionJustPressed("Toolbar7"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[7]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(7));
 			if (Input.IsActionJustPressed("Toolbar8"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[8]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(8));
 			if (Input.IsActionJustPressed("Toolbar9"))
-				PlayerPlaceBox.SetBlock(HUD.Toolbar[9]);
+                PlayerPlaceBox.SetBlock(HUD.SelectSlot(9));
 
 			// Why IsActionJustReleased? God knows. I sure don't.
 			if (Input.IsActionJustReleased("MoveBlockOut"))
@@ -565,7 +565,7 @@ namespace GameSceneObjects
 			{ "Position", JsonHelper.StoreVec(Position) },
 			{ "Rotation", JsonHelper.StoreVec(GlobalRotation) },
 			{ "LinearVelocity", JsonHelper.StoreVec(Velocity) },
-			{ "Toolbar", HUD.Toolbar },
+			{ "Toolbar", HUD.SerializedToolbar() },
 		};
 		}
 

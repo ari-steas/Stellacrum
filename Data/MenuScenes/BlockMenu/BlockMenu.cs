@@ -69,20 +69,15 @@ public partial class BlockMenu : CanvasLayer
 	void OnIconRelease(DraggableItem blockIcon, Vector2 pos)
 	{
         for (int i = 0; i < 10; i++)
-			if (GetSlotBox(HUD.ToolbarIcons[i]).HasPoint(pos))
+			if (HUD.ToolbarIcons[i].GetGlobalRect().HasPoint(pos))
 				HUD.SetToolbar(i, BlockIcons[blockIcon]);
 	}
 
 	void OnRightClick()
 	{
         for (int i = 0; i < 10; i++)
-            if (GetSlotBox(HUD.ToolbarIcons[i]).HasPoint(GetViewport().GetMousePosition()))
+            if (HUD.ToolbarIcons[i].GetGlobalRect().HasPoint(GetViewport().GetMousePosition()))
                 HUD.SetToolbar(i, "");
-    }
-
-    static Rect2 GetSlotBox(TextureRect rect)
-    {
-        return new(rect.GlobalPosition, rect.Size);
     }
 
     void ReturnPress()

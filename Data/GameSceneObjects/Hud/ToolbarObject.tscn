@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://cte04tk2k5gpd"]
+
+[ext_resource type="Texture2D" uid="uid://qsjv7630ygup" path="res://Assets/Images/GUI/EmptyToolbar.png" id="1_lk1i2"]
+[ext_resource type="Script" path="res://Data/GameSceneObjects/Hud/ToolbarObject.cs" id="1_vlwy8"]
+[ext_resource type="Texture2D" uid="uid://brdchxuo6woed" path="res://Assets/Images/GUI/SelectToolbar.png" id="2_45dq7"]
+
+[node name="ToolbarObject" type="AspectRatioContainer"]
+stretch_mode = 1
+script = ExtResource("1_vlwy8")
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("1_lk1i2")
+expand_mode = 2
+
+[node name="Selected" type="TextureRect" parent="."]
+visible = false
+layout_mode = 2
+texture = ExtResource("2_45dq7")
+expand_mode = 2

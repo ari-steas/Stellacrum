@@ -4,7 +4,6 @@ using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using static System.Formats.Asn1.AsnWriter;
 
 
 public class WorldLoader
@@ -13,6 +12,8 @@ public class WorldLoader
 	public static WorldSave CurrentSave { get; private set; }
 
 	public static LoadingStage stage = LoadingStage.Done;
+
+    public static Action OnLoad;
 
 	private static List<WorldSave> FindWorlds()
 	{
@@ -104,53 +105,56 @@ public class WorldLoader
 
     private static void RunLoad(object sceneObj)
     {
-        if (sceneObj is GameScene scene)
+        if (sceneObj is not GameScene scene)
+            return;
+
+        // Pause scene to prevent Problems:tm:
+        scene.CallDeferred(Node.MethodName.SetProcessMode, 4);
+
+        // Load models
+        stage = LoadingStage.ModelLoad;
+        ModelLoader.StartLoad("res://Assets/Models");
+
+        stage = LoadingStage.BlockLoad;
+
+        // Load MultiBlockStructures
+        GridMultiBlockStructure.FindStructureTypes();
+
+        // Load blocks
+        CubeBlockLoader.StartLoad("res://Assets/");
+
+        // Load projectiles
+        ProjectileDefinitionLoader.StartLoad("res://Assets/");
+
+        // Load save data
+        if (!Worlds.Contains(CurrentSave))
         {
-            // Pause scene to prevent Problems:tm:
-            scene.CallDeferred(Node.MethodName.SetProcessMode, 4);
-
-            // Load models
-            stage = LoadingStage.ModelLoad;
-            ModelLoader.StartLoad("res://Assets/Models");
-
-            stage = LoadingStage.BlockLoad;
-
-            // Load MultiBlockStructures
-            GridMultiBlockStructure.FindStructureTypes();
-
-            // Load blocks
-            CubeBlockLoader.StartLoad("res://Assets/");
-
-			// Load projectiles
-			ProjectileDefinitionLoader.StartLoad("res://Assets/");
-
-			// Load save data
-            if (!Worlds.Contains(CurrentSave))
-            {
-                WorldSave.Create(CurrentSave);
-                Worlds.Add(CurrentSave);
-            }
-
-            try
-            {
-                LoadSaveData(CurrentSave);
-            }
-            catch
-            {
-                ErrorMessage = "Unable to read save file!";
-            }
-
-			// Spawn grids and players
-            stage = LoadingStage.ObjectSpawn;
-            foreach (var grid in CurrentSave.grids)
-                scene.SpawnPremadeGrid(grid);
-
-            scene.SetPlayerData(CurrentSave.playerData);
-
-			// Notify that loading is done
-            stage = LoadingStage.Done;
-			scene.CallDeferred(Node.MethodName.SetProcessMode, 0);
+            WorldSave.Create(CurrentSave);
+            Worlds.Add(CurrentSave);
         }
+
+        try
+        {
+            LoadSaveData(CurrentSave);
+        }
+        catch
+        {
+            ErrorMessage = "Unable to read save file!";
+        }
+
+        // Spawn grids and players
+        stage = LoadingStage.ObjectSpawn;
+        foreach (var grid in CurrentSave.grids)
+            scene.SpawnPremadeGrid(grid);
+
+        scene.SetPlayerData(CurrentSave.playerData);
+
+        // Notify that loading is done
+        stage = LoadingStage.Done;
+        scene.CallDeferred(Node.MethodName.SetProcessMode, 0);
+
+        if (OnLoad != null)
+            Callable.From(OnLoad).CallDeferred();
     }
 
     /// <summary>
