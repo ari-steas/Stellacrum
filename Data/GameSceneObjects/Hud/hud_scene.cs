@@ -47,6 +47,9 @@ public partial class hud_scene : CanvasLayer
             ToolbarIcons[i+1] = (ToolbarObject) toolbarContainer.GetChild(i);
         }
 
+		for (int i = 0; i < ToolbarIcons.Length; i++)
+			ToolbarIcons[i].SetBind(i);
+
         WorldLoader.OnLoad += RefreshToolbar;
         //VisibilityChanged += OnVisibilityChanged;
     }

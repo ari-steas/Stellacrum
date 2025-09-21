@@ -47,6 +47,11 @@ public partial class ToolbarObject : AspectRatioContainer
 	{
 	}
 
+    public void SetBind(int number)
+    {
+        GetChild<Label>(2).Text = number + " ";
+    }
+
     public void Refresh()
     {
         _icon.Texture = _blockSubtype == "" ? TextureLoader.Get("EmptyToolbar.png") : CubeBlockLoader.GetTexture(_blockSubtype);

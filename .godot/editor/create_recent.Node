@@ -1,3 +1,4 @@
+Label
 AspectRatioContainer
 Container
 TextureRect
@@ -11,7 +12,6 @@ GPUParticlesAttractorBox3D
 GPUParticlesAttractorVectorField3D
 PathFollow3D
 Path3D
-Label
 CanvasLayer
 LineEdit
 GridContainer
@@ -30,4 +30,3 @@ Sprite3D
 WorldEnvironment
 CollisionShape3D
 RigidBody3D
-ResourcePreloader
