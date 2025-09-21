@@ -8,18 +8,16 @@
 script = ExtResource("1_n8a6b")
 
 [node name="SpeedLabel" type="Label" parent="."]
-offset_left = 1733.0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
 offset_top = 7.0
-offset_right = 1799.0
+offset_right = -7.0
 offset_bottom = 33.0
+grow_horizontal = 0
 text = "SPEED: 0"
-
-[node name="DampenersLabel" type="Label" parent="."]
-offset_left = 1733.0
-offset_top = 32.0
-offset_right = 1906.0
-offset_bottom = 58.0
-text = "DAMPENERS ENABLED"
+horizontal_alignment = 2
 
 [node name="ToolbarContainer" type="HBoxContainer" parent="."]
 anchors_preset = 7

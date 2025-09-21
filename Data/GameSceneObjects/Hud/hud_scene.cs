@@ -13,7 +13,7 @@ public partial class hud_scene : CanvasLayer
 
 	private bool _lightEnabled = true, _dampenersEnabled = true, _thirdPerson = false;
 
-	private Label dampenersLabel, speedLabel;
+	private Label speedLabel;
 
 	private player_character player;
 	public ToolbarObject[] ToolbarIcons = Array.Empty<ToolbarObject>();
@@ -35,7 +35,6 @@ public partial class hud_scene : CanvasLayer
 	public override void _Ready()
 	{
 		Visible = false;
-		dampenersLabel = GetNode<Label>("DampenersLabel");
 		speedLabel = GetNode<Label>("SpeedLabel");
 
 		player = GetParent<player_character>();
@@ -67,7 +66,6 @@ public partial class hud_scene : CanvasLayer
 		{
 			_dampenersEnabled = !player._dampenersEnabled;
 			EmitSignal(SignalName.DampenersToggle, _dampenersEnabled);
-			dampenersLabel.Text = "DAMPENERS " + (_dampenersEnabled ? "ENABLED" : "DISABLED");
 		}
 
 		if (Input.IsActionJustPressed("ThirdPersonToggle"))
@@ -76,7 +74,10 @@ public partial class hud_scene : CanvasLayer
 			EmitSignal(SignalName.ThirdPersonToggle, _thirdPerson);
 		}
 
-		speedLabel.Text = "Speed: " + (int)((player.IsInCockpit ? player.currentGrid.Speed : player.Velocity.Length())*100)/100f;
+		speedLabel.Text = $"Position: {player.GlobalPosition.ToString("N")}\n" +
+                          $"Orientation: {player.GlobalRotation.ToString("N")}\n" +
+                          $"Speed: {(player.IsInCockpit ? player.currentGrid.Speed : player.Velocity.Length()):F1}m/s\n" + 
+                          $"Dampeners: {player._dampenersEnabled}";
 	}
 
 	public void SetToolbar(int slot, string subTypeId)

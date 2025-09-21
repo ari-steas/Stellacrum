@@ -29,7 +29,7 @@ namespace GameSceneObjects
         private float _cameraOffset = 10;
 		public hud_scene HUD;
 		private long DelayedEnableCollision = 0;
-		private Node3D shipCrosshair;
+		private Node3D shipCrosshair, _progradeIndicator, _retroIndicator;
 		private CollisionShape3D collision;
 
 		public PlaceBox PlayerPlaceBox { get; private set; }
@@ -51,6 +51,8 @@ namespace GameSceneObjects
 			PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
 			HUD = GetNode<hud_scene>("HudScene");
 			shipCrosshair = GetNode<Node3D>("ShipCrosshair3D");
+            _progradeIndicator = GetNode<Node3D>("Prograde3D");
+            _retroIndicator = GetNode<Node3D>("Retrograde3D");
 			collision = FindChild("PlayerCollision") as CollisionShape3D;
 
 			GpuParticles3D MirrorParticlesX = FindChild("MirrorParticlesX") as GpuParticles3D;
@@ -67,20 +69,35 @@ namespace GameSceneObjects
 		{
 			if (!scene.isActive)
 				return;
+
+            // TODO remove
+            DebugDraw.Point(WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault(), 1, Colors.Red);
+            DebugDraw.Point(Vector3.Zero);
+
+			// TODO move input into _Process
+
+			// Prograde/Retrograde
+            var realVelocity = IsInCockpit ? currentGrid.LinearVelocity : GetRealVelocity();
+            if (realVelocity.Length() > 10)
+            {
+                _progradeIndicator.Visible = true;
+                _retroIndicator.Visible = true;
+
+                var localVelocityNormal = realVelocity.Normalized() * GlobalTransform.Basis;
+                _progradeIndicator.Position = localVelocityNormal * 250;
+                _retroIndicator.Position = localVelocityNormal * -250;
+            }
+            else
+            {
+                _progradeIndicator.Visible = false;
+                _retroIndicator.Visible = false;
+            }
         }
 
 		public override void _PhysicsProcess(double delta)
 		{
 			if (!scene.isActive)
 				return;
-
-			// TODO remove
-			DebugDraw.Point(WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault(), 1, Colors.Red);
-			DebugDraw.Point(Vector3.Zero);
-            //
-            //ProjectilePhysical p = (ProjectilePhysical)ProjectileDefinitionLoader.ProjectileFromId("PhysicalTest");
-            //p.SetFirer(GlobalPosition, WeaponBase.CalculateInterceptionPoint(GlobalPosition, Velocity, Vector3.Zero, Vector3.Zero, 250).GetValueOrDefault() - GlobalPosition, Velocity);
-            //scene.AddChild(p);
 
             InputHandler();
 
@@ -159,45 +176,46 @@ namespace GameSceneObjects
 		public bool IsInCockpit = false;
 		public CubeGrid currentGrid;
 
-		private Vector3 relativePosition = Vector3.Zero;
+        private Transform3D seatRelativeExit = Transform3D.Identity;
 		private CockpitBlock currentCockpit;
 		private void TryEnter(CubeGrid grid)
-		{
-			if (grid.Cockpits.Count > 0)
-			{
-				CockpitBlock closest = grid.Cockpits[0];
-				float closestD = closest.GlobalPosition.DistanceSquaredTo(GlobalPosition);
-				foreach (var cockpit in grid.Cockpits)
-				{
-					float d = cockpit.GlobalPosition.DistanceSquaredTo(GlobalPosition);
-					if (d < closestD)
-					{
-						closestD = d;
-						closest = cockpit;
-					}
-				}
+        {
+            if (grid.Cockpits.Count <= 0)
+                return;
 
-				relativePosition = GlobalPosition - grid.GlobalPosition;
+            CockpitBlock closest = grid.Cockpits[0];
+            float closestD = closest.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+            foreach (var cockpit in grid.Cockpits)
+            {
+                float d = cockpit.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+                if (d < closestD)
+                {
+                    closestD = d;
+                    closest = cockpit;
+                }
+            }
 
-				Position = Vector3.Zero;
-				Rotation = Vector3.Zero;
+            seatRelativeExit = grid.GlobalTransform.Inverse() * GlobalTransform;
 
-				collision.Disabled = true;
-				GetParent().RemoveChild(this);
-				closest.AddChild(this);
+            collision.Disabled = true;
+            GetParent().RemoveChild(this);
+            closest.AddChild(this);
 
-				shipCrosshair.Visible = true;
-				shipCrosshair.Rotation = Vector3.Zero;
-				prevCrosshair = shipCrosshair.GlobalRotation;
-				_dampenersEnabled = grid.ThrustControl.Dampen;
+            Position = Vector3.Zero;
+            Rotation = Vector3.Zero;
+            Velocity = Vector3.Zero;
 
-				grid.ControlGrid();
+            shipCrosshair.Visible = true;
+            shipCrosshair.Rotation = Vector3.Zero;
+            prevCrosshair = shipCrosshair.GlobalRotation;
+            _dampenersEnabled = grid.ThrustControl.Dampen;
 
-				IsInCockpit = true;
-				currentGrid = grid;
-				currentCockpit = closest;
-			}
-		}
+            grid.ControlGrid();
+
+            IsInCockpit = true;
+            currentGrid = grid;
+            currentCockpit = closest;
+        }
 
 		private void TryExit()
 		{
@@ -205,12 +223,15 @@ namespace GameSceneObjects
 			{
 				Velocity = currentGrid.LinearVelocity;
 				currentGrid.DesiredRotation = Vector3.Zero;
+
 				GetParent().RemoveChild(this);
 				scene.AddChild(this);
+
+                Transform = currentGrid.GlobalTransform * seatRelativeExit;
+
 				// Add 0.1s to re-enable collision, because otherwise the grid gets flung
 				DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
 
-				GlobalPosition = currentGrid.ToGlobal(relativePosition);
 				currentGrid.ReleaseControl();
 				_dampenersEnabled = currentGrid.Speed < 0.1f;
 
@@ -218,7 +239,8 @@ namespace GameSceneObjects
 
 				IsInCockpit = false;
 				currentGrid = null;
-				relativePosition = Vector3.Zero;
+                seatRelativeExit = Transform3D.Identity;
+				_ToggleThirdPerson(false);
 			}
 		}
 
@@ -540,7 +562,7 @@ namespace GameSceneObjects
 				return;
 			}
 
-			Vector3 velocity = Velocity;
+			Vector3 velocity = GetRealVelocity();
 
 			Vector3 direction = Quaternion * inputDir;
 			if (direction != Vector3.Zero)

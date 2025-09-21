@@ -18,7 +18,6 @@ sky = SubResource("Sky_r3b8n")
 glow_enabled = true
 glow_normalized = true
 glow_bloom = 0.1
-glow_blend_mode = 0
 glow_hdr_scale = 0.0
 
 [node name="GameScene" type="Node3D"]

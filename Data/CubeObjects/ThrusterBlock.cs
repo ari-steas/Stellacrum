@@ -94,6 +94,8 @@ namespace Stellacrum.Data.CubeObjects
 			if (!Enabled || !HasPower)
 			{
 				particles.Emitting = false;
+                coneMaterial.EmissionEnabled = false;
+				coneMaterial.AlbedoColor = new Color(0f, 0f, 0f);
 				return;
 			}
 
@@ -108,8 +110,9 @@ namespace Stellacrum.Data.CubeObjects
 			if (!((int)(64 * ThrustPercent) > 0.01))
 				particles.Emitting = false;
 
-			coneMaterial.Emission = new Color(0.1f + 0.9f*ThrustPercent, 0.1f, 0.1f);
-			//GD.Print(coneMaterial.Emission);
+			coneMaterial.EmissionEnabled = true;
+            coneMaterial.AlbedoColor = new Color(100f * ThrustPercent, 0f, 0f, 1f);
+			coneMaterial.Emission = new Color(100f*ThrustPercent, 0f, 0f, 1f);
 
             // Make particles inherit velocity of parent
             particles.ProcessMaterial.Set("initial_velocity_min", parent.Speed + 30);
