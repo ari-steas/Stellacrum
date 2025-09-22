@@ -321,6 +321,23 @@ public partial class CubeGrid : RigidBody3D
         return null;
 	}
 
+    public bool TryGetBlockAt(Vector3I position, out CubeBlock block)
+    {
+        if (CubeBlocks.TryGetValue(position, out block)) // TODO: populate CubeBlocks with all member blocks
+            return true;
+
+        foreach (var cube in CubeBlocks)
+        {
+            if (cube.Value.OccupiedSlots(cube.Key).Contains(position))
+            {
+                block = cube.Value;
+                return true;
+            }
+        }
+            
+        return false;
+    }
+
 	public bool IsBlockAt(Vector3I position)
 	{
 		if (CubeBlocks.ContainsKey(position))

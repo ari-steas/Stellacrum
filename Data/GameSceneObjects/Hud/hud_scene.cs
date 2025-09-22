@@ -1,6 +1,8 @@
 using GameSceneObjects;
 using Godot;
 using System;
+using System.Linq;
+using System.Text;
 
 public partial class hud_scene : CanvasLayer
 {
@@ -13,10 +15,31 @@ public partial class hud_scene : CanvasLayer
 
 	private bool _lightEnabled = true, _dampenersEnabled = true, _thirdPerson = false;
 
-	private Label speedLabel;
+	private Label speedLabel, _tooltipLabel;
 
 	private player_character player;
 	public ToolbarObject[] ToolbarIcons = Array.Empty<ToolbarObject>();
+
+    private TooltipFlags _tooltip = TooltipFlags.None;
+	public TooltipFlags Tooltip
+    {
+		get => _tooltip;
+        set
+        {
+            if (_tooltip == value)
+                return;
+
+            _tooltip = value;
+            StringBuilder tooltipBuilder = new StringBuilder();
+            if ((_tooltip & TooltipFlags.Cockpit) == TooltipFlags.Cockpit)
+                tooltipBuilder.Append('[').Append(string.Join("/", InputMap.ActionGetEvents("Interact").Select(e => e.AsText()))).AppendLine("] Enter Cockpit");
+            if ((_tooltip & TooltipFlags.Terminal) == TooltipFlags.Terminal)
+                tooltipBuilder.Append('[').Append(string.Join("/", InputMap.ActionGetEvents("OpenTerminal").Select(e => e.AsText()))).AppendLine("] Grid Terminal");
+            if ((_tooltip & TooltipFlags.Inventory) == TooltipFlags.Inventory)
+                tooltipBuilder.Append('[').Append(string.Join("/", InputMap.ActionGetEvents("OpenInventory").Select(e => e.AsText()))).AppendLine("] Grid Inventory");
+            _tooltipLabel.Text = tooltipBuilder.ToString();
+        }
+    }
 
 	public readonly string[] DefaultToolbar = { // TODO move to a more sensible location
 		"",
@@ -36,6 +59,8 @@ public partial class hud_scene : CanvasLayer
 	{
 		Visible = false;
 		speedLabel = GetNode<Label>("SpeedLabel");
+		_tooltipLabel = GetNode<Label>("TooltipLabel");
+        _tooltipLabel.Text = "";
 
 		player = GetParent<player_character>();
 
@@ -129,5 +154,14 @@ public partial class hud_scene : CanvasLayer
     {
         foreach (var icon in ToolbarIcons)
             icon.Refresh();
+    }
+
+	[Flags]
+    public enum TooltipFlags
+    {
+		None = 0,
+		Terminal = 1,
+		Inventory = 2,
+		Cockpit = 4,
     }
 }

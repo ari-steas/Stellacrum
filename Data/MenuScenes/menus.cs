@@ -18,12 +18,16 @@ public partial class menus : Node2D
 		_children = GetChildren();
 		_SwitchMenu(1);
 
+        float defaultFps = DisplayServer.ScreenGetRefreshRate();
+		if (defaultFps < 0)
+			defaultFps = 60;
+
 		TextureLoader.StartLoad("res://Assets/Images/");
 
 		OptionsHelper.AddOption("fullscreen", new("Fullscreen", false, _Fullscreen));
 		OptionsHelper.AddOption("fov", new("Field of View", 90, _FovSet, new(30, 120)));
 		OptionsHelper.AddOption("vsync", new("Vertical Sync", false, _VSyncSet));
-		OptionsHelper.AddOption("fps", new("FPS Limit", 250, _FpsSet, new(0, 1000)));
+		OptionsHelper.AddOption("fps", new("FPS Limit", defaultFps, _FpsSet, new(0, 1000)));
 
 		Json json = new();
 		json.Parse(FileAccess.Open("user://options.json", FileAccess.ModeFlags.Read).GetAsText());

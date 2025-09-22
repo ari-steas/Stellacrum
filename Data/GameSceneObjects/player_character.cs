@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Runtime.CompilerServices;
 using Stellacrum.Data.CubeObjects;
 using Stellacrum.Data.CubeObjects.WeaponObjects;
 using Stellacrum.Data.ObjectLoaders;
@@ -178,28 +177,30 @@ namespace GameSceneObjects
 
         private Transform3D seatRelativeExit = Transform3D.Identity;
 		private CockpitBlock currentCockpit;
-		private void TryEnter(CubeGrid grid)
+		private void TryEnter(CockpitBlock cockpit)
         {
-            if (grid.Cockpits.Count <= 0)
-                return;
+            //if (grid.Cockpits.Count <= 0)
+            //    return;
+			//
+            //CockpitBlock closest = grid.Cockpits[0];
+            //float closestD = closest.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+            //foreach (var cockpit in grid.Cockpits)
+            //{
+            //    float d = cockpit.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+            //    if (d < closestD)
+            //    {
+            //        closestD = d;
+            //        closest = cockpit;
+            //    }
+            //}
 
-            CockpitBlock closest = grid.Cockpits[0];
-            float closestD = closest.GlobalPosition.DistanceSquaredTo(GlobalPosition);
-            foreach (var cockpit in grid.Cockpits)
-            {
-                float d = cockpit.GlobalPosition.DistanceSquaredTo(GlobalPosition);
-                if (d < closestD)
-                {
-                    closestD = d;
-                    closest = cockpit;
-                }
-            }
+            var grid = cockpit.Grid();
 
             seatRelativeExit = grid.GlobalTransform.Inverse() * GlobalTransform;
 
             collision.Disabled = true;
             GetParent().RemoveChild(this);
-            closest.AddChild(this);
+            cockpit.AddChild(this);
 
             Position = Vector3.Zero;
             Rotation = Vector3.Zero;
@@ -214,7 +215,7 @@ namespace GameSceneObjects
 
             IsInCockpit = true;
             currentGrid = grid;
-            currentCockpit = closest;
+            currentCockpit = cockpit;
         }
 
 		private void TryExit()
@@ -246,13 +247,30 @@ namespace GameSceneObjects
 
 		private void InputHandler()
 		{
-			if (Input.IsActionJustPressed("Interact"))
-			{
-				if (!IsInCockpit && interactCast.GetCollider() is CubeGrid grid)
-					TryEnter(grid);
-				else if (IsInCockpit)
-					TryExit();
-			}
+            if (Input.IsActionJustPressed("Interact") && IsInCockpit)
+                TryExit();
+
+            if (!IsInCockpit &&
+                interactCast.IsColliding() &&
+                interactCast.GetCollider() is CubeGrid lookGrid &&
+                lookGrid.TryGetBlockAt(lookGrid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()), out CubeBlock block) &&
+                block is IHighlightableObject highlightObject)
+            {
+                DebugDraw.Shape(block.GlobalTransform, block.collision, new Color(1, 1, 0, 0.75f));
+                if (highlightObject.HasTerminal)
+                    HUD.Tooltip |= hud_scene.TooltipFlags.Terminal;
+                if (highlightObject.HasInventory)
+                    HUD.Tooltip |= hud_scene.TooltipFlags.Inventory;
+                if (highlightObject.IsSeat)
+                    HUD.Tooltip |= hud_scene.TooltipFlags.Cockpit;
+
+                if (Input.IsActionJustPressed("Interact") && block is CockpitBlock cockpit)
+                    TryEnter(cockpit);
+            }
+            else
+            {
+                HUD.Tooltip &= ~(hud_scene.TooltipFlags.Terminal | hud_scene.TooltipFlags.Inventory | hud_scene.TooltipFlags.Cockpit);
+            }
 
 			if (IsInCockpit)
 				return;

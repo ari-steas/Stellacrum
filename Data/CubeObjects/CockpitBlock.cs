@@ -4,8 +4,12 @@ using System;
 
 namespace Stellacrum.Data.CubeObjects
 {
-    public partial class CockpitBlock : CubeBlock
+    public partial class CockpitBlock : CubeBlock, IHighlightableObject
     {
+        public bool HasTerminal => true;
+        public bool HasInventory => false;
+        public bool IsSeat => true;
+
         public CockpitBlock(string subTypeId, Godot.Collections.Dictionary<string, Variant> blockData, bool verbose = false) : base(subTypeId, blockData, verbose)
         {
         }
