@@ -2,8 +2,9 @@ using Godot;
 using Stellacrum.Data.ObjectLoaders;
 using System;
 using System.Collections.Generic;
+using Stellacrum.Data.MenuScenes;
 
-public partial class BlockMenu : CanvasLayer
+public partial class BlockMenu : CanvasLayer, IMenuPage
 {
 	[Signal]
 	public delegate void SwitchMenuEventHandler(int toShow);
@@ -84,4 +85,9 @@ public partial class BlockMenu : CanvasLayer
 	{
 		EmitSignal(SignalName.SwitchMenu, 0);
 	}
+
+    public void OnOpened()
+    {
+        // do nothing
+    }
 }

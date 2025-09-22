@@ -177,8 +177,11 @@ namespace GameSceneObjects
 
         private Transform3D seatRelativeExit = Transform3D.Identity;
 		private CockpitBlock currentCockpit;
-		private void TryEnter(CockpitBlock cockpit)
+		public void TryEnter(CockpitBlock cockpit)
         {
+			if (IsInCockpit)
+				TryExit();
+
             //if (grid.Cockpits.Count <= 0)
             //    return;
 			//
@@ -218,32 +221,32 @@ namespace GameSceneObjects
             currentCockpit = cockpit;
         }
 
-		private void TryExit()
-		{
-			if (IsInCockpit)
-			{
-				Velocity = currentGrid.LinearVelocity;
-				currentGrid.DesiredRotation = Vector3.Zero;
+        public void TryExit()
+        {
+            if (!IsInCockpit)
+                return;
 
-				GetParent().RemoveChild(this);
-				scene.AddChild(this);
+            Velocity = currentGrid.LinearVelocity;
+            currentGrid.DesiredRotation = Vector3.Zero;
 
-                Transform = currentGrid.GlobalTransform * seatRelativeExit;
+            GetParent().RemoveChild(this);
+            scene.AddChild(this);
 
-				// Add 0.1s to re-enable collision, because otherwise the grid gets flung
-				DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
+            Transform = currentGrid.GlobalTransform * seatRelativeExit;
 
-				currentGrid.ReleaseControl();
-				_dampenersEnabled = currentGrid.Speed < 0.1f;
+            // Add 0.1s to re-enable collision, because otherwise the grid gets flung
+            DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
 
-				shipCrosshair.Visible = false;
+            currentGrid.ReleaseControl();
+            _dampenersEnabled = currentGrid.Speed < 0.1f;
 
-				IsInCockpit = false;
-				currentGrid = null;
-                seatRelativeExit = Transform3D.Identity;
-				_ToggleThirdPerson(false);
-			}
-		}
+            shipCrosshair.Visible = false;
+
+            IsInCockpit = false;
+            currentGrid = null;
+            seatRelativeExit = Transform3D.Identity;
+            _ToggleThirdPerson(false);
+        }
 
 		private void InputHandler()
 		{
@@ -264,8 +267,8 @@ namespace GameSceneObjects
                 if (highlightObject.IsSeat)
                     HUD.Tooltip |= hud_scene.TooltipFlags.Cockpit;
 
-                if (Input.IsActionJustPressed("Interact") && block is CockpitBlock cockpit)
-                    TryEnter(cockpit);
+                if (Input.IsActionJustPressed("Interact"))
+                    highlightObject.OnInteract(this);
             }
             else
             {

@@ -2,8 +2,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Stellacrum.Data.MenuScenes;
 
-public partial class OptionsMenu : CanvasLayer
+public partial class OptionsMenu : CanvasLayer, IMenuPage
 {
 	[Signal]
 	public delegate void SwitchMenuEventHandler(int toShow);
@@ -24,6 +25,7 @@ public partial class OptionsMenu : CanvasLayer
 
 		returnButton.Pressed += Return;
 		applyButton.Pressed += Apply;
+        (FindChild("ResetButton") as Button).Pressed += Reset;
 
 		UpdateControls();
 	}
@@ -44,11 +46,11 @@ public partial class OptionsMenu : CanvasLayer
 		Return();
 	}
 
-    new void VisibilityChanged()
-	{
-		if (Visible)
-			UpdateControls();
-	}
+    void Reset()
+    {
+        OptionsHelper.ResetDefaults();
+		UpdateControls();
+    }
 
 	void UpdateSettings()
 	{
@@ -120,4 +122,9 @@ public partial class OptionsMenu : CanvasLayer
 
         control.GuiInput += (ie) => { label.Text = baseText + Math.Round(control.Value, places); };
 	}
+
+    public void OnOpened()
+    {
+        UpdateControls();
+    }
 }

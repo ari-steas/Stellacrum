@@ -2,21 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Godot;
-using Godot.NativeInterop;
 
 public static class OptionsHelper
 {
-	public readonly static Dictionary<string, Option> Options = new()
+	public static readonly Dictionary<string, Option> Options = new()
 	{
 		["fullscreen"] =		new("Fullscreen", false),
 		["fov"] =				new("Field of View", 90, null, new(30, 120)),
-		["fps"] =				new("FPS Limit", 250, null, new(0, 1000)),
+		["fps"] =				new("FPS Limit", (int)(DisplayServer.ScreenGetRefreshRate() < 0 ? 60 : DisplayServer.ScreenGetRefreshRate()), null, new(0, 1000)),
 		["vsync"] =				new("Vertical Sync", false),
 		["mousesensitivityx"] = new("Mouse Sensitivity [X]", 1.0f, null, new(0, 5)),
 		["mousesensitivityy"] = new("Mouse Sensitivity [Y]", 1.0f, null, new(0, 5)),
 		["mouseinvertx"] =      new("Mouse Invert [X]", false),
 		["mouseinverty"] =      new("Mouse Invert [Y]", false),
 	};
+
+    public static void ResetDefaults()
+    {
+        Options["fullscreen"].Value =		 false;
+        Options["fov"].Value =				 90;
+        Options["fps"].Value =				 DisplayServer.ScreenGetRefreshRate() < 0 ? 60 : DisplayServer.ScreenGetRefreshRate();
+        Options["vsync"].Value =			 false;
+        Options["mousesensitivityx"].Value = 1.0f;
+        Options["mousesensitivityy"].Value = 1.0f;
+        Options["mouseinvertx"].Value =      false;
+        Options["mouseinverty"].Value =      false;
+    }
 
 	public static void SetOption(string option, object value)
 	{

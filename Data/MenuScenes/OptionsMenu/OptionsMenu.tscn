@@ -51,28 +51,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ReturnButton" type="Button" parent="."]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 25.0
-offset_top = -49.0
-offset_right = 96.0
-offset_bottom = -18.0
-grow_vertical = 0
-text = "RETURN"
-
-[node name="ApplyButton" type="Button" parent="."]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 138.0
-offset_top = -46.0
-offset_right = 209.0
-offset_bottom = -15.0
-grow_vertical = 0
-text = "APPLY"
-
 [node name="OptionsLabel" type="Label" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
@@ -86,4 +64,41 @@ theme_override_font_sizes/font_size = 64
 text = "Options"
 horizontal_alignment = 1
 
-[connection signal="visibility_changed" from="." to="." method="VisibilityChanged"]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 17.0
+offset_top = -63.0
+offset_right = 223.0
+offset_bottom = -17.0
+grow_vertical = 0
+
+[node name="ReturnButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "RETURN"
+
+[node name="ApplyButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "APPLY"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -63.0
+offset_right = -17.0
+offset_bottom = -17.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ResetButton" type="Button" parent="HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "RESET
+"

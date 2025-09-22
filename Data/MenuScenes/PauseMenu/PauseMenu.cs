@@ -1,7 +1,8 @@
 using Godot;
 using System;
+using Stellacrum.Data.MenuScenes;
 
-public partial class PauseMenu : CanvasLayer
+public partial class PauseMenu : CanvasLayer, IMenuPage
 {
 	[Signal]
 	public delegate void SwitchMenuEventHandler(int toShow);
@@ -82,5 +83,10 @@ public partial class PauseMenu : CanvasLayer
     private void QuitDesktopPress()
     {
         GetTree().Quit();
+    }
+
+    public void OnOpened()
+    {
+        // do nothing
     }
 }

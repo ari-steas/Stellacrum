@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using Stellacrum.Data.ObjectLoaders;
 using System;
+using Stellacrum.Data.MenuScenes;
 
 public partial class menus : Node2D
 {
@@ -42,6 +43,8 @@ public partial class menus : Node2D
 		if (value is bool fullscreen)
 		{
 			DisplayServer.WindowSetMode(fullscreen ? DisplayServer.WindowMode.ExclusiveFullscreen : DisplayServer.WindowMode.Windowed);
+			if (fullscreen)
+			    DisplayServer.WindowSetSize(DisplayServer.ScreenGetSize());
 		}
 	}
 
@@ -112,10 +115,12 @@ public partial class menus : Node2D
 
 		for (int i = 0; i < _children.Count; i++)
 		{
-			if (_children[i] is CanvasLayer)
+			if (_children[i] is IMenuPage page)
 			{
 				GD.Print($"Set {i} ({_children[i].Name}) to {i == toShow - 1}");
-				((CanvasLayer) _children[i]).Visible = i == toShow - 1;
+                page.Visible = i == toShow - 1;
+				if (i == toShow - 1)
+					page.OnOpened();
 			}
 		}
 	}

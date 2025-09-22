@@ -1,8 +1,9 @@
 using Godot;
 using Godot.Collections;
 using System;
+using Stellacrum.Data.MenuScenes;
 
-public partial class saves_menu : CanvasLayer
+public partial class saves_menu : CanvasLayer, IMenuPage
 {
 	[Signal]
 	public delegate void SSwitchMenuEventHandler(int toShow);
@@ -44,13 +45,6 @@ public partial class saves_menu : CanvasLayer
 		
 	}
 
-	private void OnVisibilityChanged()
-	{
-		if (Visible)
-			Input.MouseMode = Input.MouseModeEnum.Visible;
-		GD.Print("Visible: " + Visible);
-	}
-
 	private void _GoToMenu(int menu)
 	{
 		menus._SwitchMenu(menu);
@@ -72,4 +66,9 @@ public partial class saves_menu : CanvasLayer
 	{
 		SavesList.Update();
 	}
+
+    public void OnOpened()
+    {
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
 }

@@ -39,3 +39,10 @@ res://Data/MenuScenes/SaveMenu/ItemList.cs
 res://Data/MenuScenes/SaveMenu/SaveInfoContainer.cs
 res://Data/MenuScenes/SaveMenu/saves_menu.cs
 res://Data/GameSceneObjects/Hud/hud_scene.tscn
+res://Data/MenuScenes/OptionsMenu/OptionsMenu.tscn
+res://Data/MenuScenes/menus.tscn
+res://Data/MenuScenes/MainMenu/main_menu.tscn
+res://Data/MenuScenes/SaveMenu/saves_menu.tscn
+res://Data/MenuScenes/PauseMenu/PauseMenu.tscn
+res://Data/MenuScenes/LoadingScene/LoadingScene.tscn
+res://Data/MenuScenes/BlockMenu/block_menu.tscn

@@ -1,6 +1,7 @@
 using Godot;
 using Stellacrum.Data.CubeObjects;
 using System;
+using GameSceneObjects;
 
 namespace Stellacrum.Data.CubeObjects
 {
@@ -19,6 +20,11 @@ namespace Stellacrum.Data.CubeObjects
         public override void _Process(double delta)
         {
 
+        }
+
+        public void OnInteract(player_character player)
+        {
+            player.TryEnter(this);
         }
     }
 }

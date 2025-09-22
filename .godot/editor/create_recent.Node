@@ -1,3 +1,4 @@
+HBoxContainer
 Label
 AspectRatioContainer
 Container
@@ -19,7 +20,6 @@ Button
 ScrollContainer
 HSlider
 CheckButton
-HBoxContainer
 VBoxContainer
 GridMap
 RichTextLabel

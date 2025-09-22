@@ -1,10 +1,11 @@
 using Godot;
 using System;
+using Stellacrum.Data.MenuScenes;
 
 /// <summary>
 /// World loading screen. Starts world load if visible and WorldLoader.stage == LoadingStage.Starting
 /// </summary>
-public partial class LoadingScene : CanvasLayer
+public partial class LoadingScene : CanvasLayer, IMenuPage
 {
 	Label text;
     menus menus;
@@ -48,5 +49,10 @@ public partial class LoadingScene : CanvasLayer
             menus._SwitchMenu(0);
 
         i++;
+    }
+
+    public void OnOpened()
+    {
+        // do nothing
     }
 }

@@ -1,7 +1,8 @@
 using Godot;
 using System;
+using Stellacrum.Data.MenuScenes;
 
-public partial class main_menu : CanvasLayer
+public partial class main_menu : CanvasLayer, IMenuPage
 {
 	[Signal]
 	public delegate void FullscreenEventHandler();
@@ -27,9 +28,8 @@ public partial class main_menu : CanvasLayer
 		EmitSignal(SignalName.MSwitchMenu, menu);
 	}
 
-	private void _OnVisiblityChanged()
-	{
-	    if (Visible)
-			Input.MouseMode = Input.MouseModeEnum.Captured;
-	}
+    public void OnOpened()
+    {
+        Input.MouseMode = Input.MouseModeEnum.Captured;
+    }
 }
