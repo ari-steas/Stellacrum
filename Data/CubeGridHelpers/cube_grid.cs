@@ -1,14 +1,14 @@
-using Godot;
-using Stellacrum.Data.CubeGridHelpers;
 using System;
+using Godot;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+using Stellacrum.Data.CubeGridHelpers;
 using Stellacrum.Data.CubeObjects;
 using Stellacrum.Data.ObjectLoaders;
 
 public partial class CubeGrid : RigidBody3D
 {
+    public const float MinGridSize = 2.5f;
+
 	public CubeGrid ParentGrid;
 
 	public Aabb Size { get; private set; } = new Aabb();
@@ -21,8 +21,9 @@ public partial class CubeGrid : RigidBody3D
 
 	bool underControl = false;
 
-	readonly Dictionary<Vector3I, CubeBlock> CubeBlocks = new ();
-	readonly List<Vector3I> OccupiedBlocks = new ();
+    protected GridOctree GridTree = new GridOctree(-Vector3.One * 2.5f / 2, 2.5f, null);
+    protected HashSet<CubeBlock> CubeBlocks = new HashSet<CubeBlock>();
+
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
 	readonly internal List<CubeGrid> subGrids = new();
 
@@ -36,6 +37,9 @@ public partial class CubeGrid : RigidBody3D
 
 		ParentGrid = GetParentGrid(this);
 		ParentGrid?.subGrids.Add(this);
+
+		GridTree = GridOctree.AddSupertree(Vector3I.Zero, GridTree);
+		GridTree.AddSubtree(new Vector3I(1, 1, 1));
 	}
 
 	/// <summary>
@@ -67,7 +71,24 @@ public partial class CubeGrid : RigidBody3D
 
 		ThrustControl.Update(LinearVelocity, AngularVelocity, delta);
 		Speed = LinearVelocity.Length();
-	}
+
+        Stack<GridOctree> trees = new Stack<GridOctree>();
+		trees.Push(GridTree);
+        while (trees.TryPop(out var tree))
+        {
+			DebugDraw.Shape(GlobalPosition + Quaternion * (tree.RootPosition + Vector3.One * tree.CellWidth), Quaternion, new BoxShape3D
+            {
+				Size = Vector3.One * tree.CellWidth * 2,
+            });
+			DebugDraw.Point(GlobalPosition + Quaternion * tree.RootPosition, color: new Color(255, 0, 0));
+
+            foreach (var subtree in tree.Subtrees)
+            {
+                if (subtree != null)
+                    trees.Push(subtree);
+            }
+        }
+    }
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -100,43 +121,50 @@ public partial class CubeGrid : RigidBody3D
 	public bool MirrorEnabled = false;
 	public Vector3I MirrorPosition = Vector3I.Zero;
 
-	public void AddBlock(RayCast3D ray, Vector3 rotation, string blockId)
+	public void AddBlock(RayCast3D ray, Basis rotation, string blockId)
 	{
-		AddBlock(PlaceProjectionGlobal(ray, CubeBlockLoader.ExistingBaseFromId(blockId).size), rotation, blockId);
+		AddBlock(GetPlaceProjectionGlobal(ray, CubeBlockLoader.ExistingBaseFromId(blockId).size), rotation, blockId);
 	}
 
-	public void AddBlock(Vector3 globalPosition, Vector3 rotation, string blocKid)
+	public void AddBlock(Vector3 globalPosition, Basis rotation, string blockId)
 	{
-		AddBlock(GlobalToGridCoordinates(globalPosition), rotation, blocKid);
+        if (CubeBlocks.Count == 0)
+        {
+			AddBlockLocal(Vector3.Zero, rotation, blockId);
+            return;
+        }
+
+		AddBlockLocal(ToLocal(globalPosition), rotation, blockId);
 	}
 
-	public void AddBlock(Vector3I position, Vector3 rotation, string blocKid)
+	public void AddBlockLocal(Vector3 localPos, Basis rotation, string blocKid)
 	{
-		AddBlock(position, rotation, CubeBlockLoader.BlockFromId(blocKid));
+        AddBlockLocal(localPos, rotation, CubeBlockLoader.BlockFromId(blocKid));
 	}
 
-	public void AddBlock(Vector3I position_GridLocal, Vector3 rotation, CubeBlock block)
+	public void AddBlockLocal(Vector3 localPos, Basis rotation, CubeBlock block)
     {
-        // Check for intersection in existing blocks
-        if (CubeBlocks.ContainsKey(position_GridLocal))
+        if (GridTree.HasBlocksInVolume(localPos, block.size) || !CubeBlocks.Add(block))
             return;
 
-		// Expensive check for intersection
-		Vector3I[] blockPositions = block.OccupiedSlots(position_GridLocal);
-        foreach (Vector3I blockPos in blockPositions)
-			if (OccupiedBlocks.Contains(blockPos))
-				return;
+        while (GridTree.CellWidth < block.GridSize || !GridTree.PointInVolume(localPos))
+        {
+			// Offset octree generation to fit block
+            Vector3 rel = localPos - GridTree.RootPosition;
+            Vector3I newRoot = new Vector3I(rel.X < 0 ? 1 : 0, rel.Y < 0 ? 1 : 0, rel.Z < 0 ? 1 : 0);
+            GridTree = GridOctree.AddSupertree(newRoot, GridTree);
+        }
+
+		// Try adding first; if this fails, don't parent the block.
+        if (!GridTree.SetBlockAt(localPos, CubeBlocks.Count > 1 ? Basis.Inverse() * rotation : Basis.Identity, block))
+            return;
 
         AddChild(block);
-        CubeBlocks.Add(position_GridLocal, block);
 
-		// Add to occupied slots
-		OccupiedBlocks.AddRange(blockPositions);
-
-        block.Position = (Vector3)position_GridLocal * 2.5f;
+        block.Position = localPos;
 		// If this is called when there are zero blocks (i.e. this is first block on grid), Global values throw an error (as they don't exist yet)
 		if (CubeBlocks.Count > 1)
-			block.GlobalRotation = rotation;
+			block.GlobalRotation = rotation.GetEuler(); // ik this sucks but it's good enough
 
         block.collisionId = CreateShapeOwner(this);
         ShapeOwnerAddShape(block.collisionId, block.collision);
@@ -155,31 +183,32 @@ public partial class CubeGrid : RigidBody3D
 
         try
         {
+			// TODO reintroduce
             // Place mirrored blocks
-            if (MirrorEnabled)
-            {
-                Vector3I diff = MirrorPosition - position_GridLocal;
-
-                // Flip along Y axis
-                block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-                if (GridMirrors[1])
-                    AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block);
-                block.GlobalRotation = rotation;
-
-                // Flip along X axis
-                block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
-                block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
-                if (GridMirrors[0])
-                    AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block);
-                block.GlobalRotation = rotation;
-
-                // Flip along Z axis
-                block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-                if (GridMirrors[2])
-                    AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block);
-                block.GlobalRotation = rotation;
-            }
-        }
+            //if (MirrorEnabled)
+            //{
+            //    Vector3I diff = MirrorPosition - localPos;
+			//
+            //    // Flip along Y axis
+            //    block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+            //    if (GridMirrors[1])
+            //        AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block);
+            //    block.GlobalRotation = rotation;
+			//
+            //    // Flip along X axis
+            //    block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
+            //    block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
+            //    if (GridMirrors[0])
+            //        AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block);
+            //    block.GlobalRotation = rotation;
+			//
+            //    // Flip along Z axis
+            //    block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+            //    if (GridMirrors[2])
+            //        AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block);
+            //    block.GlobalRotation = rotation;
+            //}
+        }	//
         catch
         {
 
@@ -192,16 +221,22 @@ public partial class CubeGrid : RigidBody3D
     /// <param name="block"></param>
     public void AddFullBlock(CubeBlock block)
     {
-        Vector3I position_GridLocal = LocalToGridCoordinates(block.Position);
-
 		// Override existing block if exists
-		FullRemoveBlock(position_GridLocal);
+		FullRemoveBlock(block);
+
+        while (GridTree.CellWidth < block.GridSize || !GridTree.PointInVolume(block.Position))
+        {
+            // Offset octree generation to fit block
+            Vector3 rel = block.Position - GridTree.RootPosition;
+            Vector3I newRoot = new Vector3I(rel.X < 0 ? 1 : 0, rel.Y < 0 ? 1 : 0, rel.Z < 0 ? 1 : 0);
+            GridTree = GridOctree.AddSupertree(newRoot, GridTree);
+        }
+
+        if (!GridTree.SetBlockAt(block.Position, block.Transform.Basis, block))
+            return;
 
         AddChild(block);
-        CubeBlocks.Add(position_GridLocal, block);
-
-        // Add to occupied slots
-        OccupiedBlocks.AddRange(block.OccupiedSlots(position_GridLocal));
+        CubeBlocks.Add(block);
 
         // Add to collision hull
         block.collisionId = CreateShapeOwner(this);
@@ -220,130 +255,96 @@ public partial class CubeGrid : RigidBody3D
     }
 
 	#nullable enable
-	public CubeBlock? BlockAt(RayCast3D ray)
+	public bool TryGetBlockAt(RayCast3D ray, out CubeBlock block)
 	{
-		if (ray == null) return null;
-		return BlockAt(GlobalToGridCoordinates(ray.GetCollisionPoint() - ray.GetCollisionNormal()));
+		return TryGetBlockAt(ray.GetCollisionPoint() - ray.GetCollisionNormal() * 0.1f, out block);
     }
 
-    public CubeBlock? BlockAt(ShapeCast3D cast, int index = 0)
+    public bool TryGetBlockAt(ShapeCast3D cast, out CubeBlock block, int index = 0)
     {
-        if (cast == null) return null;
-        return BlockAt(GlobalToGridCoordinates(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index)));
+        return TryGetBlockAt(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index) * 0.1f, out block);
     }
 
-	public CubeBlock[] GetCubeBlocks()
+	public ICollection<CubeBlock> GetCubeBlocks()
 	{
-		return CubeBlocks.Values.ToArray();
+		return CubeBlocks;
 	}
 
     public void RemoveBlock(RayCast3D ray, bool ignoreMirror = false)
 	{
-		RemoveBlock(BlockAt(ray), ignoreMirror);
+		if (TryGetBlockAt(ray, out CubeBlock block))
+		    RemoveBlock(block, ignoreMirror);
 	}
-
-	public void RemoveBlock(Vector3 globalPosition, bool ignoreMirror = false)
-	{
-		RemoveBlock(GlobalToGridCoordinates(globalPosition), ignoreMirror);
-	}
-
-	public void RemoveBlock(Vector3I targetPosition, bool ignoreMirror = false)
-	{
-		RemoveBlock(BlockAt(targetPosition), ignoreMirror);
-    }
 
 	public void RemoveBlock(CubeBlock? block, bool ignoreMirror = false)
 	{
 		if (block == null) return;
-
-        Vector3I blockPosition = LocalToGridCoordinates(block.Position);
-
-        FullRemoveBlock(blockPosition);
-
-        if (block is CockpitBlock c)
-            Cockpits.Remove(c);
+        FullRemoveBlock(block);
 
         if (ignoreMirror)
             return;
 
-        // Remove mirrored blocks. Is recursive, but hopefully the isNull check stops it.
-        if (MirrorEnabled)
-        {
-            Vector3I diff = MirrorPosition - blockPosition;
-            if (GridMirrors[0])
-                RemoveBlock(new Vector3I(diff.X, blockPosition.Y, blockPosition.Z));
-            if (GridMirrors[1])
-                RemoveBlock(new Vector3I(blockPosition.X, diff.Y, blockPosition.Z));
-            if (GridMirrors[2])
-                RemoveBlock(new Vector3I(blockPosition.X, blockPosition.Y, diff.Z));
-        }
+		// TODO please return this
+        //// Remove mirrored blocks. Is recursive, but hopefully the isNull check stops it.
+        //if (MirrorEnabled)
+        //{
+        //    Vector3I diff = MirrorPosition - blockPosition;
+        //    if (GridMirrors[0])
+        //        RemoveBlock(new Vector3I(diff.X, blockPosition.Y, blockPosition.Z));
+        //    if (GridMirrors[1])
+        //        RemoveBlock(new Vector3I(blockPosition.X, diff.Y, blockPosition.Z));
+        //    if (GridMirrors[2])
+        //        RemoveBlock(new Vector3I(blockPosition.X, blockPosition.Y, diff.Z));
+        //}
     }
 
 	/// <summary>
 	/// Safe-removes block and closes it.
 	/// </summary>
 	/// <param name="position"></param>
-	private void FullRemoveBlock(Vector3I position)
-	{
-		if (CubeBlocks.ContainsKey(position))
-		{
-			CubeBlock blockToRemove = CubeBlocks[position];
-
-			Vector3I[] occupied = blockToRemove.OccupiedSlots(position);
-            OccupiedBlocks.RemoveAll(pos => occupied.Contains(pos));
-
-            // Remove from collision
-            RemoveShapeOwner(blockToRemove.collisionId);
-            RemoveChild(blockToRemove);
-
-            OwnMass -= blockToRemove.Mass;
-            RecalcSize();
-            RecalcMass();
-
-            blockToRemove.Close();
-
-            CubeBlocks.Remove(position);
-
-            if (IsEmpty())
-                Close();
-        }
-    }
-
-	public CubeBlock? BlockAt(Vector3I position)
-	{
-		// Cheap check first
-		if (CubeBlocks.ContainsKey(position))
-            return CubeBlocks[position];
-
-		foreach (var block in CubeBlocks)
-			if (block.Value.OccupiedSlots(block.Key).Contains(position))
-                return block.Value;
-        return null;
-	}
-
-    public bool TryGetBlockAt(Vector3I position, out CubeBlock block)
+	private void FullRemoveBlock(Vector3 position)
     {
-        if (CubeBlocks.TryGetValue(position, out block)) // TODO: populate CubeBlocks with all member blocks
-            return true;
-
-        foreach (var cube in CubeBlocks)
-        {
-            if (cube.Value.OccupiedSlots(cube.Key).Contains(position))
-            {
-                block = cube.Value;
-                return true;
-            }
-        }
-            
-        return false;
+        if (!GridTree.TryGetBlockAt(position, out CubeBlock toRemove))
+            return;
+		FullRemoveBlock(toRemove);
     }
 
-	public bool IsBlockAt(Vector3I position)
-	{
-		if (CubeBlocks.ContainsKey(position))
-			return true;
+    /// <summary>
+    /// Safe-removes block and closes it.
+    /// </summary>
+    /// <param name="position"></param>
+    private void FullRemoveBlock(CubeBlock toRemove)
+    {
+        if (!CubeBlocks.Remove(toRemove))
+            return;
 
-		return OccupiedBlocks.Contains(position);
+        GridTree.RemoveBlock(toRemove);
+
+        if (toRemove is CockpitBlock c)
+            Cockpits.Remove(c);
+
+        // Remove from collision
+        RemoveShapeOwner(toRemove.collisionId);
+        RemoveChild(toRemove);
+
+        OwnMass -= toRemove.Mass;
+        RecalcSize();
+        RecalcMass();
+
+        toRemove.Close();
+
+        if (IsEmpty())
+            Close();
+    }
+
+    public bool TryGetBlockAt(Vector3 position, out CubeBlock block)
+    {
+        return GridTree.TryGetBlockAt(position, out block);
+    }
+
+	public bool IsBlockAt(Vector3 position)
+	{
+		return GridTree.TryGetBlockAt(position, out _);
     }
 
 	private void RecalcSize()
@@ -387,7 +388,7 @@ public partial class CubeGrid : RigidBody3D
 		subGrids.ForEach(s => Mass += s.Mass);
 
 		Vector3 centerOfMass = Vector3.Zero;
-		foreach (var block in CubeBlocks.Values)
+		foreach (var block in CubeBlocks)
 			centerOfMass += block.Position * block.Mass;
 		subGrids.ForEach(s => centerOfMass += s.Position * s.Mass);
 		centerOfMass /= Mass;
@@ -398,49 +399,13 @@ public partial class CubeGrid : RigidBody3D
 
 		ThrustControl.SetCenterOfMass(CenterOfMass);
 	}
+	
+	public Vector3 GetPlaceProjectionGlobal(RayCast3D ray, Vector3 blockSize)
+    {
+		Vector3 vec = ToLocal(ray.GetCollisionPoint() + ray.GetCollisionNormal() * blockSize/2f) / MinGridSize;
 
-	public Vector3 RoundGlobalCoord(Vector3 global)
-	{
-		if (IsInsideTree())
-			return ToGlobal((Vector3) GlobalToGridCoordinates(global) * 2.5f);
-		else
-			return global;
-	}
-
-	public Vector3 PlaceProjectionGlobal(Vector3 from, Vector3 to)
-	{
-		Vector3 lTo = RoundGlobalCoord(to);
-		lTo = RoundGlobalCoord(lTo.MoveToward(from, 1.25f));
-		return lTo;
-	}
-
-	public Vector3 PlaceProjectionGlobal(RayCast3D ray, Vector3 blockSize)
-	{
-		return RoundGlobalCoord(ray.GetCollisionPoint() + ray.GetCollisionNormal() * blockSize/2f);
-	}
-
-	public Vector3I GlobalToGridCoordinates(Vector3 global)
-	{
-		if (!IsInsideTree())
-			return Vector3I.Zero;
-			
-		return LocalToGridCoordinates(ToLocal(global));
-	}
-
-	public Vector3I LocalToGridCoordinates(Vector3 local)
-	{
-		return (Vector3I) (local/2.5f).Round();
-	}
-
-	public Vector3 GridToLocalPosition(Vector3I gridCoords)
-	{
-		return ((Vector3) gridCoords) * 2.5f;
-	}
-
-	public Vector3 GridToGlobalPosition(Vector3I gridCoords)
-	{
-		return ToGlobal(GridToLocalPosition(gridCoords));
-	}
+        return ToGlobal(new Vector3((float) Math.Round(vec.X) * MinGridSize, (float) Math.Round(vec.Y) * MinGridSize, (float) Math.Round(vec.Z) * MinGridSize));
+    }
 
 	#endregion
 
@@ -448,7 +413,7 @@ public partial class CubeGrid : RigidBody3D
 	{
 		Godot.Collections.Array blocks = new();
 
-		foreach (var block in CubeBlocks.Values)
+		foreach (var block in CubeBlocks)
 		{
 			blocks.Add(block.Save());
 		}
@@ -469,7 +434,7 @@ public partial class CubeGrid : RigidBody3D
 	public virtual void Close()
 	{
 		// Safe-remove all blocks.
-		foreach (var block in CubeBlocks.Values)
+		foreach (var block in CubeBlocks)
 		{
 			ShapeOwnerClearShapes(block.collisionId);
 			RemoveShapeOwner(block.collisionId);

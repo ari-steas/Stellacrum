@@ -14,9 +14,12 @@ namespace Stellacrum.Data.CubeObjects
 		public List<Node3D> meshes;
 		public string subTypeId = "";
 		public Vector3 size = Vector3.One * 2.5f;
+        public float GridSize = 2.5f;
 		public int Mass { get; private set; } = 100;
 		public int Health { get => _health; set => SetHealth(value); }
 		private int _health = 100;
+
+        public List<GridOctree> ContainedOctrees = new List<GridOctree>(); // TODO !!!
 
 		internal void SetHealth(int newHealth)
 		{
@@ -32,7 +35,7 @@ namespace Stellacrum.Data.CubeObjects
 		{
             this.subTypeId = subTypeId;
             List<Node3D> model;
-			Vector3 size = Vector3.One * 2.5f;
+			Vector3 size = Vector3.One * GridSize;
 			int mass = 100;
 
 			// Load model from ModelLoader
@@ -43,7 +46,7 @@ namespace Stellacrum.Data.CubeObjects
 
 			// Calc BlockSize
 			ReadFromData(blockData, "BlockSize", ref size, verbose);
-			size *= 2.5f;
+			size *= GridSize;
 
 			ReadFromData(blockData, "Mass", ref mass, verbose);
 			ReadFromData(blockData, "Health", ref _health, verbose);
@@ -98,8 +101,8 @@ namespace Stellacrum.Data.CubeObjects
         public Aabb Size(Vector3I position)
 		{
 			// Offset position to bottom-left corner
-			position -= (Vector3I) (this.size / 5f);
-			Aabb size = new(position, this.size/2.5f);
+			position -= (Vector3I) (this.size / (GridSize*2));
+			Aabb size = new(position, this.size/GridSize);
 			return size;
 		}
 
@@ -109,25 +112,6 @@ namespace Stellacrum.Data.CubeObjects
 			{ 
 				Size = size,
 			};
-		}
-
-		/// <summary>
-		/// Gets a Vector3I[] containing all points within the block's bounds. Offset by basePosition.
-		/// </summary>
-		/// <param name="basePosition"></param>
-		/// <returns></returns>
-		public Vector3I[] OccupiedSlots(Vector3I basePosition)
-		{
-			// Offset position to bottom-left corner
-			basePosition -= (Vector3I)(size / 5f);
-
-			List<Vector3I> slots = new();
-			for (int z = basePosition.Z; z < size.Z / 2.5f + basePosition.Z; z++)
-				for (int y = basePosition.Y; y < size.Y / 2.5f + basePosition.Y; y++)
-					for (int x = basePosition.X; x < size.X / 2.5f + basePosition.X; x++)
-						slots.Add(new Vector3I(x, y, z));
-
-			return slots.ToArray();
 		}
 
         static PackedScene explodeScene = GD.Load<PackedScene>("res://Data/CubeObjects/WeaponObjects/explosion_particle.tscn");
@@ -215,5 +199,10 @@ namespace Stellacrum.Data.CubeObjects
 		{
 			return GetParent<CubeGrid>();
 		}
+
+        public override int GetHashCode()
+        {
+            return GetInstanceId().GetHashCode();
+        }
     }
 }

@@ -148,9 +148,8 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
             // Hit all valid blocks in a single tick
             while (rayCast.IsColliding())
             {
-                CubeBlock block = GameScene.GetBlockAt(rayCast);
                 // If hits self...
-                if (block == null)
+                if (GameScene.TryGetBlockAt(rayCast, out CubeBlock block))
                     break;
 
                 // Support for DamageSum setting
@@ -164,7 +163,7 @@ namespace Stellacrum.Data.CubeObjects.WeaponObjects
                 }
 
                 if (AreaEffectEnabled && AreaEffectDamage > 0)
-                    HandleExplosiveHits(GameScene.GetGridAt(rayCast), rayCast.GetCollisionPoint());
+                    HandleExplosiveHits(block.Grid(), rayCast.GetCollisionPoint());
 
                 MaxBlockHits--;
                 if (MaxBlockHits == 0)

@@ -91,7 +91,7 @@ public partial class GameScene : Node3D
 	}
 
 
-    public CubeGrid? SpawnGridWithBlock(string blockId, Vector3 position, Vector3 rotation, bool force = false, Node parent = null)
+    public CubeGrid? SpawnGridWithBlock(string blockId, Vector3 position, Basis rotation, bool force = false, Node parent = null)
     {
         if (!force && !IsShapeEmpty(position, CubeBlockLoader.BlockFromId(blockId).collision))
             return null;
@@ -99,10 +99,10 @@ public partial class GameScene : Node3D
         CubeGrid newGrid = new()
         {
             Position = position,
-            Rotation = rotation
+            Rotation = rotation.GetEuler()
         };
 
-        newGrid.AddBlock(Vector3I.Zero, Vector3.Zero, blockId);
+        newGrid.AddBlock(Vector3I.Zero, Basis.Identity, blockId);
 
         if (parent == null)
             AddChild(newGrid);
@@ -123,7 +123,7 @@ public partial class GameScene : Node3D
 		GD.Print("Spawned existing grid " + grid.Name + " @ " + grid.Position);
 	}
 
-	public void TryPlaceBlock(string blockId, RayCast3D cast, Vector3 rotation)
+	public void TryPlaceBlock(string blockId, RayCast3D cast, Basis rotation)
 	{
 		if (cast.IsColliding())
 		{
@@ -139,38 +139,46 @@ public partial class GameScene : Node3D
 	}
 
 	#nullable enable
-	public static CubeGrid? GetGridAt(RayCast3D cast)
-	{
-		if (cast.IsColliding())
-			if (cast.GetCollider() is CubeGrid grid)
-				return grid;
-		return null;
+	public static bool TryGetGridAt(RayCast3D cast, out CubeGrid grid)
+    {
+        grid = null;
+        if (cast.IsColliding())
+        {
+            if (cast.GetCollider() is CubeGrid g)
+            {
+                grid = g;
+                return true;
+            }
+        }
+            
+		return false;
 	}
 
-    public static CubeGrid? GetGridAt(ShapeCast3D cast, int index = 0)
+    public static bool TryGetGridAt(ShapeCast3D cast, out CubeGrid grid, int index = 0)
     {
+        grid = null;
         if (cast.IsColliding())
-            if (cast.GetCollider(index) is CubeGrid grid)
-                return grid;
-        return null;
+        {
+            if (cast.GetCollider(index) is CubeGrid g)
+            {
+                grid = g;
+                return true;
+            }
+        }
+            
+        return false;
     }
 
-    public static CubeBlock? GetBlockAt(RayCast3D cast)
-	{
-		CubeGrid? grid = GetGridAt(cast);
-		if (grid == null)
-			return null;
-
-		return grid.BlockAt(cast);
+    public static bool TryGetBlockAt(RayCast3D cast, out CubeBlock block)
+    {
+        block = null;
+		return TryGetGridAt(cast, out CubeGrid grid) && grid.TryGetBlockAt(cast, out block);
 	}
 
-    public static CubeBlock? GetBlockAt(ShapeCast3D cast, int index = 0)
+    public static bool TryGetBlockAt(ShapeCast3D cast, out CubeBlock block, int index = 0)
     {
-        CubeGrid? grid = GetGridAt(cast, index);
-        if (grid == null)
-            return null;
-
-        return grid.BlockAt(cast);
+        block = null;
+        return TryGetGridAt(cast, out CubeGrid grid) && grid.TryGetBlockAt(cast, out block);
     }
 
     public static void RemoveBlock(RayCast3D ray)

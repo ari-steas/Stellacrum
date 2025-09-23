@@ -43,7 +43,7 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
             {
                 NodeA = Grid().GetPath(),
                 NodeB = SubpartGrid.GetPath(),
-                Position = Position + Grid().GridToLocalPosition((Vector3I)(Basis * Offset)),
+                Position = Position + (Basis * Offset) * GridSize,
                 Rotation = Rotation,
             };
             SubpartJoint.SetFlag(HingeJoint3D.Flag.EnableMotor, true);
@@ -62,8 +62,8 @@ namespace Stellacrum.Data.CubeObjects.Mechanical
             SubpartGrid = GameScene.GetGameScene(this)
                 .SpawnGridWithBlock(
                     subPartSubType,
-                    Position + Grid().GridToLocalPosition((Vector3I)(Basis * Offset)),
-                    Rotation,
+                    Position + (Basis * Offset) * GridSize,
+                    Transform.Basis,
                     true,
                     Grid()
                 );

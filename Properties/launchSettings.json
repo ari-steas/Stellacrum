@@ -5,7 +5,7 @@
     },
     "Profile 1": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files (x86)\\Godot_v4.0.3-stable_mono_win64\\Godot_v4.1.1-stable_mono_win64.exe",
+      "executablePath": "C:\\Program Files (x86)\\Godot_v4.0.3-stable_mono_win64\\Godot_v4.1.2-stable_mono_win64.exe",
       "commandLineArgs": "--path . --verbose",
       "workingDirectory": "C:\\Users\\jnick\\OneDrive\\Documents\\GitHub\\Stellacrum",
       "nativeDebugging": true

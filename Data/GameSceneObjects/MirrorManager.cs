@@ -88,39 +88,40 @@ public class MirrorManager
     /// <param name="position"></param>
     private void MoveMirror(MirrorMode mirror, Vector3I position, bool set = true)
     {
-        if (currentGrid == null)
-            return;
-
-        Vector3I center = (Vector3I) currentGrid.Size.GetCenter();
-       
-        switch (mirror)
-        {
-            case MirrorMode.X:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(position.X, center.Y, center.Z));
-                break;
-            case MirrorMode.Y:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, position.Y, center.Z));
-                break;
-            case MirrorMode.Z:
-                MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, center.Y, position.Z));
-                break;
-        }
-
-        if (!set)
-            return;
-
-        switch (mirror)
-        {
-            case MirrorMode.X:
-                currentGrid.MirrorPosition.X = position.X;
-                break;
-            case MirrorMode.Y:
-                currentGrid.MirrorPosition.Y = position.Y;
-                break;
-            case MirrorMode.Z:
-                currentGrid.MirrorPosition.Z = position.Z;
-                break;
-        }
+        // TODO bring back
+        //if (currentGrid == null)
+        //    return;
+        //
+        //Vector3I center = (Vector3I) currentGrid.Size.GetCenter();
+        //
+        //switch (mirror)
+        //{
+        //    case MirrorMode.X:
+        //        MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(position.X, center.Y, center.Z));
+        //        break;
+        //    case MirrorMode.Y:
+        //        MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, position.Y, center.Z));
+        //        break;
+        //    case MirrorMode.Z:
+        //        MirrorPlanes[(int) mirror].Position = currentGrid.GridToLocalPosition(new(center.X, center.Y, position.Z));
+        //        break;
+        //}
+        //
+        //if (!set)
+        //    return;
+        //
+        //switch (mirror)
+        //{
+        //    case MirrorMode.X:
+        //        currentGrid.MirrorPosition.X = position.X;
+        //        break;
+        //    case MirrorMode.Y:
+        //        currentGrid.MirrorPosition.Y = position.Y;
+        //        break;
+        //    case MirrorMode.Z:
+        //        currentGrid.MirrorPosition.Z = position.Z;
+        //        break;
+        //}
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 using Stellacrum.Data.CubeObjects;
 using Stellacrum.Data.CubeObjects.WeaponObjects;
 using Stellacrum.Data.ObjectLoaders;
@@ -118,17 +119,18 @@ namespace GameSceneObjects
 						PlayerPlaceBox.SnapRotationLocal();
 					}
 
-					lookPosition = grid.PlaceProjectionGlobal(interactCast, PlayerPlaceBox.CurrentSize);
+					lookPosition = grid.GetPlaceProjectionGlobal(interactCast, PlayerPlaceBox.CurrentSize);
 
-					mirrorManager.MoveActiveMirror(grid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()));
-
-					Vector3 diff = grid.MirrorPosition - PlayerPlaceBox.Position;
-					if (grid.GridMirrors[0])
-						DebugDraw.Point(grid.ToGlobal(new Vector3(diff.X, PlayerPlaceBox.Position.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Red);
-					if (grid.GridMirrors[1])
-						DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, diff.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Green);
-					if (grid.GridMirrors[2])
-						DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, PlayerPlaceBox.Position.Y, diff.Z)), 1, Colors.Blue);
+					// TODO return mirrors
+					//mirrorManager.MoveActiveMirror(grid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()));
+					//
+					//Vector3 diff = grid.MirrorPosition - PlayerPlaceBox.Position;
+					//if (grid.GridMirrors[0])
+					//	DebugDraw.Point(grid.ToGlobal(new Vector3(diff.X, PlayerPlaceBox.Position.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Red);
+					//if (grid.GridMirrors[1])
+					//	DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, diff.Y, PlayerPlaceBox.Position.Z)), 1, Colors.Green);
+					//if (grid.GridMirrors[2])
+					//	DebugDraw.Point(grid.ToGlobal(new Vector3(PlayerPlaceBox.Position.X, PlayerPlaceBox.Position.Y, diff.Z)), 1, Colors.Blue);
 				}
 			}
 			else
@@ -256,7 +258,7 @@ namespace GameSceneObjects
             if (!IsInCockpit &&
                 interactCast.IsColliding() &&
                 interactCast.GetCollider() is CubeGrid lookGrid &&
-                lookGrid.TryGetBlockAt(lookGrid.GlobalToGridCoordinates(interactCast.GetCollisionPoint() - interactCast.GetCollisionNormal()), out CubeBlock block) &&
+                lookGrid.TryGetBlockAt(interactCast, out CubeBlock block) &&
                 block is IHighlightableObject highlightObject)
             {
                 DebugDraw.Shape(block.GlobalTransform, block.collision, new Color(1, 1, 0, 0.75f));
@@ -330,13 +332,14 @@ namespace GameSceneObjects
 				{
 					if (mirrorManager.PlacingMirror)
 					{
-						mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, GameScene.GetGridAt(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
-						mirrorManager.UnsetActiveMirror();
-						PlayerPlaceBox.Visible = true;
+						// TODO return mirrors
+						//mirrorManager.PlaceGridMirror(mirrorManager.activeMirror, GameScene.GetGridAt(interactCast).GlobalToGridCoordinates(interactCast.GetCollisionPoint() + interactCast.GetCollisionNormal()));
+						//mirrorManager.UnsetActiveMirror();
+						//PlayerPlaceBox.Visible = true;
 					}
 					else
 					{
-						scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalRotation);
+						scene.TryPlaceBlock(PlayerPlaceBox.CurrentBlockId, interactCast, PlayerPlaceBox.GlobalTransform.Basis);
 						nextPlaceTime = DateTime.Now.Ticks + 1_000_000;
 						mirrorManager.CheckGridMirrors();
 					}
@@ -352,11 +355,10 @@ namespace GameSceneObjects
 					}
 					else
 					{
-						CubeGrid grid = GameScene.GetGridAt(interactCast);
 						// Prevent place box from being deleted
-						if (grid != null)
+						if (GameScene.TryGetGridAt(interactCast, out CubeGrid grid))
 						{
-							if (grid.GetCubeBlocks().Length == 1)
+							if (grid.GetCubeBlocks().Count == 1)
 								PlayerPlaceBox.Reparent(this);
                             grid.RemoveBlock(interactCast);
 
