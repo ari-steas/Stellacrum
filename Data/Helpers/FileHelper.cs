@@ -18,14 +18,17 @@ public class FileHelper
 
 		foreach (var file in cdir.GetFiles())
 		{
-			try
-			{
-				// PCK files add ".import" to end of file name, this fixes.
-				string fR = file.Replace(".import", "");
-				if (fR.EndsWith(extension) && !files.Contains(path + fR))
-					files.Add(path + fR);
-			}
-			catch {}
+            try
+            {
+                // PCK files add ".import" to end of file name, this fixes.
+                string fR = file.Replace(".import", "");
+                if (fR.EndsWith(extension) && !files.Contains(path + fR))
+                    files.Add(path + fR);
+            }
+            catch (Exception ex)
+            {
+				GD.PrintErr(ex);
+            }
 		}
 
 		if (recursive)

@@ -61,10 +61,10 @@ public partial class menus : Node2D
                 camera.Fov = fov;
                 GD.Print("Set camera FOV to " + fov);
             }
-            catch
-			{
-
-			}
+            catch (Exception ex)
+            {
+				GD.PrintErr(ex);
+            }
         }
     }
 

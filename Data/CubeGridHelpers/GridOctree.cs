@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Godot;
 using Stellacrum.Data.CubeObjects;
 
@@ -14,17 +15,19 @@ namespace Stellacrum.Data.CubeGridHelpers
         public readonly float CellWidth;
         public Vector3 RootPosition { get; protected set; }
         public GridOctree Parent;
+        public CubeGrid Grid; // TODO remove
 
         protected GridOctree[] _subtrees = new GridOctree[8];
         protected CubeBlock[] _blocks = new CubeBlock[8];
 
         public IEnumerable<GridOctree> Subtrees => _subtrees;
 
-        public GridOctree(Vector3 rootPosition, float cellWidth, GridOctree parent)
+        public GridOctree(Vector3 rootPosition, float cellWidth, GridOctree parent, CubeGrid grid)
         {
             RootPosition = rootPosition;
             CellWidth = cellWidth;
             Parent = parent;
+            Grid = grid;
         }
 
         /// <summary>
@@ -34,12 +37,26 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// <exception cref="ArgumentException">Thrown if the cell is already occupied.</exception>
         public GridOctree AddSubtree(Vector3I vec)
         {
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+            int idx = VecToIndex(vec);
             if (_subtrees[idx] != null || _blocks[idx] != null)
-                throw new ArgumentException($"Cell index {idx} is already occupied.");
-            _subtrees[idx] = new GridOctree(RootPosition + (Vector3) vec * CellWidth, CellWidth/2, this);
+                throw new ArgumentException($"Cell index {idx} is already occupied. [{(_subtrees[idx] != null ? "TREE" : "")}&{(_blocks[idx] != null ? "BLOCK" : "")}]");
+            _subtrees[idx] = new GridOctree(RootPosition + (Vector3) vec * CellWidth, CellWidth/2, this, Grid);
             GD.Print($"New subtree: {vec} offset @ {CellWidth}m: {RootPosition} -> {_subtrees[idx].RootPosition}");
+            return _subtrees[idx];
+        }
 
+        /// <summary>
+        /// Adds a new subtree to this tree's hierarchy.
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <exception cref="ArgumentException">Thrown if the cell is already occupied.</exception>
+        public GridOctree AddSubtree(int idx)
+        {
+            if (_subtrees[idx] != null || _blocks[idx] != null)
+                throw new ArgumentException($"Cell index {idx} is already occupied. [{(_subtrees[idx] != null ? "TREE" : "")}&{(_blocks[idx] != null ? "BLOCK" : "")}]");
+            Vector3I vec = IndexToVec3I(idx);
+            _subtrees[idx] = new GridOctree(RootPosition + (Vector3) vec * CellWidth, CellWidth/2, this, Grid);
+            GD.Print($"New subtree: {vec} offset @ {CellWidth}m: {RootPosition} -> {_subtrees[idx].RootPosition}");
             return _subtrees[idx];
         }
 
@@ -50,8 +67,8 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// <exception cref="ArgumentException">Thrown if the cell is already occupied.</exception>
         public static GridOctree AddSupertree(Vector3I vec, GridOctree tree)
         {
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
-            GridOctree superTree = new GridOctree(tree.RootPosition - (Vector3) vec * tree.CellWidth * 2, tree.CellWidth * 2, null);
+            int idx = VecToIndex(vec);
+            GridOctree superTree = new GridOctree(tree.RootPosition - (Vector3) vec * tree.CellWidth * 2, tree.CellWidth * 2, null, tree.Grid);
             superTree._subtrees[idx] = tree;
             tree.Parent = superTree;
             GD.Print($"New supertree: {vec} offset @ {tree.CellWidth}m: {tree.RootPosition} -> {superTree.RootPosition}");
@@ -60,7 +77,7 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public void SetBlock(Vector3I vec, CubeBlock block)
         {
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+            int idx = VecToIndex(vec);
             if (_subtrees[idx] != null)
                 throw new ArgumentException($"Cell index {idx} is already occupied.");
             _blocks[idx] = block;
@@ -68,7 +85,7 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public void SetTree(Vector3I vec, GridOctree tree)
         {
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+            int idx = VecToIndex(vec);
             if (_blocks[idx] != null)
                 throw new ArgumentException($"Cell index {idx} is already occupied.");
             _subtrees[idx] = tree;
@@ -76,7 +93,7 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public void RemoveAt(Vector3I vec)
         {
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+            int idx = VecToIndex(vec);
             _subtrees[idx] = null;
             _blocks[idx] = null;
         }
@@ -98,7 +115,7 @@ namespace Stellacrum.Data.CubeGridHelpers
             // 1,1,0 = 6
             // 1,1,1 = 7
 
-            int idx = (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+            int idx = VecToIndex(vec);
             tree = _subtrees[idx];
             block = _blocks[idx];
         }
@@ -120,10 +137,10 @@ namespace Stellacrum.Data.CubeGridHelpers
             int depth = 0;
             while (true)
             {
-                GD.Print($"[{++depth}] Size: {tree.CellWidth:F}m");
+                //GD.Print($"[{++depth}] TGBASize: {tree.CellWidth:F}m");
                 Vector3I searchPosition = (Vector3I)(vec / tree.CellWidth);
 
-                GridOctree subTree = tree._subtrees[(searchPosition.X << 2) + (searchPosition.Y << 1) + (searchPosition.Z)];
+                GridOctree subTree = tree._subtrees[VecToIndex(searchPosition)];
                 vec -= (Vector3) searchPosition * tree.CellWidth;
                 if (subTree == null)
                     break;
@@ -132,39 +149,8 @@ namespace Stellacrum.Data.CubeGridHelpers
             }
 
             Vector3I blockPosition = (Vector3I)(vec / tree.CellWidth);
-            block = tree._blocks[(blockPosition.X << 2) + (blockPosition.Y << 1) + (blockPosition.Z)];
+            block = tree._blocks[VecToIndex(blockPosition)];
             return true;
-        }
-
-        public CubeBlock BlockAt(Vector3 vec, out GridOctree tree)
-        {
-            vec -= RootPosition;
-            tree = null;
-            if (vec.X+1 > CellWidth * 2 || vec.X < 0)
-                return null;
-            if (vec.Y+1 > CellWidth * 2 || vec.Y < 0)
-                return null;
-            if (vec.Z+1 > CellWidth * 2 || vec.Z < 0)
-                return null;
-
-            tree = this;
-
-            int depth = 0;
-            while (true)
-            {
-                GD.Print($"[{++depth}] Size: {tree.CellWidth:F}m");
-                Vector3I searchPosition = (Vector3I)(vec / tree.CellWidth);
-
-                GridOctree subTree = tree._subtrees[(searchPosition.X << 2) + (searchPosition.Y << 1) + (searchPosition.Z)];
-                vec -= (Vector3) searchPosition * tree.CellWidth;
-                if (subTree == null)
-                    break;
-
-                tree = subTree;
-            }
-
-            Vector3I blockPosition = (Vector3I)(vec / tree.CellWidth);
-            return tree._blocks[(blockPosition.X << 2) + (blockPosition.Y << 1) + (blockPosition.Z)];
         }
 
         /// <summary>
@@ -192,7 +178,7 @@ namespace Stellacrum.Data.CubeGridHelpers
             Vector3 slack = Vector3.One * CubeGrid.MinGridSize/4;
             while (toCheck.TryPop(out GridOctree current))
             {
-                GD.Print($"[{++count}] Size: {current.CellWidth:F}m");
+                GD.Print($"[{++count}] BIVSize: {current.CellWidth:F}m");
 
                 foreach (var subtree in current._subtrees)
                 {
@@ -204,7 +190,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                         if (current._blocks[i] == null)
                             continue;
 
-                        Vector3 cellPos = new Vector3(i & 0b100, i & 0b010, i & 0b001) * current.CellWidth + current.RootPosition;
+                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
                         if (cellPos >= position - slack && cellPos - position <= extents + slack)
                             cubes.Add(current._blocks[i]);
                     }
@@ -214,7 +200,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                         if (current._subtrees[i] == null)
                             continue;
 
-                        Vector3 cellPos = new Vector3(i & 0b100, i & 0b010, i & 0b001) * current.CellWidth + current.RootPosition;
+                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
                         if (cellPos >= position - slack && cellPos - position <= extents + slack)
                             toCheck.Push(current._subtrees[i]);
                     }
@@ -247,7 +233,7 @@ namespace Stellacrum.Data.CubeGridHelpers
             Vector3 slack = Vector3.One * CubeGrid.MinGridSize/4;
             while (toCheck.TryPop(out GridOctree current))
             {
-                GD.Print($"[{++count}] Size: {current.CellWidth:F}m");
+                GD.Print($"[{++count}] HBIVSize: {current.CellWidth:F}m");
 
                 foreach (var subtree in current._subtrees)
                 {
@@ -259,7 +245,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                         if (current._blocks[i] == null)
                             continue;
 
-                        Vector3 cellPos = new Vector3(i & 0b100, i & 0b010, i & 0b001) * current.CellWidth + current.RootPosition;
+                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
                         if (cellPos >= position - slack && cellPos - position <= extents + slack)
                             return true;
                     }
@@ -269,7 +255,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                         if (current._subtrees[i] == null)
                             continue;
 
-                        Vector3 cellPos = new Vector3(i & 0b100, i & 0b010, i & 0b001) * current.CellWidth + current.RootPosition;
+                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
                         if (cellPos >= position - slack && cellPos - position <= extents + slack)
                             toCheck.Push(current._subtrees[i]);
                     }
@@ -289,7 +275,8 @@ namespace Stellacrum.Data.CubeGridHelpers
             if (relative.Z+1 > CellWidth * 2 || relative.Z < 0)
                 return false;
 
-            Vector3 extents = block.size * rotation;
+            //Vector3 extents = block.size * rotation;
+            Vector3 extents = block.size;
 
             // Narrow down to smallest fully enveloping octree
             Stack<GridOctree> toCheck = new Stack<GridOctree>();
@@ -298,21 +285,33 @@ namespace Stellacrum.Data.CubeGridHelpers
             // Check trees internal to the volume
             int count = 0;
             float minExtents = Math.Min(Math.Min(Math.Abs(extents.X), Math.Abs(extents.Y)), Math.Abs(extents.Z));
-            Vector3 slack = Vector3.One * CubeGrid.MinGridSize/4;
+            
+            Vector3 slack = Vector3.One * CubeGrid.MinGridSize/16;
+            //Vector3 slack = Vector3.Zero;
+
             bool didAdd = false;
             while (toCheck.TryPop(out GridOctree current))
             {
-                GD.Print($"[{++count}] SetBlockAt Size: {current.CellWidth:F}m (block {minExtents}, matches: {current.CellWidth <= minExtents})");
+                GD.Print($"[{++count}] SetBlockAt invoked.\n    Size: {current.CellWidth:F}m (matches: {current.CellWidth <= minExtents})\n    Bounds: {position} to {position + extents}");
+                Vector3 cellSize = Vector3.One * current.CellWidth;
 
+                // Populate occupied block cells
                 if (Math.Abs(current.CellWidth - minExtents) <= CubeGrid.MinGridSize/4)
                 {
                     for (int i = 0; i < current._blocks.Length; i++)
                     {
-                        Vector3 cellPos = new Vector3((i & 0b100) >> 2, (i & 0b010) >> 1, i & 0b001) * current.CellWidth + current.RootPosition;
-                        GD.Print($"    SBA CHKB [{i}] {new Vector3((i & 0b100) >> 2, (i & 0b010) >> 1, i & 0b001)}m for {cellPos >= position - slack} && {cellPos - position <= extents + slack}");
+                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
+                        //bool occupiesInner = !VecAnyLt(cellPos, position - slack);
+                        //bool occupiesOuter = !VecAnyGt(cellPos + cellSize, position + extents + slack);
+                        //
+                        //GD.Print($"    {(occupiesInner && occupiesOuter ? "PASS" : "REJECT")} BlockCell [{i}] {IndexToVec3(i)}m @ {cellPos}.\n" +
+                        //         $"        Inner: {occupiesInner} ({cellPos} >= {position - slack})\n" +
+                        //         $"        Outer: {occupiesOuter} ({cellPos + cellSize} < {position + extents + slack})");
 
-                        if (cellPos >= position - slack && cellPos - position <= extents + slack)
+                        if (Intersects(position + slack, position + extents - slack, cellPos, cellPos + cellSize))
                         {
+                            GD.Print($"    Pass BlockCell [{i}] {IndexToVec3(i)}m");
+
                             current._blocks[i] = block;
                             current._subtrees[i] = null;
                             if (!block.ContainedOctrees.Contains(current))
@@ -323,19 +322,24 @@ namespace Stellacrum.Data.CubeGridHelpers
                     continue;
                 }
 
+                // Otherwise generate new subtrees to occupy
                 for (var i = 0; i < current._subtrees.Length; i++)
                 {
                     var subtree = current._subtrees[i];
 
-                    Vector3 cellPos = new Vector3(i & 0b100, i & 0b010, i & 0b001) * current.CellWidth + current.RootPosition;
+                    Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
+                    //bool occupiesInner = !VecAnyLt(cellPos, position - slack);
+                    //bool occupiesOuter = !VecAnyGt(cellPos + cellSize, position + extents + slack);
+                    //
+                    //GD.Print($"    Check SubtreeCell [{i}] {IndexToVec3(i)}m for {occupiesInner} && {occupiesOuter}");
 
-                    GD.Print($"    SBA CHKS [{i}] {new Vector3((i & 0b100) >> 2, (i & 0b010) >> 1, i & 0b001)}m for {cellPos >= position - slack} && {cellPos - position <= extents + slack}");
-
-                    if (!(cellPos >= position - slack && cellPos - position <= extents + slack))
+                    if (!Intersects(position + slack, position + extents - slack, cellPos, cellPos + cellSize))
                         continue;
 
+                    GD.Print($"    Pass SubtreeCell [{i}] {IndexToVec3(i)}m. Creating new: {subtree == null}");
+
                     if (subtree == null)
-                        subtree = AddSubtree(new Vector3I(i & 0b100, i & 0b010, i & 0b001));
+                        subtree = current.AddSubtree(i);
 
                     toCheck.Push(subtree);
                 }
@@ -400,7 +404,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                 GD.Print($"[{++depth}] Size: {tree.CellWidth:F}m");
                 Vector3I searchPosition = (Vector3I)(vec / tree.CellWidth);
 
-                GridOctree subTree = tree._subtrees[(searchPosition.X << 2) + (searchPosition.Y << 1) + (searchPosition.Z)];
+                GridOctree subTree = tree._subtrees[VecToIndex(searchPosition)];
                 vec -= (Vector3) searchPosition * tree.CellWidth;
                 if (subTree == null)
                     break;
@@ -409,7 +413,7 @@ namespace Stellacrum.Data.CubeGridHelpers
             }
 
             Vector3I blockPosition = (Vector3I)(vec / tree.CellWidth);
-            tree._blocks[(blockPosition.X << 2) + (blockPosition.Y << 1) + (blockPosition.Z)] = block;
+            tree._blocks[VecToIndex(blockPosition)] = block;
 
             return true;
         }
@@ -429,10 +433,10 @@ namespace Stellacrum.Data.CubeGridHelpers
             int depth = 0;
             while (true)
             {
-                GD.Print($"[{++depth}] Size: {tree.CellWidth:F}m");
+                GD.Print($"[{++depth}] TASize: {tree.CellWidth:F}m");
                 Vector3I searchPosition = (Vector3I)(vec / tree.CellWidth);
 
-                GridOctree subTree = tree._subtrees[(searchPosition.X << 2) + (searchPosition.Y << 1) + (searchPosition.Z)];
+                GridOctree subTree = tree._subtrees[VecToIndex(searchPosition)];
                 if (subTree == null)
                     return tree;
 
@@ -459,10 +463,10 @@ namespace Stellacrum.Data.CubeGridHelpers
             int depth = 0;
             while (rootTree.CellWidth > maxExtent)
             {
-                GD.Print($"[{++depth}] Size: {rootTree.CellWidth:F}m");
+                GD.Print($"[{++depth}] STFVSize: {rootTree.CellWidth:F}m");
                 Vector3I searchPosition = (Vector3I)(vec / rootTree.CellWidth);
 
-                GridOctree subTree = rootTree._subtrees[(searchPosition.X << 2) + (searchPosition.Y << 1) + (searchPosition.Z)];
+                GridOctree subTree = rootTree._subtrees[VecToIndex(searchPosition)];
                 vec -= (Vector3) searchPosition * rootTree.CellWidth;
                 if (subTree == null)
                     return rootTree;
@@ -488,6 +492,22 @@ namespace Stellacrum.Data.CubeGridHelpers
                     return false;
 
             return true;
+        }
+
+        private static int VecToIndex(Vector3I vec) => (vec.X << 2) + (vec.Y << 1) + (vec.Z);
+        private static Vector3I IndexToVec3I(int idx) => new Vector3I((idx & 0b100) >> 2, (idx & 0b010) >> 1, idx & 0b001);
+        private static Vector3 IndexToVec3(int idx) => new Vector3((idx & 0b100) >> 2, (idx & 0b010) >> 1, idx & 0b001);
+
+        private static bool VecAnyLt(Vector3 v1, Vector3 v2) => v1.X < v2.X || v1.Y < v2.Y || v1.Z < v2.Z;
+        private static bool VecAnyGt(Vector3 v1, Vector3 v2) => v1.X > v2.X || v1.Y > v2.Y || v1.Z > v2.Z;
+
+        private static bool Intersects(Vector3 aMin, Vector3 aMax, Vector3 bMin, Vector3 bMax)
+        {
+            bool passes = (aMin.X <= bMax.X && aMax.X >= bMin.X) &&
+                          (aMin.Y <= bMax.Y && aMax.Y >= bMin.Y) &&
+                          (aMin.Z <= bMax.Z && aMax.Z >= bMin.Z);
+
+            return passes;
         }
     }
 }

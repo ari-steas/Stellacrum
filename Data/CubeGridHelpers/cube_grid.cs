@@ -21,13 +21,20 @@ public partial class CubeGrid : RigidBody3D
 
 	bool underControl = false;
 
-    protected GridOctree GridTree = new GridOctree(-Vector3.One * 2.5f / 2, 2.5f, null);
+    protected GridOctree GridTree;
     protected HashSet<CubeBlock> CubeBlocks = new HashSet<CubeBlock>();
 
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
 	readonly internal List<CubeGrid> subGrids = new();
 
 	private float OwnMass = 0;
+
+    public CubeGrid()
+    {
+        GridTree = new GridOctree(-Vector3.One * 2.5f / 2, 2.5f, null, this);
+        GridTree = GridOctree.AddSupertree(Vector3I.Zero, GridTree); // TODO remove
+        GridTree.AddSubtree(new Vector3I(1, 1, 1));
+    }
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -37,9 +44,6 @@ public partial class CubeGrid : RigidBody3D
 
 		ParentGrid = GetParentGrid(this);
 		ParentGrid?.subGrids.Add(this);
-
-		GridTree = GridOctree.AddSupertree(Vector3I.Zero, GridTree);
-		GridTree.AddSubtree(new Vector3I(1, 1, 1));
 	}
 
 	/// <summary>
@@ -155,10 +159,17 @@ public partial class CubeGrid : RigidBody3D
             GridTree = GridOctree.AddSupertree(newRoot, GridTree);
         }
 
+        localPos -= block.size / 2; // translate to lower left corner
+
 		// Try adding first; if this fails, don't parent the block.
         if (!GridTree.SetBlockAt(localPos, CubeBlocks.Count > 1 ? Basis.Inverse() * rotation : Basis.Identity, block))
+        {
+            CubeBlocks.Remove(block);
+            GD.PrintErr($"Failed to set block at {localPos}!");
             return;
+        }
 
+        localPos += block.size / 2; // translate back to block center
         AddChild(block);
 
         block.Position = localPos;
@@ -181,38 +192,38 @@ public partial class CubeGrid : RigidBody3D
         if (block is ThrusterBlock t)
             ThrusterBlocks.Add(t);
 
-        try
-        {
-			// TODO reintroduce
-            // Place mirrored blocks
-            //if (MirrorEnabled)
-            //{
-            //    Vector3I diff = MirrorPosition - localPos;
-			//
-            //    // Flip along Y axis
-            //    block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-            //    if (GridMirrors[1])
-            //        AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block);
-            //    block.GlobalRotation = rotation;
-			//
-            //    // Flip along X axis
-            //    block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
-            //    block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
-            //    if (GridMirrors[0])
-            //        AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block);
-            //    block.GlobalRotation = rotation;
-			//
-            //    // Flip along Z axis
-            //    block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
-            //    if (GridMirrors[2])
-            //        AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block);
-            //    block.GlobalRotation = rotation;
-            //}
-        }	//
-        catch
-        {
-
-        }
+        //try
+        //{
+		//	// TODO reintroduce
+        //     Place mirrored blocks
+        //    if (MirrorEnabled)
+        //    {
+        //        Vector3I diff = MirrorPosition - localPos;
+		//	
+        //        // Flip along Y axis
+        //        block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+        //        if (GridMirrors[1])
+        //            AddBlock(new(position_GridLocal.X, diff.Y, position_GridLocal.Z), block.GlobalRotation, block);
+        //        block.GlobalRotation = rotation;
+		//	
+        //        // Flip along X axis
+        //        block.GlobalRotate(Basis * Vector3.Forward, Mathf.Pi);
+        //        block.GlobalRotate(Basis * Vector3.Right, Mathf.Pi);
+        //        if (GridMirrors[0])
+        //            AddBlock(new(diff.X, position_GridLocal.Y, position_GridLocal.Z), block.GlobalRotation, block);
+        //        block.GlobalRotation = rotation;
+		//	
+        //        // Flip along Z axis
+        //        block.RotationDegrees += block.Basis * new Vector3(180, 0, 0);
+        //        if (GridMirrors[2])
+        //            AddBlock(new(position_GridLocal.X, position_GridLocal.Y, diff.Z), block.GlobalRotation, block);
+        //        block.GlobalRotation = rotation;
+        //    }
+        //}	
+        //catch
+        //{
+		//
+        //}
     }
 
     /// <summary>
