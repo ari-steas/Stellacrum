@@ -32,8 +32,6 @@ public partial class CubeGrid : RigidBody3D
     public CubeGrid()
     {
         GridTree = new GridOctree(-Vector3.One * 2.5f / 2, 2.5f, null, this);
-        GridTree = GridOctree.AddSupertree(Vector3I.Zero, GridTree); // TODO remove
-        GridTree.AddSubtree(new Vector3I(1, 1, 1));
     }
 
 	// Called when the node enters the scene tree for the first time.

@@ -43,11 +43,13 @@ public partial class MenuButtonPivot : Node2D
 	{
 		if (!GetParent<CanvasLayer>().Visible)
 			return;
-			
-		if ((Input.GetLastMouseVelocity().X > 150 || Input.IsActionPressed("button_right")))
+
+        float mouseSensitivity = (float)(OptionsHelper.GetOption("mousesensitivityx") ?? 1);
+
+		if ((Input.GetLastMouseVelocity().X * mouseSensitivity > 150 || Input.IsActionPressed("button_right")))
 			_rotate(-Mathf.Pi/2);
 
-		if ((Input.GetLastMouseVelocity().X < -150 || Input.IsActionPressed("button_left")))
+		if ((Input.GetLastMouseVelocity().X * mouseSensitivity < -150 || Input.IsActionPressed("button_left")))
 			_rotate(Mathf.Pi/2);
 
 		if (Input.IsActionJustPressed("ui_accept"))

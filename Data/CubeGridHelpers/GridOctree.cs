@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Godot;
+using Stellacrum.Data.CubeObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Godot;
-using Stellacrum.Data.CubeObjects;
+using System.Runtime.CompilerServices;
 
 namespace Stellacrum.Data.CubeGridHelpers
 {
@@ -267,16 +268,22 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public bool SetBlockAt(Vector3 position, Basis rotation, CubeBlock block)
         {
-            Vector3 relative = position - RootPosition;
-            if (relative.X+1 > CellWidth * 2 || relative.X < 0)
-                return false;
-            if (relative.Y+1 > CellWidth * 2 || relative.Y < 0)
-                return false;
-            if (relative.Z+1 > CellWidth * 2 || relative.Z < 0)
-                return false;
+            Vector3 slack = Vector3.One * CubeGrid.MinGridSize/16;
 
             //Vector3 extents = block.size * rotation;
             Vector3 extents = block.size;
+
+            if (!Contains(RootPosition, RootPosition + Vector3.One * CellWidth * 2, position + slack, position + extents - slack))
+            {
+                GD.PrintErr($"Intersect fail\n    [{RootPosition} < {position + slack}]    \n    [{RootPosition + Vector3.One * CellWidth * 2} > {position + extents - slack}]");
+                return false;
+            }
+            //if (relative.X+1 > CellWidth * 2 || relative.X < 0)
+            //    return false;
+            //if (relative.Y+1 > CellWidth * 2 || relative.Y < 0)
+            //    return false;
+            //if (relative.Z+1 > CellWidth * 2 || relative.Z < 0)
+            //    return false;
 
             // Narrow down to smallest fully enveloping octree
             Stack<GridOctree> toCheck = new Stack<GridOctree>();
@@ -286,7 +293,6 @@ namespace Stellacrum.Data.CubeGridHelpers
             int count = 0;
             float minExtents = Math.Min(Math.Min(Math.Abs(extents.X), Math.Abs(extents.Y)), Math.Abs(extents.Z));
             
-            Vector3 slack = Vector3.One * CubeGrid.MinGridSize/16;
             //Vector3 slack = Vector3.Zero;
 
             bool didAdd = false;
@@ -445,15 +451,9 @@ namespace Stellacrum.Data.CubeGridHelpers
             }
         }
 
-        public GridOctree SmallestTreeForVolume(Vector3 position, Vector3 extents)
+        private GridOctree SmallestTreeForVolume(Vector3 position, Vector3 extents)
         {
             position -= RootPosition;
-            if (position.X+1 > CellWidth * 2 || position.X < 0)
-                return null;
-            if (position.Y+1 > CellWidth * 2 || position.Y < 0)
-                return null;
-            if (position.Z+1 > CellWidth * 2 || position.Z < 0)
-                return null;
 
             // Narrow down to smallest fully enveloping octree
             GridOctree rootTree = this;
@@ -479,7 +479,14 @@ namespace Stellacrum.Data.CubeGridHelpers
 
         public bool PointInVolume(Vector3 point)
         {
-            return point >= RootPosition && (point - RootPosition).X <= CellWidth * 2 && (point - RootPosition).Y <= CellWidth * 2 && (point - RootPosition).Z <= CellWidth * 2;
+            Vector3 relPos = point - RootPosition;
+            float extents = CellWidth * 2;
+
+            bool passes = (0 <= relPos.X && extents >= relPos.X) &&
+                          (0 <= relPos.Y && extents >= relPos.Y) &&
+                          (0 <= relPos.Z && extents >= relPos.Z);
+            
+            return passes;
         }
 
         public bool IsEmpty()
@@ -507,6 +514,15 @@ namespace Stellacrum.Data.CubeGridHelpers
                           (aMin.Y <= bMax.Y && aMax.Y >= bMin.Y) &&
                           (aMin.Z <= bMax.Z && aMax.Z >= bMin.Z);
 
+            return passes;
+        }
+
+        private static bool Contains(Vector3 aMin, Vector3 aMax, Vector3 bMin, Vector3 bMax)
+        {
+            bool passes = (aMin.X <= bMin.X && aMax.X >= bMax.X) &&
+                          (aMin.Y <= bMin.Y && aMax.Y >= bMax.Y) &&
+                          (aMin.Z <= bMin.Z && aMax.Z >= bMax.Z);
+            
             return passes;
         }
     }
