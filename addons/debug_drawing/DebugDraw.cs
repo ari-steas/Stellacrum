@@ -36,7 +36,7 @@ public partial class DebugDraw : Node
 	public static Action OnDrawSettingsUpdated;
 	
 	private static bool _doDepthTest;
-	private static int _maxPoolSize = 1024;
+	private static int _maxPoolSize = 4096;
 	private static int _startingPoolSize = 256;
 	
 	public DebugDraw()

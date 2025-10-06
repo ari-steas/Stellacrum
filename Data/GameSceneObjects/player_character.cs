@@ -46,7 +46,7 @@ namespace GameSceneObjects
 			light = GetNode<SpotLight3D>("SpotLight3D");
 			camera = GetNode<Camera3D>("PlayerCamera");
 			interactCast = GetNode<RayCast3D>("InteractCast");
-			interactCast.TargetPosition = new(0, 0, -10);
+			interactCast.TargetPosition = new(0, 0f, -10);
 
 			PlayerPlaceBox = GetNode<PlaceBox>("PlaceBox");
 			HUD = GetNode<hud_scene>("HudScene");
@@ -135,7 +135,7 @@ namespace GameSceneObjects
 			}
 			else
 			{
-				lookPosition = ToGlobal(interactCast.TargetPosition);
+				lookPosition = interactCast.ToGlobal(interactCast.TargetPosition);
 
 				// If just looked away from grid
 				if (isLookingAtGrid)
@@ -396,9 +396,9 @@ namespace GameSceneObjects
 
 			// Why IsActionJustReleased? God knows. I sure don't.
 			if (Input.IsActionJustReleased("MoveBlockOut"))
-				interactCast.TargetPosition = new(0, 0, MoveTowardsFloat(interactCast.TargetPosition.Z, -20, 0.5f));
+				interactCast.TargetPosition = new(0, 0f, MoveTowardsFloat(interactCast.TargetPosition.Z, -20, 0.5f));
 			if (Input.IsActionJustReleased("MoveBlockIn"))
-				interactCast.TargetPosition = new(0, 0, MoveTowardsFloat(interactCast.TargetPosition.Z, -2, 0.5f));
+				interactCast.TargetPosition = new(0, 0f, MoveTowardsFloat(interactCast.TargetPosition.Z, -2, 0.5f));
 
 			// Block rotation
 			if (PlayerPlaceBox.IsHoldingBlock)

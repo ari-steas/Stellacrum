@@ -9,6 +9,16 @@
 
 			"Mass":500
 		},
+		
+		"ArmorBlock0d5":{
+			"Model":"ArmorBlock0d5",
+			"BlockSize":[0.25, 0.25, 0.25],
+			"Icon":"ArmorBlock1x1.png",
+			"TypeId":"CubeBlock",
+			"Health":1,
+
+			"Mass":4
+		},
 
 		"ArmorBlockSlope":{
 			"Model":"ArmorBlock1x1Slope",

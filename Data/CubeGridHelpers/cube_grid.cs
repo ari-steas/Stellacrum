@@ -7,7 +7,8 @@ using Stellacrum.Data.ObjectLoaders;
 
 public partial class CubeGrid : RigidBody3D
 {
-    public const float MinGridSize = 2.5f;
+    //public const float MinGridSize = 2.5f;
+    public const float MinGridSize = 0.625f;
 
 	public CubeGrid ParentGrid;
 
@@ -21,7 +22,7 @@ public partial class CubeGrid : RigidBody3D
 
 	bool underControl = false;
 
-    protected GridOctree GridTree;
+    protected GridOctree GridTree = new(Vector3.Zero, MinGridSize, null);
     protected HashSet<CubeBlock> CubeBlocks = new HashSet<CubeBlock>();
 
 	readonly List<ThrusterBlock> ThrusterBlocks = new();
@@ -29,12 +30,7 @@ public partial class CubeGrid : RigidBody3D
 
 	private float OwnMass = 0;
 
-    public CubeGrid()
-    {
-        GridTree = new GridOctree(-Vector3.One * 2.5f / 2, 2.5f, null, this);
-    }
-
-	// Called when the node enters the scene tree for the first time.
+    // Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		DesiredRotation = Rotation;
@@ -81,9 +77,11 @@ public partial class CubeGrid : RigidBody3D
 			DebugDraw.Shape(GlobalPosition + Quaternion * (tree.RootPosition + Vector3.One * tree.CellWidth), Quaternion, new BoxShape3D
             {
 				Size = Vector3.One * tree.CellWidth * 2,
-            });
-			DebugDraw.Point(GlobalPosition + Quaternion * tree.RootPosition, color: new Color(255, 0, 0));
-
+            }, duration: 0);
+		
+            if (tree.IsLeaf)
+                continue;
+		
             foreach (var subtree in tree.Subtrees)
             {
                 if (subtree != null)
@@ -147,23 +145,20 @@ public partial class CubeGrid : RigidBody3D
 	public void AddBlockLocal(Vector3 localPos, Basis rotation, CubeBlock block)
     {
         if (GridTree.HasBlocksInVolume(localPos, block.size) || !CubeBlocks.Add(block))
-            return;
-
-        while (GridTree.CellWidth < block.GridSize || !GridTree.PointInVolume(localPos))
         {
-			// Offset octree generation to fit block
-            Vector3 rel = localPos - GridTree.RootPosition;
-            Vector3I newRoot = new Vector3I(rel.X < 0 ? 1 : 0, rel.Y < 0 ? 1 : 0, rel.Z < 0 ? 1 : 0);
-            GridTree = GridOctree.AddSupertree(newRoot, GridTree);
+            GD.PrintErr($"Failed to set block at {localPos}! Occupied.");
+            return;
         }
 
         localPos -= block.size / 2; // translate to lower left corner
+
+		GridOctree.ExpandTree(ref GridTree, localPos, block.size);
 
 		// Try adding first; if this fails, don't parent the block.
         if (!GridTree.SetBlockAt(localPos, CubeBlocks.Count > 1 ? Basis.Inverse() * rotation : Basis.Identity, block))
         {
             CubeBlocks.Remove(block);
-            GD.PrintErr($"Failed to set block at {localPos}!");
+            GD.PrintErr($"Failed to set block at {localPos}! Internal fail.");
             return;
         }
 
@@ -233,15 +228,11 @@ public partial class CubeGrid : RigidBody3D
 		// Override existing block if exists
 		FullRemoveBlock(block);
 
-        while (GridTree.CellWidth < block.GridSize || !GridTree.PointInVolume(block.Position))
-        {
-            // Offset octree generation to fit block
-            Vector3 rel = block.Position - GridTree.RootPosition;
-            Vector3I newRoot = new Vector3I(rel.X < 0 ? 1 : 0, rel.Y < 0 ? 1 : 0, rel.Z < 0 ? 1 : 0);
-            GridTree = GridOctree.AddSupertree(newRoot, GridTree);
-        }
+        var localPos = block.Position - block.size / 2; // translate to lower left corner
 
-        if (!GridTree.SetBlockAt(block.Position, block.Transform.Basis, block))
+		GridOctree.ExpandTree(ref GridTree, localPos, block.size);
+
+        if (!GridTree.SetBlockAt(localPos, block.Transform.Basis, block))
             return;
 
         AddChild(block);
@@ -266,12 +257,12 @@ public partial class CubeGrid : RigidBody3D
 	#nullable enable
 	public bool TryGetBlockAt(RayCast3D ray, out CubeBlock block)
 	{
-		return TryGetBlockAt(ray.GetCollisionPoint() - ray.GetCollisionNormal() * 0.1f, out block);
+		return TryGetBlockAtGlobal(ray.GetCollisionPoint() - ray.GetCollisionNormal() * MinGridSize/2, out block);
     }
 
     public bool TryGetBlockAt(ShapeCast3D cast, out CubeBlock block, int index = 0)
     {
-        return TryGetBlockAt(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index) * 0.1f, out block);
+        return TryGetBlockAtGlobal(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index) * MinGridSize/2, out block);
     }
 
 	public ICollection<CubeBlock> GetCubeBlocks()
@@ -346,14 +337,24 @@ public partial class CubeGrid : RigidBody3D
             Close();
     }
 
-    public bool TryGetBlockAt(Vector3 position, out CubeBlock block)
+    public bool TryGetBlockAtGlobal(Vector3 position, out CubeBlock block)
+    {
+        return GridTree.TryGetBlockAt(ToLocal(position), out block);
+    }
+
+    public bool TryGetBlockAtLocal(Vector3 position, out CubeBlock block)
     {
         return GridTree.TryGetBlockAt(position, out block);
     }
 
-	public bool IsBlockAt(Vector3 position)
+	public bool IsBlockAtGlobal(Vector3 position)
 	{
-		return GridTree.TryGetBlockAt(position, out _);
+		return GridTree.TryGetBlockAt(ToLocal(position), out _);
+    }
+
+    public bool IsBlockAtLocal(Vector3 position)
+    {
+        return GridTree.TryGetBlockAt(position, out _);
     }
 
 	private void RecalcSize()
@@ -411,9 +412,14 @@ public partial class CubeGrid : RigidBody3D
 	
 	public Vector3 GetPlaceProjectionGlobal(RayCast3D ray, Vector3 blockSize)
     {
-		Vector3 vec = ToLocal(ray.GetCollisionPoint() + ray.GetCollisionNormal() * blockSize/2f) / MinGridSize;
+		Vector3 vec = ToLocal(ray.GetCollisionPoint() + ray.GetCollisionNormal() * blockSize/2f) - blockSize / 2;
 
-        return ToGlobal(new Vector3((float) Math.Round(vec.X) * MinGridSize, (float) Math.Round(vec.Y) * MinGridSize, (float) Math.Round(vec.Z) * MinGridSize));
+		vec /= MinGridSize;
+        vec = new Vector3((float)Math.Round(vec.X), (float)Math.Round(vec.Y), (float)Math.Round(vec.Z));
+        vec *= MinGridSize;
+        vec += blockSize / 2;
+
+        return ToGlobal(vec);
     }
 
 	#endregion

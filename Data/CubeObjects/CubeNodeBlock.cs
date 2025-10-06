@@ -123,7 +123,7 @@ namespace Stellacrum.Data.CubeObjects
                 // Rotate to account for block rotation
                 checkPos = ToGlobal(checkPos);
 
-                grid.TryGetBlockAt(grid.ToLocal(checkPos), out CubeBlock adajentCubeBlock); // TODO
+                grid.TryGetBlockAtGlobal(checkPos, out CubeBlock adajentCubeBlock); // TODO
 
                 if (adajentCubeBlock == null || adajentCubeBlock == this)
                     continue;

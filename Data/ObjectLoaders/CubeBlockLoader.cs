@@ -66,6 +66,8 @@ namespace Stellacrum.Data.ObjectLoaders
 			CubeBlockTextures.Clear();
 			typeIds.Clear();
 			blockDefinitions.Clear();
+			baseBlocks.Clear();
+			validBlockTypes.Clear();
 		}
 
 		public static string[] GetAllIds()
