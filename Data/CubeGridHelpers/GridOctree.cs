@@ -7,7 +7,7 @@ namespace Stellacrum.Data.CubeGridHelpers
 {
     public class GridOctree
     {
-        private static readonly float Slack = CubeGrid.MinGridSize/4;
+        private static readonly float Slack = CubeGrid.MinGridSize/16;
         private static readonly Vector3 SlackVec = Vector3.One * Slack;
 
         /// <summary>
@@ -171,106 +171,58 @@ namespace Stellacrum.Data.CubeGridHelpers
         /// </summary>
         /// <param name="position"></param>
         /// <param name="extents"></param>
-        /// <returns></returns>
-        public void BlocksInVolume(Vector3 position, Vector3 extents, ref HashSet<CubeBlock> cubes)
+        /// <param name="cubes"></param>
+        /// <returns>True if any blocks were located</returns>
+        public bool GetBlocksInVolume(Vector3 position, Vector3 extents, ref HashSet<CubeBlock> cubes)
         {
-            if (!ContainsPoint(position))
-                return;
-
-            // Narrow down to smallest fully enveloping octree
-            Stack<GridOctree> toCheck = new Stack<GridOctree>();
-            toCheck.Push(SmallestTreeForVolume(position, extents));
-
-            // Check trees internal to the volume
-            int count = 0;
-            while (toCheck.TryPop(out GridOctree current))
-            {
-                //GD.Print($"[{++count}] BIVSize: {current.CellWidth:F}m");
-
-                if (current.IsLeaf)
-                {
-                    for (int i = 0; i < current._blocks.Length; i++)
-                    {
-                        if (current._blocks[i] == null)
-                            continue;
-
-                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
-                        if (AabbIntersects(cellPos - SlackVec, Vector3.One * (current.CellWidth + Slack), position, extents))
-                            cubes.Add(current._blocks[i]);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < current._subtrees.Length; i++)
-                    {
-                        if (current._subtrees[i] == null)
-                            continue;
-
-                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
-                        if (AabbIntersects(cellPos - SlackVec, Vector3.One * (current.CellWidth + Slack), position, extents))
-                            toCheck.Push(current._subtrees[i]);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// ASSUMES POSITIVE EXTENTS
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="extents"></param>
-        /// <returns></returns>
-        public bool HasBlocksInVolume(Vector3 position, Vector3 extents)
-        {
-            return false; // TODO fix
-            if (!ContainsPoint(position))
+            if (!IntersectsBox(position, extents))
                 return false;
 
-            // Narrow down to smallest fully enveloping octree
             Stack<GridOctree> toCheck = new Stack<GridOctree>();
-            toCheck.Push(SmallestTreeForVolume(position, extents));
+            toCheck.Push(this);
 
             // Check trees internal to the volume
-            int count = 0;
+            bool didAdd = false;
             while (toCheck.TryPop(out GridOctree current))
             {
-                GD.Print($"[{++count}] HBIVSize: {current.CellWidth:F}m");
-
                 if (current.IsLeaf)
                 {
-                    for (int i = 0; i < current._blocks.Length; i++)
+                    for (int i = 0; i < 8; i++)
                     {
                         if (current._blocks[i] == null)
                             continue;
 
-                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
-                        if (AabbIntersects(cellPos - SlackVec, Vector3.One * (current.CellWidth + Slack), position, extents))
-                            return true;
+                        if (current.CellIntersectsBox(i, position + SlackVec, extents - SlackVec * 2))
+                        {
+                            cubes?.Add(current._blocks[i]);
+                            didAdd = true;
+                        }
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < current._subtrees.Length; i++)
+                    for (int i = 0; i < 8; i++)
                     {
                         if (current._subtrees[i] == null)
                             continue;
 
-                        Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
-                        if (AabbIntersects(cellPos - SlackVec, Vector3.One * (current.CellWidth + Slack), position, extents))
+                        if (current.CellIntersectsBox(i, position + SlackVec, extents - SlackVec * 2))
+                        {
                             toCheck.Push(current._subtrees[i]);
+                        }
                     }
                 }
             }
 
-            return false;
+            return didAdd;
         }
 
         public bool SetBlockAt(Vector3 position, Basis rotation, CubeBlock block)
         {
-            //Vector3 extents = block.size * rotation;
+            //Vector3 extents = block.size * rotation; // TODO
             Vector3 extents = block.size;
 
-            if (!IntersectsBox(position + SlackVec, extents - SlackVec))
+            if (!IntersectsBox(position + SlackVec, extents - SlackVec * 2))
                 return false;
 
             // Narrow down to smallest fully enveloping octree
@@ -291,7 +243,7 @@ namespace Stellacrum.Data.CubeGridHelpers
                     {
                         Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
 
-                        if (AabbContains(position, position + extents, cellPos + SlackVec, cellPos + cellSize - SlackVec))
+                        if (AabbContains(position, position + extents, cellPos + SlackVec, cellPos + cellSize - SlackVec * 2))
                         {
                             //GD.Print($"    Pass BlockCell [{i}] {IndexToVec3(i)}m");
 
@@ -311,7 +263,7 @@ namespace Stellacrum.Data.CubeGridHelpers
 
                         Vector3 cellPos = IndexToVec3(i) * current.CellWidth + current.RootPosition;
 
-                        if (!AabbIntersects(position + SlackVec, position + extents - SlackVec, cellPos, cellPos + cellSize))
+                        if (!AabbIntersects(position + SlackVec, position + extents - SlackVec * 2, cellPos, cellPos + cellSize))
                             continue;
 
                         //GD.Print($"    Pass SubtreeCell [{i}] {IndexToVec3(i)}m. Creating new: {subtree == null}");
@@ -452,6 +404,12 @@ namespace Stellacrum.Data.CubeGridHelpers
         public bool ContainsBox(Vector3 position, Vector3 extents) => AabbContains(RootPosition, RootPosition + Vector3.One * CellWidth * 2, position, position + extents);
         public bool IntersectsBox(Vector3 position, Vector3 extents) => AabbIntersects(RootPosition, RootPosition + Vector3.One * CellWidth * 2, position, position + extents);
         public bool ContainsPoint(Vector3 position) => AabbContains(RootPosition, RootPosition + Vector3.One * CellWidth * 2, position);
+
+        public bool CellIntersectsBox(int cell, Vector3 position, Vector3 extents)
+        {
+            Vector3 cellPos = IndexToVec3(cell) * CellWidth + RootPosition;
+            return AabbIntersects(cellPos, cellPos + Vector3.One * CellWidth, position, position + extents);
+        }
         public bool CellContainsPoint(int cell, Vector3 position)
         {
             Vector3 cellPos = IndexToVec3(cell) * CellWidth + RootPosition;

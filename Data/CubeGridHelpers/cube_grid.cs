@@ -70,24 +70,26 @@ public partial class CubeGrid : RigidBody3D
 		ThrustControl.Update(LinearVelocity, AngularVelocity, delta);
 		Speed = LinearVelocity.Length();
 
-        Stack<GridOctree> trees = new Stack<GridOctree>();
-		trees.Push(GridTree);
-        while (trees.TryPop(out var tree))
-        {
-			DebugDraw.Shape(GlobalPosition + Quaternion * (tree.RootPosition + Vector3.One * tree.CellWidth), Quaternion, new BoxShape3D
-            {
-				Size = Vector3.One * tree.CellWidth * 2,
-            }, duration: 0);
-		
-            if (tree.IsLeaf)
-                continue;
-		
-            foreach (var subtree in tree.Subtrees)
-            {
-                if (subtree != null)
-                    trees.Push(subtree);
-            }
-        }
+		// octree debug display
+
+        //Stack<GridOctree> trees = new Stack<GridOctree>();
+		//trees.Push(GridTree);
+        //while (trees.TryPop(out var tree))
+        //{
+		//	DebugDraw.Shape(GlobalPosition + Quaternion * (tree.RootPosition + Vector3.One * tree.CellWidth), Quaternion, new BoxShape3D
+        //    {
+		//		Size = Vector3.One * tree.CellWidth * 2,
+        //    }, duration: 0);
+		//
+        //    if (tree.IsLeaf)
+        //        continue;
+		//
+        //    foreach (var subtree in tree.Subtrees)
+        //    {
+        //        if (subtree != null)
+        //            trees.Push(subtree);
+        //    }
+        //}
     }
 
 	public override void _PhysicsProcess(double delta)
@@ -144,13 +146,17 @@ public partial class CubeGrid : RigidBody3D
 
 	public void AddBlockLocal(Vector3 localPos, Basis rotation, CubeBlock block)
     {
-        if (GridTree.HasBlocksInVolume(localPos, block.size) || !CubeBlocks.Add(block))
+        localPos -= block.size / 2; // translate to lower left corner
+		
+        HashSet<CubeBlock> intersects = new HashSet<CubeBlock>(); // TODO move this to a shared pool
+        if (GridTree.GetBlocksInVolume(localPos, block.size, ref intersects) || !CubeBlocks.Add(block))
         {
-            GD.PrintErr($"Failed to set block at {localPos}! Occupied.");
+			foreach (var b in intersects)
+			    DebugDraw.Box(b.GlobalPosition, GlobalTransform.Basis.GetRotationQuaternion(), b.size, new Color(1,0,0), duration: 2);
+
+            DebugDraw.Box(ToGlobal(localPos + block.size / 2), GlobalTransform.Basis.GetRotationQuaternion(), block.size, new Color(1,1,0), duration: 2);
             return;
         }
-
-        localPos -= block.size / 2; // translate to lower left corner
 
 		GridOctree.ExpandTree(ref GridTree, localPos, block.size);
 

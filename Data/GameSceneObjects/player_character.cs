@@ -26,6 +26,7 @@ namespace GameSceneObjects
 
 		private SpotLight3D light;
 		private Camera3D camera;
+        private bool _isCameraThirdPerson = false;
         private float _cameraOffset = 10;
 		public hud_scene HUD;
 		private long DelayedEnableCollision = 0;
@@ -503,15 +504,16 @@ namespace GameSceneObjects
 
 		private void _ToggleThirdPerson(bool enabled)
 		{
+            _isCameraThirdPerson = enabled;
             if (enabled)
             {
-                camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
                 camera.Rotation = Vector3.Zero;
+                camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
             }
             else
             {
-                camera.Position = new Vector3(0, 0.5f, 0);
                 camera.Rotation = Vector3.Zero;
+                camera.Position = new Vector3(0, 0.5f, 0);
             }
 		}
 
@@ -526,7 +528,12 @@ namespace GameSceneObjects
                 camera.RotateObjectLocal(Vector3.Up, (float)(lastX * delta));
                 camera.RotateObjectLocal(Vector3.Right, (float)(lastY * delta));
                 camera.Rotation *= new Vector3(1, 1, 0);
-                camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
+
+                if (_isCameraThirdPerson)
+                    camera.Position = _cameraOffset * camera.Basis.Z + new Vector3(0, 1.5f, 0);
+                else
+                    camera.Rotation = camera.Rotation.Clamp(-Vector3.One * (float)Math.PI / 4, Vector3.One * (float)Math.PI / 4);
+
                 doXYRotate = false;
             }
 
