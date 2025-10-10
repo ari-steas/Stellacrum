@@ -96,7 +96,7 @@ public partial class menus : Node2D
 
 	public void _SwitchMenu(int toShow)
 	{
-		GD.Print("Current Menu: " + toShow);
+		GD.Print("Switch menu to " + toShow);
 		//GD.Print("Prev Menu: " + currentMenu + "\n");
 		prevMenu = currentMenu;
 		currentMenu = toShow;
@@ -117,7 +117,7 @@ public partial class menus : Node2D
 		{
 			if (_children[i] is IMenuPage page)
 			{
-				GD.Print($"Set {i} ({_children[i].Name}) to {i == toShow - 1}");
+				//GD.Print($"Set {i} ({_children[i].Name}) to {i == toShow - 1}");
                 page.Visible = i == toShow - 1;
 				if (i == toShow - 1)
 					page.OnOpened();

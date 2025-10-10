@@ -1,9 +1,8 @@
 using Godot;
 using Godot.Collections;
 using Stellacrum.Data.CubeGridHelpers.MultiBlockStructures;
-using System;
 
-namespace Stellacrum.Data.CubeObjects
+namespace Stellacrum.Data.CubeObjects.Power
 {
 	public partial class GeneratorBlock : PowerConduit
 	{
@@ -29,7 +28,6 @@ namespace Stellacrum.Data.CubeObjects
         public float CurrentOutputPercent { get; private set; } = 0;
 
 		private bool _enabled = true;
-		private bool _hasPower = false;
 
 		public bool Enabled {
             get { return _enabled; }

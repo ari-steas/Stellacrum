@@ -16,25 +16,23 @@ public partial class CubeGrid : RigidBody3D
 	public float Speed { get; private set; } = 0;
 	public readonly List<CockpitBlock> Cockpits = new();
 
-	public Vector3 MovementInput = Vector3.Forward;
-	public Vector3 DesiredRotation = Vector3.Forward;
-	public GridThrustControl ThrustControl { get; private set; } = new();
-
-	bool underControl = false;
+	public GridThrustControl ThrustControl { get; private set; }
 
     protected GridOctree GridTree = new(Vector3.Zero, MinGridSize, null);
     protected HashSet<CubeBlock> CubeBlocks = new HashSet<CubeBlock>();
 
-	readonly List<ThrusterBlock> ThrusterBlocks = new();
+    public Action<CubeBlock> OnBlockAdded;
+    public Action<CubeBlock> OnBlockRemoved;
+    public int BlockCount => CubeBlocks.Count;
+
 	readonly internal List<CubeGrid> subGrids = new();
 
 	private float OwnMass = 0;
 
     // Called when the node enters the scene tree for the first time.
 	public override void _Ready()
-	{
-		DesiredRotation = Rotation;
-		ThrustControl.Init(ThrusterBlocks);
+    {
+        ThrustControl = new GridThrustControl(this);
 
 		ParentGrid = GetParentGrid(this);
 		ParentGrid?.subGrids.Add(this);
@@ -59,14 +57,6 @@ public partial class CubeGrid : RigidBody3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		//Vector3 dRot = underControl ? angularPID.Update(AngularVelocity, DesiredRotation, (float) delta) : Vector3.Zero;
-
-		if (underControl)
-		{
-			ThrustControl.SetInputLinear(Basis * MovementInput);
-			ThrustControl.SetInputAngular(DesiredRotation);
-		}
-
 		ThrustControl.Update(LinearVelocity, AngularVelocity, delta);
 		Speed = LinearVelocity.Length();
 
@@ -97,18 +87,6 @@ public partial class CubeGrid : RigidBody3D
 		// DebugDraw in PhysicsProcess to update 60fps
 		DebugDraw.Point(ToGlobal(CenterOfMass), 1, Colors.Yellow);
 		DebugDraw.Text3D(Name + ": " + Mass, ToGlobal(CenterOfMass));
-	}
-
-	public void ControlGrid()
-	{
-		underControl = true;
-	}
-
-	public void ReleaseControl()
-	{
-		underControl = false;
-		ThrustControl.SetInputLinear(Vector3.Zero);
-		ThrustControl.SetInputAngular(Vector3.Zero);
 	}
 
 	public Aabb BoundingBox()
@@ -186,10 +164,10 @@ public partial class CubeGrid : RigidBody3D
         RecalcSize();
         RecalcMass();
 
+        OnBlockAdded?.Invoke(block);
+
         if (block is CockpitBlock c)
             Cockpits.Add(c);
-        if (block is ThrusterBlock t)
-            ThrusterBlocks.Add(t);
 
         //try
         //{
@@ -254,10 +232,10 @@ public partial class CubeGrid : RigidBody3D
         RecalcSize();
         RecalcMass();
 
+        OnBlockAdded?.Invoke(block);
+
         if (block is CockpitBlock c)
             Cockpits.Add(c);
-        if (block is ThrusterBlock t)
-            ThrusterBlocks.Add(t);
     }
 
 	#nullable enable
@@ -271,10 +249,10 @@ public partial class CubeGrid : RigidBody3D
         return TryGetBlockAtGlobal(cast.GetCollisionPoint(index) - cast.GetCollisionNormal(index) * MinGridSize/2, out block);
     }
 
-	public ICollection<CubeBlock> GetCubeBlocks()
-	{
-		return CubeBlocks;
-	}
+	public IEnumerable<CubeBlock> GetCubeBlocks()
+    {
+        return CubeBlocks;
+    }
 
     public void RemoveBlock(RayCast3D ray, bool ignoreMirror = false)
 	{
@@ -325,6 +303,8 @@ public partial class CubeGrid : RigidBody3D
             return;
 
         GridTree.RemoveBlock(toRemove);
+
+        OnBlockRemoved?.Invoke(toRemove);
 
         if (toRemove is CockpitBlock c)
             Cockpits.Remove(c);
@@ -412,8 +392,6 @@ public partial class CubeGrid : RigidBody3D
 		if (CenterOfMassMode != CenterOfMassModeEnum.Custom)
 			CenterOfMassMode = CenterOfMassModeEnum.Custom;
 		CenterOfMass = centerOfMass;
-
-		ThrustControl.SetCenterOfMass(CenterOfMass);
 	}
 	
 	public Vector3 GetPlaceProjectionGlobal(RayCast3D ray, Vector3 blockSize)

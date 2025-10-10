@@ -217,7 +217,7 @@ namespace GameSceneObjects
             prevCrosshair = shipCrosshair.GlobalRotation;
             _dampenersEnabled = grid.ThrustControl.Dampen;
 
-            grid.ControlGrid();
+            grid.ThrustControl.IsUnderControl = true;
 
             IsInCockpit = true;
             currentGrid = grid;
@@ -230,7 +230,6 @@ namespace GameSceneObjects
                 return;
 
             Velocity = currentGrid.LinearVelocity;
-            currentGrid.DesiredRotation = Vector3.Zero;
 
             GetParent().RemoveChild(this);
             scene.AddChild(this);
@@ -240,7 +239,7 @@ namespace GameSceneObjects
             // Add 0.1s to re-enable collision, because otherwise the grid gets flung
             DelayedEnableCollision = DateTime.Now.Ticks + 1_000_000;
 
-            currentGrid.ReleaseControl();
+            currentGrid.ThrustControl.IsUnderControl = false;
             _dampenersEnabled = currentGrid.Speed < 0.1f;
 
             shipCrosshair.Visible = false;
@@ -359,7 +358,7 @@ namespace GameSceneObjects
 						// Prevent place box from being deleted
 						if (GameScene.TryGetGridAt(interactCast, out CubeGrid grid))
 						{
-							if (grid.GetCubeBlocks().Count == 1)
+							if (grid.BlockCount == 1)
 								PlayerPlaceBox.Reparent(this);
                             grid.RemoveBlock(interactCast);
 
@@ -564,7 +563,7 @@ namespace GameSceneObjects
 
                     crosshairForward = shipCrosshair.Basis.Z;
 
-					currentGrid.DesiredRotation = currentCockpit.GlobalTransform.Basis * new Vector3(crosshairForward.Y, -crosshairForward.X, lastZ);
+					currentGrid.ThrustControl.SetInputAngular(currentCockpit.GlobalTransform.Basis * new Vector3(crosshairForward.Y, -crosshairForward.X, lastZ));
 				}
 
 				prevCrosshair = shipCrosshair.GlobalRotation;
@@ -588,7 +587,7 @@ namespace GameSceneObjects
 
 			if (IsInCockpit)
 			{
-				currentGrid.MovementInput = currentCockpit.Basis * inputDir.Clamp(-Vector3.One, Vector3.One);
+				currentGrid.ThrustControl.SetInputLinear(currentCockpit.Basis * inputDir.Clamp(-Vector3.One, Vector3.One));
 				return;
 			}
 

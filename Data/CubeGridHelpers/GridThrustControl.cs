@@ -1,25 +1,54 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 using Stellacrum.Data.CubeObjects;
 
 public class GridThrustControl
 {
-    Vector3 centerOfMass = new();
-    List<ThrusterBlock> ThrusterBlocks = new();
+    public bool _isUnderControl = false;
+    public bool IsUnderControl
+    {
+        get => _isUnderControl;
+        set
+        {
+            _isUnderControl = value;
+            if (!_isUnderControl)
+            {
+                _linearInput = Vector3.Zero;
+                _angularInput = Vector3.Zero;
+            }
+        }
+    }
+
+    private readonly CubeGrid _grid;
+    private readonly List<ThrusterBlock> _thrusterBlocks = new();
     public bool Dampen = true;
 
-    Vector3 LinearInput = Vector3.Zero;
-    Vector3 AngularInput = Vector3.Zero;
+    private Vector3 _linearInput = Vector3.Zero;
+    private Vector3 _angularInput = Vector3.Zero;
 
-    VectorPID angularPID = new(0.5f, 0.0f, 0.1f);
+    private readonly VectorPID _angularPid = new(0.5f, 0.0f, 0.1f);
 
-    public void Update(Vector3 LinearVelocity, Vector3 AngularVelocity, double delta)
+    public GridThrustControl(CubeGrid grid)
     {
-        Vector3 desiredLinearVel = (Dampen && LinearInput.IsZeroApprox()) ? Vector3.Zero : (LinearInput + LinearVelocity);
-        Vector3 desiredAngularVel = angularPID.Update(AngularVelocity, AngularInput, (float) delta);
+        _grid = grid;
+        //_angularInput = grid.Rotation;
 
-        foreach (var thruster in ThrusterBlocks)
+        foreach (var block in grid.GetCubeBlocks())
+        {
+            if (block is ThrusterBlock b)
+                _thrusterBlocks.Add(b);
+        }
+
+        grid.OnBlockAdded += OnGridBlockAdded;
+        grid.OnBlockRemoved += OnGridBlockRemoved;
+    }
+
+    public void Update(Vector3 linearVelocity, Vector3 angularVelocity, double delta)
+    {
+        Vector3 desiredLinearVel = (Dampen && _linearInput.IsZeroApprox()) ? Vector3.Zero : (_linearInput + linearVelocity);
+        Vector3 desiredAngularVel = _angularPid.Update(angularVelocity, _angularInput, (float) delta);
+
+        foreach (var thruster in _thrusterBlocks)
 		{
 			thruster.SetDesiredAngularVelocity(desiredAngularVel);
 			thruster.SetDesiredLinearVelocity(desiredLinearVel);
@@ -32,7 +61,7 @@ public class GridThrustControl
     /// <param name="input"></param>
     public void SetInputLinear(Vector3 input)
     {
-        LinearInput = input;
+        _linearInput = _grid.Basis * input;
     }
 
     /// <summary>
@@ -41,16 +70,18 @@ public class GridThrustControl
     /// <param name="input"></param>
     public void SetInputAngular(Vector3 input)
     {
-        AngularInput = input;
+        _angularInput = input;
     }
 
-    public void Init(List<ThrusterBlock> thrusters)
+    private void OnGridBlockAdded(CubeBlock block)
     {
-        ThrusterBlocks = thrusters;
+        if (block is ThrusterBlock b)
+            _thrusterBlocks.Add(b);
     }
 
-    public void SetCenterOfMass(Vector3 CoM)
+    private void OnGridBlockRemoved(CubeBlock block)
     {
-        centerOfMass = CoM;
+        if (block is ThrusterBlock b)
+            _thrusterBlocks.Remove(b);
     }
 }
